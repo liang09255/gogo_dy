@@ -7,4 +7,5 @@ import (
 func main() {
 	fmt.Println("Hello, World!")
 	fmt.Println("test new branch")
+	fmt.Println("push to master")
 }
