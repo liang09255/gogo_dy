@@ -14,6 +14,7 @@ func Init() {
 
 	v := viper.New()
 	v.SetConfigFile("config.yaml")
+
 	if err = v.ReadInConfig(); err != nil {
 		hlog.CtxFatalf(nil, "read config failed: %v", err)
 	}
