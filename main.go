@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	fmt.Print("Task 2 branch")
 	global.Init()
 	dal.Init()
 
