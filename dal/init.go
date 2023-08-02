@@ -5,6 +5,8 @@ import (
 	"main/global"
 )
 
+var DB = global.MysqlDB
+
 func Init() {
 	err := global.MysqlDB.AutoMigrate(&Hello{}, &User{}, &Message{})
 	if err != nil {

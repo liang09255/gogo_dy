@@ -3,7 +3,6 @@
 .1024nix
 .1024feature*
 .nfs*
-node_modules
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
@@ -25,4 +24,4 @@ node_modules
 
 # Go workspace file
 go.work
-config.yaml
+.idea
