@@ -15,7 +15,7 @@ type MessageActionController struct{}
 var MessageActionControllerInstance = &MessageActionController{}
 
 func RegMessageAction(h *server.Hertz) {
-	h.POST("/douyin/message/action", MessageActionControllerInstance.Action)
+	h.POST("/douyin/message/action/", MessageActionControllerInstance.Action)
 }
 
 func (m *MessageActionController) Action(c context.Context, ctx *app.RequestContext) {
