@@ -14,7 +14,7 @@ type MessageChatController struct{}
 var MessageChatControllerInstance = &MessageChatController{}
 
 func RegMessageChat(h *server.Hertz) {
-	h.GET("/douyin/message/chat", MessageChatControllerInstance.Chat)
+	h.GET("/douyin/message/chat/", MessageChatControllerInstance.Chat)
 }
 
 func (m *MessageChatController) Chat(c context.Context, ctx *app.RequestContext) {
