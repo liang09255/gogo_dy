@@ -13,7 +13,11 @@ type Comment struct {
 	Content string `gorm:"not null" json:"content"`
 }
 
-func PostCommentAction(ctx context.Context, comment *Comment) error {
+type commentDal struct{}
+
+var CommentDal = &commentDal{}
+
+func (c *commentDal) PostCommentAction(ctx context.Context, comment *Comment) error {
 	if err := DB.WithContext(ctx).Create(&comment).Error; err != nil {
 		return err
 	}
@@ -21,7 +25,7 @@ func PostCommentAction(ctx context.Context, comment *Comment) error {
 	return nil
 }
 
-func GetCommentList(ctx context.Context, videoId int64) ([]*Comment, error) {
+func (c *commentDal) GetCommentList(ctx context.Context, videoId int64) ([]*Comment, error) {
 	res := make([]*Comment, 0)
 	if err := DB.WithContext(ctx).Where("video_id = ?", videoId).Order("created_at desc").Limit(30).Find(&res).Error; err != nil {
 		return nil, err
