@@ -33,8 +33,7 @@ func (m *messageDal) NewMessage(token string, toUserID int64, actionType int32, 
 }
 
 func (m *messageDal) GetMessages(token string, toUserID int64, preMsgTime int64) ([]Message, error) {
-	// FIXME 这个方法感觉是要把我发给对方和对方发给我的都查出来，时间排序
-	// 这里暂时只查了我发给对方的
+
 	var messages []Message
 	query := global.MysqlDB.Where("(to_user_id = ? OR from_user_id = ?)", toUserID, toUserID)
 
