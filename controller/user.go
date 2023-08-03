@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -11,8 +10,8 @@ import (
 )
 
 type UserRegisterRequest struct {
-	Password string `json:"password"` // 密码，最长32个字符
-	Username string `json:"username"` // 注册用户名，最长32个字符
+	Password string // 密码，最长32个字符
+	Username string // 注册用户名，最长32个字符
 }
 
 type UserRegisterResponse struct {
@@ -65,7 +64,7 @@ type user struct{}
 var UserOperate = &user{}
 
 func RegUser(h *server.Hertz) {
-	h.GET("/douyin/user/register/", UserOperate.Register)
+	h.POST("/douyin/user/register/", UserOperate.Register)
 	h.POST("/douyin/user/login/", UserOperate.login)
 }
 
@@ -82,14 +81,17 @@ func (e *user) Register(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	msg, err := service.Registerinfo.Register(req.Username, req.Password)
-
-	fmt.Println(msg)
+	err = service.Registerinfo.Register(req.Username, req.Password)
 
 	//用户名已经存在
 	if err != nil {
-		resp.StatusCode = FailCode
 		hlog.CtxErrorf(c, "User register error: %v", err)
+		ctx.JSON(http.StatusOK, UserRegisterResponse{
+			StatusCode: FailCode,
+			StatusMsg:  "Register fail",
+			UserID:     0,
+			Token:      string(0),
+		})
 		return
 	}
 
@@ -103,5 +105,13 @@ func (e *user) Register(c context.Context, ctx *app.RequestContext) {
 }
 
 func (e *user) login(c context.Context, ctx *app.RequestContext) {
+	var req UserLoginRequest
+	var resp UserLoginResponse
+	err := ctx.BindAndValidate(&req)
+	if err != nil {
+		resp.StatusCode = FailCode
+		hlog.CtxErrorf(c, "User Login error: %v", err)
+		return
+	}
 
 }
