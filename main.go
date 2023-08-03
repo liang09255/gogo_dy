@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "fmt"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"main/controller"
 	"main/dal"
