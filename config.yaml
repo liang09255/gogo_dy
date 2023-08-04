@@ -1,3 +1,3 @@
 # 所有隐私内容全部写在配置文件中
 mysql:
-  dsn: "root:AleCKvju@tcp(172.16.32.108:52431)/gogo_dy?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "valeria:386412@tcp(127.0.0.1:3306)/gogo_dy?charset=utf8mb4&parseTime=True&loc=Local"
