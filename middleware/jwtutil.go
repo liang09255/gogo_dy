@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-var jwtKey = []byte("a_secret_crect")
+var jwtKey = []byte("secret_key&&gogo_dy")
 
 type Claims struct {
-	UserId int64
+	UserId int64 `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -32,15 +32,19 @@ func ReleaseToken(user dal.User) (string, error) {
 	return tokenString, nil
 }
 
-func ParseToken(tokenString string) (*jwt.Token, *Claims, error) {
-	//claim里可以拿到userId
-	claims := &Claims{}
-
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+func ParseToken(tokenString string) (*Claims, bool) {
+	// 解析token,返回Claims, Claims.UserId就可以拿到token里封装的userId
+	token, _ := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
-
-	return token, claims, err
+	if token != nil {
+		if key, ok := token.Claims.(*Claims); ok {
+			if token.Valid {
+				return key, true
+			} else {
+				return key, false
+			}
+		}
+	}
+	return nil, false
 }
-
-//TODO jwt鉴权中间件

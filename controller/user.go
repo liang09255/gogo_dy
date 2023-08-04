@@ -5,6 +5,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"main/middleware"
 	"main/service"
 	"strconv"
 )
@@ -14,9 +15,9 @@ type userLoginController struct{}
 var UserLoginControllerInstance = &userLoginController{}
 
 func RegUser(h *server.Hertz) {
-	h.POST("/douyin/user/register", UserLoginControllerInstance.Register)
-	h.POST("/douyin/user/login", UserLoginControllerInstance.Login)
-	h.POST("/douyin/user", UserLoginControllerInstance.getUserInfo)
+	h.POST("/douyin/user/register/", UserLoginControllerInstance.Register)
+	h.POST("/douyin/user/login/", middleware.JwtMiddleware.LoginHandler)
+	h.POST("/douyin/user/", UserLoginControllerInstance.getUserInfo)
 }
 
 func (u *userLoginController) Register(c context.Context, ctx *app.RequestContext) {
@@ -41,27 +42,27 @@ func (u *userLoginController) Register(c context.Context, ctx *app.RequestContex
 	LoginSuccessResponse(ctx, "success", *LoginResponse)
 }
 
-func (u *userLoginController) Login(c context.Context, ctx *app.RequestContext) {
-	//获取参数username，password
-	username, ok := ctx.GetQuery("username")
-	if !ok {
-		BaseFailResponse(ctx, "username is required")
-		return
-	}
-	password, ok := ctx.GetQuery("password")
-	if !ok {
-		BaseFailResponse(ctx, "password is required")
-		return
-	}
-	//调service登录，拿到token和user_id
-	LoginResponse, err := service.UserService.Login(username, password)
-	if err != nil {
-		hlog.CtxErrorf(c, "user register error: %v", err)
-		BaseFailResponse(ctx, "user login error")
-		return
-	}
-	LoginSuccessResponse(ctx, "success", *LoginResponse)
-}
+//func (u *userLoginController) Login(c context.Context, ctx *app.RequestContext) {
+//	//获取参数username，password
+//	username, ok := ctx.GetQuery("username")
+//	if !ok {
+//		BaseFailResponse(ctx, "username is required")
+//		return
+//	}
+//	password, ok := ctx.GetQuery("password")
+//	if !ok {
+//		BaseFailResponse(ctx, "password is required")
+//		return
+//	}
+//	//调service登录，拿到token和user_id
+//	LoginResponse, err := service.UserService.Login(username, password)
+//	if err != nil {
+//		hlog.CtxErrorf(c, "user register error: %v", err)
+//		BaseFailResponse(ctx, "user login error")
+//		return
+//	}
+//	LoginSuccessResponse(ctx, "success", *LoginResponse)
+//}
 
 func (u *userLoginController) getUserInfo(c context.Context, ctx *app.RequestContext) {
 	//获取参数username，password
@@ -90,7 +91,7 @@ func (u *userLoginController) getUserInfo(c context.Context, ctx *app.RequestCon
 	UserInfoSuccessResponse(ctx, "success", *UserInfoResponse)
 }
 
-// 封装注册,登录接口返回信息
+// 封装登录接口返回信息
 type MessageUserResponse struct {
 	BaseResponse
 	UserId int64  `json:"user_id"`
