@@ -10,4 +10,9 @@ func Init() {
 	if err != nil {
 		hlog.Fatalf("auto migrate failed: %v", err)
 	}
+	
+	err = global.MysqlDB.AutoMigrate(&Message{})
+	if err != nil {
+		hlog.Fatalf("auto migrate failed: %v", err)
+	}
 }
