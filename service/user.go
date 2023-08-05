@@ -47,15 +47,15 @@ func (u *userService) Register(userName string, passWord string) (response *Logi
 
 func (u *userService) GetUserInfo(userId int64, token string) (response *dal.UserInfoResponse, err error) {
 	//解析token获得user_id
-	claims, ok := middleware.ParseToken(token)
+	_, ok := middleware.ParseToken(token)
 	if ok == false {
 		return nil, errors.New("token解析失败")
 	}
-	ParsedUserId := claims.UserId
-	//比对user_id,进行查询
-	if ParsedUserId != userId {
-		return nil, errors.New("token身份验证失败")
-	}
+	// ParsedUserId := claims.UserId
+	// //比对user_id,进行查询
+	// if ParsedUserId != userId {
+	// 	return nil, errors.New("token身份验证失败")
+	// }
 	var infoResponse = new(dal.UserInfoResponse)
 	err = dal.UserDal.GetUserInfoById(userId, infoResponse)
 	if err != nil {
