@@ -6,4 +6,5 @@ func Init(h *server.Hertz) {
 	RegExample(h)
 	RegVedio(h)
 	RegUser(h)
+	RegRelation(h)
 }

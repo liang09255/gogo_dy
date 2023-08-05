@@ -1,12 +1,15 @@
 package service
 
-import "main/dal"
+import (
+	"main/dal"
+	"main/model"
+)
 
-type registerinfo struct{}
+type userinfo struct{}
 
-var Registerinfo *registerinfo
+var Userinfo *userinfo
 
-func (h *registerinfo) Register(username string, password string) error {
+func (h *userinfo) Register(username string, password string) error {
 
 	Dal := dal.UserDal
 	//判断用户名是否已经存在
@@ -26,7 +29,19 @@ func (h *registerinfo) Register(username string, password string) error {
 	return nil
 }
 
-func (h *registerinfo) Login(username string, password string) (msg string, err error) {
+func (h *userinfo) Login(username string, password string) (int64, error) {
+	Dal := dal.UserDal
 
-	return
+	Id, err := Dal.GetUserID(username, password)
+
+	return Id, err
+}
+
+func (h *userinfo) GetUserInfo(token string, userid string, resp *model.Userinfo) error {
+	err := dal.UserDal.GetUserInfo(token, userid, resp)
+
+	if err != nil {
+		return err
+	}
+	return err
 }
