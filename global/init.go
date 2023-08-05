@@ -29,5 +29,5 @@ func InitMysqlDb(dsn string) {
 		hlog.Fatalf("database initialize failed", err)
 		return
 	}
-	hlog.Fatalf("数据库连接成功!")
+	hlog.Infof("数据库连接成功!")
 }

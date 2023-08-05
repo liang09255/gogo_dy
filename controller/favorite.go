@@ -17,31 +17,32 @@ func RegFavorite(h *server.Hertz) {
 	favoriteGroup := h.Group("/douyin/favorite")
 	favoriteGroup.POST("/action", Favorite.Action)
 	favoriteGroup.GET("/list", Favorite.List)
-	favoriteGroup.POST("/cancel", Favorite.Cancel)
 }
 
 func (e *favorite) Action(c context.Context, ctx *app.RequestContext) {
 	userIdStr, ok := ctx.GetQuery("userId")
 	videoIdStr, ok := ctx.GetQuery("videoId")
+	actionTypeStr, ok := ctx.GetQuery("action_type")
 	if !ok {
 		BaseFailResponse(ctx, "userId is required")
 		return
 	}
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	videoId, err := strconv.ParseInt(videoIdStr, 10, 64)
+	actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
 
 	if err != nil {
 		hlog.CtxErrorf(c, "favoriteAction error: %v", err)
 		BaseFailResponse(ctx, "favoriteAction Error")
 		return
 	}
-	err = service.FavoriteService.PostFavoriteAction(c, userId, videoId)
+	msg, err := service.FavoriteService.PostFavoriteAction(c, userId, videoId, actionType)
 	if err != nil {
 		hlog.CtxErrorf(c, "favoriteAction error: %v", err)
 		BaseFailResponse(ctx, "favoriteAction Error")
 		return
 	}
-	BaseSuccessResponse(ctx, "点赞成功")
+	BaseSuccessResponse(ctx, msg)
 }
 
 func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
@@ -65,28 +66,4 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 	Response(ctx, data)
-}
-func (e *favorite) Cancel(c context.Context, ctx *app.RequestContext) {
-
-	userIdStr, ok := ctx.GetQuery("userId")
-	videoIdStr, ok := ctx.GetQuery("videoId")
-	if !ok {
-		BaseFailResponse(ctx, "userId is required")
-		return
-	}
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
-	videoId, err := strconv.ParseInt(videoIdStr, 10, 64)
-	if err != nil {
-		hlog.CtxErrorf(c, "favoriteList error: %v", err)
-		BaseFailResponse(ctx, "favoriteList Error")
-		return
-	}
-	err = service.FavoriteService.PostCancelAction(c, userId, videoId)
-
-	if err != nil {
-		hlog.CtxErrorf(c, "cancelFavorite error: %v", err)
-		BaseFailResponse(ctx, "cancelFavorite Error")
-		return
-	}
-	BaseSuccessResponse(ctx, "取消点赞成功")
 }
