@@ -84,21 +84,18 @@ func jwtMwInit() {
 		// 登录校验成功，将token返回给前端
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			c.JSON(http.StatusOK, utils.H{
-				"status_code ": code,
+				"status_code ": 0,
 				"status_msg ":  "登陆成功",
 				"user_id ":     userId,
 				"token":        token,
 			})
-			//controller.LoginSuccessResponse(c, "success", LoginResponse)
-			//hlog.CtxInfof(ctx, "Login success ，token is issued clientIP: "+c.ClientIP())
-			//c.Set("token", token)
 		},
 		// 鉴权
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
 			// 单一角色 不设权限校验
 			if v, ok := data.(float64); ok {
-				current_user_id := int64(v)
-				c.Set("current_user_id", current_user_id)
+				currentUserId := int64(v)
+				c.Set("current_user_id", currentUserId)
 				hlog.CtxInfof(ctx, "Token is verified clientIP: "+c.ClientIP())
 				return true
 			}
