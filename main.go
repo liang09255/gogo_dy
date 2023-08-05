@@ -11,7 +11,7 @@ import (
 func main() {
 	global.Init()
 	dal.Init()
-	middleware.JwtMwInit()
+	middleware.Init()
 
 	// 1024code 只能使用8080
 	h := server.Default(server.WithHostPorts("0.0.0.0:8080"))

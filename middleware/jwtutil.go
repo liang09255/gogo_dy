@@ -3,10 +3,15 @@ package middleware
 import (
 	"github.com/dgrijalva/jwt-go"
 	"main/dal"
+	"main/global"
 	"time"
 )
 
-var jwtKey = []byte("secret_key&&gogo_dy")
+var jwtKey []byte
+
+func jwtUtilInit() {
+	jwtKey = []byte(global.Config.JwtKey)
+}
 
 type Claims struct {
 	UserId int64 `json:"user_id"`

@@ -9,6 +9,7 @@ import (
 	"github.com/hertz-contrib/jwt"
 	"log"
 	"main/dal"
+	"main/global"
 	"net/http"
 	"time"
 )
@@ -26,14 +27,14 @@ var (
 	IdentityKey   = "user_id"
 )
 
-func JwtMwInit() {
+func jwtMwInit() {
 	var userId int64
 	// the jwt middleware
 	JwtMiddleware1, err := jwt.New(&jwt.HertzJWTMiddleware{
 		// 置所属领域名称
 		Realm: "hertz jwt",
 		// 用于设置签名密钥
-		Key: []byte("secret_key&&gogo_dy"),
+		Key: []byte(global.Config.JwtKey),
 		// 设置 token 过期时间
 		Timeout: time.Hour * 24,
 		// 设置最大 token 刷新时间
