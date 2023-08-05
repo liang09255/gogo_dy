@@ -45,38 +45,6 @@ func (u *userService) Register(userName string, passWord string) (response *Logi
 	return r, nil
 }
 
-//func (u *userService) Login(userName string, passWord string) (response *LoginResponse, err error) {
-//	//校验用户是否存在
-//	NotExist := dal.UserDal.IsNotExist(userName)
-//	if NotExist {
-//		return nil, errors.New("用户不存在")
-//	}
-//	//校验密码
-//	var user1 dal.User
-//	err = dal.UserDal.GetUserByUserName(userName, &user1)
-//	if err != nil {
-//		return nil, err
-//	}
-//	if user1.Password != passWord {
-//		return nil, errors.New("密码错误！")
-//	}
-//	//jwt分发和返回值封装
-//	var user dal.User
-//	err = dal.UserDal.GetUserByUserName(userName, &user)
-//	if err != nil {
-//		return nil, err
-//	}
-//	token, err := middleware.ReleaseToken(user)
-//	if err != nil {
-//		return nil, errors.New("token分发失败")
-//	}
-//	//封装返回结果
-//	var r = new(LoginResponse)
-//	r.UserId = user.ID
-//	r.Token = token
-//	return r, nil
-//}
-
 func (u *userService) GetUserInfo(userId int64, token string) (response *dal.UserInfoResponse, err error) {
 	//解析token获得user_id
 	claims, ok := middleware.ParseToken(token)
