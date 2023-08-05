@@ -20,10 +20,14 @@ func Init() {
 	if err = v.Unmarshal(Config); err != nil {
 		hlog.CtxFatalf(nil, "init config failed: %v", err)
 	}
-
-	dsn := Config.Mysql.Dsn
-	MysqlDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	InitMysqlDb(Config.Mysql.Dsn)
+}
+func InitMysqlDb(dsn string) {
+	var err error
+	MysqlDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{PrepareStmt: true})
 	if err != nil {
-		hlog.CtxFatalf(nil, "init mysql failed: %v", err)
+		hlog.Fatalf("database initialize failed", err)
+		return
 	}
+	hlog.Fatalf("数据库连接成功!")
 }

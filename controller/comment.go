@@ -16,7 +16,7 @@ var Comment = &comment{}
 
 func RegComment(h *server.Hertz) {
 
-	comment := h.Group("/comment")
+	comment := h.Group("/douyin/comment")
 	comment.POST("/action", Comment.Action)
 	comment.GET("/list", Comment.List)
 }
@@ -52,11 +52,11 @@ func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 		BaseFailResponse(ctx, "comment Error")
 		return
 	}
-	err = service.CommentService.GetCommentList(c, userId, videoId)
+	data, err := service.CommentService.GetCommentList(c, userId, videoId)
 	if err != nil {
 		hlog.CtxErrorf(c, "comment error: %v", err)
 		BaseFailResponse(ctx, "comment Error")
 		return
 	}
-	Response(ctx, nil)
+	Response(ctx, data)
 }
