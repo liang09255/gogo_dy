@@ -6,12 +6,7 @@ import (
 )
 
 func Init() {
-	err := global.MysqlDB.AutoMigrate(&Hello{}, &User{})
-	if err != nil {
-		hlog.Fatalf("auto migrate failed: %v", err)
-	}
-	
-	err = global.MysqlDB.AutoMigrate(&Message{})
+	err := global.MysqlDB.AutoMigrate(&Hello{}, &User{}, &Message{})
 	if err != nil {
 		hlog.Fatalf("auto migrate failed: %v", err)
 	}
