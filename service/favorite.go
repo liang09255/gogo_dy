@@ -10,11 +10,11 @@ type favoriteService struct{}
 var FavoriteService = &favoriteService{}
 
 // FixMe 缺少接口类型
-func (h *favoriteService) GetFavoriteList(ctx context.Context, userId int64, videoId int64) (interface{}, error) {
+func (h *favoriteService) GetFavoriteList(ctx context.Context, userId int64, videoId int64) ([]int64, error) {
 	videoIds, err := dal.FavoriteDal.GetFavoriteList(ctx, userId)
 	// FixMe 缺少对Video表的查询
 	if err != nil {
-		return nil, err
+		return []int64{}, err
 	}
 	return videoIds, nil
 }
