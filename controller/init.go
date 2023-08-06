@@ -2,16 +2,16 @@ package controller
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"main/middleware"
+	"main/controller/middleware"
 )
 
 func Init(h *server.Hertz) {
 	dy := h.Group("/douyin/")
 	// 用户接口
 	userGroup := dy.Group("user/")
-	userGroup.POST("register/", UserCtl.Register)
-	userGroup.POST("login/", middleware.Jwt.LoginHandler)
-	userGroup.GET("", middleware.Jwt.MiddlewareFunc(), UserCtl.UserInfo)
+	userGroup.POST("register/", User.Register)
+	userGroup.POST("login/", User.Login)
+	userGroup.GET("", middleware.Jwt.MiddlewareFunc(), User.UserInfo)
 	// 视频接口
 	dy.GET("feed/", Video.Feed)
 	dy.POST("publish/action/", Video.PublishAction)
@@ -33,6 +33,6 @@ func Init(h *server.Hertz) {
 	relationGroup.GET("friend/list/", Relation.FriendList)
 	// 聊天接口
 	messageGroup := dy.Group("message/")
-	messageGroup.POST("action/", MessageCtl.Action)
-	messageGroup.GET("chat/", MessageCtl.Chat)
+	messageGroup.POST("action/", Message.Action)
+	messageGroup.GET("chat/", Message.Chat)
 }

@@ -25,8 +25,8 @@ func ReleaseToken(user dal.User) (string, error) {
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 			IssuedAt:  time.Now().Unix(),
-			Issuer:    "gogo_dy",
-			Subject:   "user token",
+			Issuer:    "gogo_dy_auth",
+			Subject:   "user_token",
 		}}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -35,21 +35,4 @@ func ReleaseToken(user dal.User) (string, error) {
 		return "jwt generation error", err
 	}
 	return tokenString, nil
-}
-
-func ParseToken(tokenString string) (*Claims, bool) {
-	// 解析token,返回Claims, Claims.UserId就可以拿到token里封装的userId
-	token, _ := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	if token != nil {
-		if key, ok := token.Claims.(*Claims); ok {
-			if token.Valid {
-				return key, true
-			} else {
-				return key, false
-			}
-		}
-	}
-	return nil, false
 }

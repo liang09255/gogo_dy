@@ -3,26 +3,28 @@ package controller
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"main/controller/ctlFunc"
 	"main/dal"
 	"main/service"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
-type vedio struct{}
+type video struct{}
 
-var Video = &vedio{}
+var Video = &video{}
 
 func String(value string) *string {
 	return &value
 }
 
 // Feed 不限制登录状态，返回按投稿时间倒序的视频列表，视频数由服务端控制，单次最多30个
-func (e *vedio) Feed(c context.Context, ctx *app.RequestContext) {
+func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 
 	var req service.DouyinFeedRequest
 	var resp service.DouyinFeedResponse
@@ -38,19 +40,19 @@ func (e *vedio) Feed(c context.Context, ctx *app.RequestContext) {
 	//resp. NextTime: 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
 	if err != nil {
 		hlog.CtxErrorf(c, "Feed error: %v", err)
-		resp.StatusCode = FailCode
+		resp.StatusCode = ctlFunc.FailCode
 		resp.StatusMsg = String("Get feed fail")
 		ctx.JSON(http.StatusOK, resp)
 		return
 	}
-	resp.StatusCode = SuccessCode
+	resp.StatusCode = ctlFunc.SuccessCode
 	resp.StatusMsg = String("Get feed successfully")
 
 	ctx.JSON(http.StatusOK, resp)
 }
 
 // PublishAction 登录用户选择视频上传
-func (e *vedio) PublishAction(c context.Context, ctx *app.RequestContext) {
+func (e *video) PublishAction(c context.Context, ctx *app.RequestContext) {
 
 	Title := ctx.FormValue("title")
 	Token := ctx.FormValue("token")
@@ -67,7 +69,7 @@ func (e *vedio) PublishAction(c context.Context, ctx *app.RequestContext) {
 	if err != nil {
 		println("视频发布错误\n")
 		if err != nil {
-			resp.StatusCode = FailCode
+			resp.StatusCode = ctlFunc.SuccessCode
 			resp.StatusMsg = String("publish video fail")
 			ctx.JSON(http.StatusOK, resp)
 		}
@@ -92,7 +94,7 @@ func (e *vedio) PublishAction(c context.Context, ctx *app.RequestContext) {
 }
 
 // Publishlist 用户的视频发布列表，直接列出用户所有投稿过的视频
-func (e *vedio) Publishlist(c context.Context, ctx *app.RequestContext) {
+func (e *video) Publishlist(c context.Context, ctx *app.RequestContext) {
 
 	var req service.DouyinPublishListRequest
 	var resp service.DouyinPublishListResponse
@@ -100,14 +102,14 @@ func (e *vedio) Publishlist(c context.Context, ctx *app.RequestContext) {
 	req.Token, ok = ctx.GetQuery("token")
 
 	if !ok {
-		BaseFailResponse(ctx, "token is required")
+		ctlFunc.BaseFailedResp(ctx, "token is required")
 		return
 	}
 
 	req.UserID, ok = ctx.GetQuery("user_id")
 
 	if !ok {
-		BaseFailResponse(ctx, "user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "user_id is required")
 		return
 	}
 
@@ -126,12 +128,12 @@ func (e *vedio) Publishlist(c context.Context, ctx *app.RequestContext) {
 }
 
 // PlayVideo 播放视频
-func (e *vedio) PlayVideo(c context.Context, ctx *app.RequestContext) {
+func (e *video) PlayVideo(c context.Context, ctx *app.RequestContext) {
 	var ok bool
 	fileName, ok := ctx.GetQuery("play_url")
 
 	if !ok {
-		BaseFailResponse(ctx, "play_url is required")
+		ctlFunc.BaseFailedResp(ctx, "play_url is required")
 		return
 	}
 

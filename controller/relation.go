@@ -2,11 +2,12 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"main/controller/ctlFunc"
 	"main/service"
 	"net/http"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type relation struct{}
@@ -24,21 +25,21 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 	req.Token, ok = ctx.GetQuery("token")
 
 	if !ok {
-		BaseFailResponse(ctx, "token is required")
+		ctlFunc.BaseFailedResp(ctx, "token is required")
 		return
 	}
 
 	req.ToUserID, ok = ctx.GetQuery("to_user_id")
 
 	if !ok {
-		BaseFailResponse(ctx, "to_user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "to_user_id is required")
 		return
 	}
 
 	err := service.RelationService.RelationAction(req.Token, req.ToUserID, req.ActionType, &resp)
 
 	if err != nil {
-		resp.StatusCode = FailCode
+		resp.StatusCode = ctlFunc.FailCode
 		resp.StatusMsg = "Action Fail"
 		hlog.CtxErrorf(c, "Relation action error: %v", err)
 		ctx.JSON(http.StatusOK, resp)
@@ -57,14 +58,14 @@ func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 	req.UserID, ok = ctx.GetQuery("user_id")
 
 	if !ok {
-		BaseFailResponse(ctx, "user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "user_id is required")
 		return
 	}
 
 	req.Token, ok = ctx.GetQuery("token")
 
 	if !ok {
-		BaseFailResponse(ctx, "token is required")
+		ctlFunc.BaseFailedResp(ctx, "token is required")
 		return
 	}
 
@@ -91,18 +92,16 @@ func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 	req.UserID, ok = ctx.GetQuery("user_id")
 
 	if !ok {
-		BaseFailResponse(ctx, "user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "user_id is required")
 		return
 	}
 
 	req.Token, ok = ctx.GetQuery("token")
 
 	if !ok {
-		BaseFailResponse(ctx, "token is required")
+		ctlFunc.BaseFailedResp(ctx, "token is required")
 		return
 	}
-
-	fmt.Println(req)
 
 	err := service.RelationService.GetFollowerList(req.Token, req.UserID, &resp.UserList)
 
@@ -128,14 +127,14 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 	req.UserID, ok = ctx.GetQuery("user_id")
 
 	if !ok {
-		BaseFailResponse(ctx, "to_user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "to_user_id is required")
 		return
 	}
 
 	req.Token, ok = ctx.GetQuery("token")
 
 	if !ok {
-		BaseFailResponse(ctx, "to_user_id is required")
+		ctlFunc.BaseFailedResp(ctx, "to_user_id is required")
 		return
 	}
 

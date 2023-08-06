@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"main/controller"
+	"main/controller/middleware"
 	"main/dal"
 	"main/global"
-	"main/middleware"
 )
 
 func main() {

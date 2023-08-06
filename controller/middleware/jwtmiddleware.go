@@ -3,24 +3,20 @@ package middleware
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
+	"time"
+
+	"main/controller/ctlFunc"
+	"main/controller/ctlModel"
+	"main/dal"
+	"main/global"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/hertz-contrib/jwt"
-	"log"
-	"main/dal"
-	"main/global"
-	"net/http"
-	"time"
 )
-
-// biz/router/middleware/jwtutil.go
-
-// Claim 定义用户登陆信息结构体
-type Claim struct {
-	ID       int64
-	Username string
-}
 
 var (
 	Jwt         *jwt.HertzJWTMiddleware
@@ -32,7 +28,7 @@ func jwtMwInit() {
 	// the jwt middleware
 	JwtMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
 		// 置所属领域名称
-		Realm: "hertz jwt",
+		Realm: "gogo_dy_auth",
 		// 用于设置签名密钥
 		Key: []byte(global.Config.JwtKey),
 		// 设置 token 过期时间
@@ -53,14 +49,12 @@ func jwtMwInit() {
 		},
 		// 认证
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			var loginStruct struct {
-				Username string `form:"username" json:"username" query:"username" vd:"(len($) > 0 && len($) < 32); msg:'Illegal format'"`
-				Password string `form:"password" json:"password" query:"password" vd:"(len($) > 0 && len($) < 32); msg:'Illegal format'"`
-			}
-			if err := c.BindAndValidate(&loginStruct); err != nil {
+			var reqObj ctlModel.UserLoginReq
+			if err := c.BindAndValidate(&reqObj); err != nil {
 				return nil, err
 			}
-			user, err := dal.UserDal.CheckUser(loginStruct.Username, loginStruct.Password)
+
+			user, err := dal.UserDal.CheckUser(reqObj.Username, reqObj.Password)
 			if err != nil {
 				return nil, err
 			}
@@ -107,24 +101,12 @@ func jwtMwInit() {
 		},
 		// jwt 验证流程失败的响应函数
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			BaseFailResponse(c, message)
+			ctlFunc.BaseFailedResp(c, message)
 		},
 	})
 	if err != nil {
-		log.Fatal("JWT Error:" + err.Error())
+		log.Fatal("JWT Init Error:" + err.Error())
 	}
 
 	Jwt = JwtMiddleware
-}
-
-type BaseResponse struct {
-	StatusCode int32  `json:"status_code"`
-	StatusMsg  string `json:"status_msg"`
-}
-
-func BaseFailResponse(ctx *app.RequestContext, msg string) {
-	Response(ctx, BaseResponse{StatusCode: 1, StatusMsg: msg})
-}
-func Response(ctx *app.RequestContext, data interface{}) {
-	ctx.JSON(http.StatusOK, data)
 }

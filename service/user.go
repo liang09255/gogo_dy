@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
+	"main/controller/middleware"
 	"main/dal"
-	"main/middleware"
 )
 
 type LoginResponse struct {
@@ -45,12 +45,12 @@ func (u *userService) Register(userName string, passWord string) (response *Logi
 	return r, nil
 }
 
-func (u *userService) GetUserInfo(userId int64, token string) (response *dal.UserInfoResponse, err error) {
+func (u *userService) GetUserInfo(userId int64) (response *dal.UserInfoResponse, err error) {
 	//解析token获得user_id
-	_, ok := middleware.ParseToken(token)
-	if ok == false {
-		return nil, errors.New("token解析失败")
-	}
+	//_, ok := middleware.ParseToken(token)
+	//if ok == false {
+	//	return nil, errors.New("token解析失败")
+	//}
 	var infoResponse = new(dal.UserInfoResponse)
 	err = dal.UserDal.GetUserInfoById(userId, infoResponse)
 	if err != nil {
