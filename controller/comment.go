@@ -22,6 +22,7 @@ func RegComment(h *server.Hertz) {
 }
 
 func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
+	// FixMe 评论操作需要鉴权
 	var comment dal.Comment
 	err := ctx.Bind(&comment)
 	if err != nil {
@@ -39,10 +40,10 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 }
 
 func (e *comment) List(c context.Context, ctx *app.RequestContext) {
-	userIdStr, ok := ctx.GetQuery("userId")
-	videoIdStr, ok := ctx.GetQuery("videoId")
+	userIdStr, ok := ctx.GetQuery("user_id")
+	videoIdStr, ok := ctx.GetQuery("video_id")
 	if !ok {
-		BaseFailResponse(ctx, "userId is required")
+		BaseFailResponse(ctx, "user_id is required")
 		return
 	}
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)
@@ -58,5 +59,5 @@ func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 		BaseFailResponse(ctx, "comment Error")
 		return
 	}
-	Response(ctx, data)
+	ResponseWithData(ctx, "", data)
 }
