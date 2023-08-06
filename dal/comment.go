@@ -3,6 +3,7 @@ package dal
 import (
 	"context"
 	"gorm.io/gorm"
+	"main/global"
 )
 
 type Comment struct {
@@ -18,7 +19,7 @@ type commentDal struct{}
 var CommentDal = &commentDal{}
 
 func (c *commentDal) PostCommentAction(ctx context.Context, comment *Comment) error {
-	if err := DB.WithContext(ctx).Create(&comment).Error; err != nil {
+	if err := global.MysqlDB.WithContext(ctx).Create(&comment).Error; err != nil {
 		return err
 	}
 	return nil
@@ -26,8 +27,8 @@ func (c *commentDal) PostCommentAction(ctx context.Context, comment *Comment) er
 
 func (c *commentDal) GetCommentList(ctx context.Context, userId int64, videoId int64) ([]*Comment, error) {
 	res := make([]*Comment, 0)
-	if err := DB.WithContext(ctx).Where("video_id = ? and user_id = ?", videoId, userId).Order("created_at desc").Limit(30).Find(&res).Error; err != nil {
-		return nil, err
+	if err := global.MysqlDB.WithContext(ctx).Where("video_id = ? and user_id = ?", videoId, userId).Order("created_at desc").Limit(30).Find(&res).Error; err != nil {
+		return []*Comment{}, err
 	}
 	return res, nil
 }
