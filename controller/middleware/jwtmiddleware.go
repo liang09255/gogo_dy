@@ -4,24 +4,23 @@ import (
 	"context"
 	"errors"
 	"log"
-	"net/http"
+	"main/controller/ctlModel/baseCtlModel"
+	"main/controller/ctlModel/userCtlModel"
 	"time"
 
 	"main/controller/ctlFunc"
-	"main/controller/ctlModel"
 	"main/dal"
 	"main/global"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/hertz-contrib/jwt"
 )
 
-var (
-	Jwt         *jwt.HertzJWTMiddleware
-	IdentityKey = "user_id"
-)
+const identityKey = "user_id"
+const UserIDKey = "user_id"
+
+var Jwt *jwt.HertzJWTMiddleware
 
 func jwtMwInit() {
 	var userId int64
@@ -40,16 +39,16 @@ func jwtMwInit() {
 		// 设置从 header 中获取 token 时的前缀
 		TokenHeadName: "Bearer",
 		// 用于设置检索身份的键
-		IdentityKey: IdentityKey,
+		IdentityKey: identityKey,
 
 		// 从 token 提取用户信息
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			return claims[IdentityKey]
+			return claims[identityKey]
 		},
 		// 认证
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			var reqObj ctlModel.UserLoginReq
+			var reqObj userCtlModel.LoginReq
 			if err := c.BindAndValidate(&reqObj); err != nil {
 				return nil, err
 			}
@@ -61,7 +60,7 @@ func jwtMwInit() {
 			if user == nil {
 				return nil, errors.New("user already exists or wrong password")
 			}
-			c.Set("user_id", user.ID)
+			c.Set(UserIDKey, user.ID)
 			userId = user.ID
 			// 设置jwt负载的信息
 			return user.ID, err
@@ -70,19 +69,21 @@ func jwtMwInit() {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(int64); ok {
 				return jwt.MapClaims{
-					IdentityKey: v,
+					identityKey: v,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		// 登录校验成功，将token返回给前端
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
-			c.JSON(http.StatusOK, utils.H{
-				"status_code ": 0,
-				"status_msg ":  "登陆成功",
-				"user_id ":     userId,
-				"token":        token,
-			})
+			var resp = &userCtlModel.LoginResp{
+				BaseResp: baseCtlModel.NewBaseSuccessResp(),
+				LoginResponse: userCtlModel.LoginResponse{
+					UserId: userId,
+					Token:  token,
+				},
+			}
+			ctlFunc.Response(c, resp)
 		},
 		// 鉴权
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {

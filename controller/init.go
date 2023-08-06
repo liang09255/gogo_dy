@@ -32,7 +32,7 @@ func Init(h *server.Hertz) {
 	relationGroup.GET("follower/list/", Relation.FollowerList)
 	relationGroup.GET("friend/list/", Relation.FriendList)
 	// 聊天接口
-	messageGroup := dy.Group("message/")
+	messageGroup := dy.Group("message/", middleware.Jwt.MiddlewareFunc())
 	messageGroup.POST("action/", Message.Action)
 	messageGroup.GET("chat/", Message.Chat)
 }

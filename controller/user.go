@@ -5,7 +5,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/controller/ctlFunc"
-	"main/controller/ctlModel"
+	"main/controller/ctlModel/baseCtlModel"
+	"main/controller/ctlModel/userCtlModel"
 	"main/controller/middleware"
 	"main/service"
 )
@@ -16,7 +17,7 @@ var User = &user{}
 
 func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	//获取参数username，password
-	var reqObj ctlModel.UserRegisterReq
+	var reqObj userCtlModel.RegisterReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
@@ -31,7 +32,16 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, "user register error")
 		return
 	}
-	LoginSuccessResponse(ctx, "success", *LoginResponse)
+
+	// 封装返回信息
+	var resp = userCtlModel.RegisterResp{
+		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		RegisterResponse: userCtlModel.RegisterResponse{
+			UserId: LoginResponse.UserId,
+			Token:  LoginResponse.Token,
+		},
+	}
+	ctlFunc.Response(ctx, &resp)
 }
 
 func (u *user) Login(c context.Context, ctx *app.RequestContext) {
@@ -39,7 +49,7 @@ func (u *user) Login(c context.Context, ctx *app.RequestContext) {
 }
 
 func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
-	var reqObj ctlModel.UserInfoReq
+	var reqObj userCtlModel.InfoReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
@@ -54,33 +64,17 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, "get userinfo error")
 		return
 	}
-	UserInfoSuccessResponse(ctx, "success", *UserInfoResponse)
-}
 
-// 封装登录接口返回信息
-type MessageUserResponse struct {
-	ctlModel.BaseResp
-	UserId int64  `json:"user_id"`
-	Token  string `json:"token"`
-}
-
-func LoginSuccessResponse(ctx *app.RequestContext, msg string, response service.LoginResponse) {
-	ctlFunc.Response(ctx, MessageUserResponse{
-		BaseResp: ctlModel.BaseResp{StatusCode: ctlFunc.SuccessCode, StatusMsg: msg},
-		UserId:   response.UserId,
-		Token:    response.Token,
-	})
-}
-
-// 封装用户信息查询接口返回信息(不全)
-type UserInfoResponse struct {
-	ctlModel.BaseResp
-	UserInfoList interface{} `json:"user"`
-}
-
-func UserInfoSuccessResponse(ctx *app.RequestContext, msg string, data interface{}) {
-	ctlFunc.Response(ctx, UserInfoResponse{
-		BaseResp:     ctlModel.BaseResp{StatusCode: ctlFunc.SuccessCode, StatusMsg: msg},
-		UserInfoList: data,
-	})
+	// 封装返回信息
+	var resp = &userCtlModel.InfoResp{
+		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		User: userCtlModel.User{
+			ID:            UserInfoResponse.ID,
+			Username:      UserInfoResponse.Username,
+			FollowCount:   UserInfoResponse.FollowCount,
+			FollowerCount: UserInfoResponse.FollowerCount,
+			IsFollow:      UserInfoResponse.IsFollow,
+		},
+	}
+	ctlFunc.Response(ctx, resp)
 }

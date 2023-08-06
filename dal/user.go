@@ -19,14 +19,6 @@ type User struct {
 	FollowerCount int64  `gorm:"default:0" json:"follower_count"`
 }
 
-type UserInfoResponse struct {
-	ID            int64  `gorm:"primarykey" json:"id"`
-	Username      string `gorm:"not null" json:"name"`
-	FollowCount   int64  `gorm:"default:0" json:"follow_count"`
-	FollowerCount int64  `gorm:"default:0" json:"follower_count"`
-	IsFollow      bool   `json:"is_follow"`
-}
-
 type userDal struct{}
 
 var UserDal = &userDal{}
@@ -55,20 +47,17 @@ func (u *userDal) IsNotExist(userName string) bool {
 	return true
 }
 
-func (u *userDal) GetUserInfoById(userId int64, infoResponse *UserInfoResponse) error {
-	var user = new(User)
-	//直接传infoResponse会查询错误的数据表
+func (u *userDal) GetUserInfoById(userId int64) (user *User, err error) {
 	t := global.MysqlDB.Where("id=?", userId).First(&user)
-	//.Select([]string{"id", "username", "follow_count", "follower_count", "is_follow"})
-	infoResponse.FollowCount = user.FollowCount
-	infoResponse.FollowerCount = user.FollowerCount
-	infoResponse.ID = user.ID
-	infoResponse.Username = user.Username
-	//id为零值，说明sql执行失败
-	if infoResponse.ID == 0 {
-		return errors.New("该用户不存在")
+	if errors.Is(t.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("user not found")
 	}
-	return t.Error
+
+	if t.Error != nil {
+		return nil, t.Error
+	}
+
+	return user, nil
 }
 
 func (u *userDal) GetUserByUserName(userName string, user *User) error {
