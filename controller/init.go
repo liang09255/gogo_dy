@@ -7,4 +7,6 @@ func Init(h *server.Hertz) {
 	RegUser(h)
 	RegMessageAction(h)
 	RegMessageChat(h)
+	RegRelation(h)
+	RegVedio(h)
 }
