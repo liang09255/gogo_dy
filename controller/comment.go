@@ -5,9 +5,10 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/controller/ctlFunc"
-	"main/dal"
+	"main/controller/ctlModel/baseCtlModel"
+	"main/controller/ctlModel/commentCtlModel"
+	"main/controller/middleware"
 	"main/service"
-	"strconv"
 )
 
 type comment struct{}
@@ -15,38 +16,34 @@ type comment struct{}
 var Comment = &comment{}
 
 func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
-	// FixMe 评论操作需要鉴权
-	var comment dal.Comment
-	err := ctx.Bind(&comment)
+	userID := middleware.GetUserID(ctx)
+	var reqObj commentCtlModel.ActionReq
+	if err := ctx.Bind(&reqObj); err != nil {
+		ctlFunc.BaseFailedResp(ctx, err.Error())
+		return
+	}
+
+	comment, err := service.CommentService.PostCommentAction(c, userID, reqObj.VideoID, reqObj.CommentText, reqObj.ActionType)
 	if err != nil {
 		hlog.CtxErrorf(c, "comment error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "comment Error")
 		return
 	}
-	err = service.CommentService.PostCommentAction(c, &comment)
-	if err != nil {
-		hlog.CtxErrorf(c, "comment error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "comment Error")
-		return
-	}
-	ctlFunc.BaseSuccessResp(ctx, "评论成功")
+
+	ctlFunc.Response(ctx, commentCtlModel.ActionResp{
+		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Comment:  comment,
+	})
 }
 
 func (e *comment) List(c context.Context, ctx *app.RequestContext) {
-	userIdStr, ok := ctx.GetQuery("user_id")
-	videoIdStr, ok := ctx.GetQuery("video_id")
-	if !ok {
-		ctlFunc.BaseFailedResp(ctx, "user_id is required")
+	var reqObj commentCtlModel.ListReq
+	if err := ctx.BindAndValidate(&reqObj); err != nil {
+		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
 	}
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
-	videoId, err := strconv.ParseInt(videoIdStr, 10, 64)
-	if err != nil {
-		hlog.CtxErrorf(c, "comment error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "comment Error")
-		return
-	}
-	data, err := service.CommentService.GetCommentList(c, userId, videoId)
+
+	data, err := service.CommentService.GetCommentList(c, reqObj.VideoID)
 	if err != nil {
 		hlog.CtxErrorf(c, "comment error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "comment Error")

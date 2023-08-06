@@ -10,7 +10,8 @@ func Init() {
 		&Favorite{},
 		&Comment{},
 		&User{},
-		&Message{})
+		&Message{},
+		&Video{})
 	if err != nil {
 		hlog.Fatalf("auto migrate failed: %v", err)
 	}

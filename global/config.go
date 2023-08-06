@@ -5,6 +5,12 @@ type config struct {
 		Dsn string `json:"dsn"`
 	} `json:"mysql"`
 	JwtKey string `json:"jwtKey"`
+	AliOSS struct {
+		Bucket          string `json:"bucket"`
+		Endpoint        string `json:"endpoint"`
+		AccessKeyId     string `json:"accessKeyId"`
+		AccessKeySecret string `json:"accessKeySecret"`
+	} `json:"aliOSS"`
 }
 
 var Config = &config{}

@@ -13,7 +13,6 @@ import (
 	"main/global"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/jwt"
 )
 
@@ -40,7 +39,6 @@ func jwtMwInit() {
 		TokenHeadName: "Bearer",
 		// 用于设置检索身份的键
 		IdentityKey: identityKey,
-
 		// 从 token 提取用户信息
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
@@ -91,7 +89,6 @@ func jwtMwInit() {
 			if v, ok := data.(float64); ok {
 				currentUserId := int64(v)
 				c.Set("current_user_id", currentUserId)
-				hlog.CtxInfof(ctx, "Token is verified clientIP: "+c.ClientIP())
 				return true
 			}
 			return false

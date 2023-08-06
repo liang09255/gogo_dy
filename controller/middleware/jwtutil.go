@@ -41,8 +41,7 @@ func ReleaseToken(userId int64) (string, error) {
 func GetUserID(ctx *app.RequestContext) int64 {
 	id, ok := ctx.Get(UserIDKey)
 	if !ok {
-		hlog.Error("get userID from context failed, path: %s", ctx.FullPath())
-		ctx.Abort()
+		hlog.Errorf("get userID from context failed, path: %s, maybe unused jet middleware", ctx.FullPath())
 		return 0
 	}
 	return int64(id.(float64))

@@ -2,37 +2,51 @@ package service
 
 import (
 	"context"
+	"main/controller/ctlModel/commentCtlModel"
+	"main/controller/ctlModel/userCtlModel"
 	"main/dal"
 )
 
 type commentService struct{}
-type CommentResponse struct {
-	ID      int64  `json:"id"`
-	UserId  int64  `json:"user_id"`
-	Content string `json:"content"`
-}
 
 var CommentService = &commentService{}
 
-func (h *commentService) GetCommentList(ctx context.Context, userId int64, videoId int64) ([]*CommentResponse, error) {
-	arr, err := dal.CommentDal.GetCommentList(ctx, userId, videoId)
+func (h *commentService) PostCommentAction(ctx context.Context, userID, videoID int64, content string, actionType int32) (res commentCtlModel.Comment, err error) {
+	var comment = dal.Comment{
+		UserId:  userID,
+		VideoId: videoID,
+		Content: content,
+	}
+	err = dal.CommentDal.PostCommentAction(ctx, &comment, actionType)
+	if err != nil {
+		return commentCtlModel.Comment{}, err
+	}
+	// TODO 获取用户信息
+	res.User = userCtlModel.User{}
+	res.Content = comment.Content
+	res.ID = comment.ID
+	res.CreateDate = comment.CreatedAt.Format("2006-01-02 15:04:05")
+	return res, nil
+}
+
+func (h *commentService) GetCommentList(ctx context.Context, videoId int64) ([]commentCtlModel.Comment, error) {
+	arr, err := dal.CommentDal.GetCommentList(ctx, videoId)
 	if err != nil {
 		return nil, err
 	}
 	return convertCommentListToCommentListResponse(arr), nil
 }
-func (h *commentService) PostCommentAction(ctx context.Context, comment *dal.Comment) error {
-	return dal.CommentDal.PostCommentAction(ctx, comment)
-}
-func convertCommentListToCommentListResponse(commentList []*dal.Comment) []*CommentResponse {
 
-	commentListRes := make([]*CommentResponse, len(commentList))
+func convertCommentListToCommentListResponse(commentList []*dal.Comment) []commentCtlModel.Comment {
+
+	commentListRes := make([]commentCtlModel.Comment, len(commentList))
 
 	for i, msg := range commentList {
-		commentListRes[i] = &CommentResponse{
+		// TODO 获取用户信息
+		commentListRes[i] = commentCtlModel.Comment{
 			ID:      msg.ID,
 			Content: msg.Content,
-			UserId:  msg.UserId,
+			User:    userCtlModel.User{},
 		}
 	}
 
