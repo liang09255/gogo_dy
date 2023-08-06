@@ -1,9 +1,10 @@
 package dal
 
 import (
-	"gorm.io/gorm"
 	"main/global"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Message struct {
@@ -21,8 +22,8 @@ var MessageDal = &messageDal{}
 
 func (m *messageDal) NewMessage(token string, toUserID int64, actionType int32, content string) error {
 	t := global.MysqlDB.Create(&Message{
-		Token:      token,
-		ToUserID:   toUserID,
+		Token:    token,
+		ToUserID: toUserID,
 		// TODO:  From_User_ID，自己的id从token怎么得来？ 不着急现在
 		// FromUserID: myselfID
 		ActionType: actionType,
@@ -32,17 +33,18 @@ func (m *messageDal) NewMessage(token string, toUserID int64, actionType int32, 
 }
 
 func (m *messageDal) GetMessages(token string, toUserID int64, preMsgTime int64) ([]Message, error) {
-	// FIXME 这个方法感觉是要把我发给对方和对方发给我的都查出来，时间排序
-	// 这里暂时只查了我发给对方的
-	var messages []Message
 
-	query := global.MysqlDB.Where("to_user_id = ?", toUserID)
+	var messages []Message
+	query := global.MysqlDB.Where("(to_user_id = ? OR from_user_id = ?)", toUserID, toUserID)
 
 	// 如果提供了 preMsgTime，你可能需要添加一个合适的时间过滤条件
 	if preMsgTime != 0 {
 		// query = query.Where("created_at > ?", preMsgTime) // 假设使用了gorm.Model的CreatedAt字段
 		query = query.Where("created_at > ?", time.Unix(preMsgTime, 0))
 	}
+
+	// 按创建时间排序
+	query = query.Order("created_at")
 
 	if err := query.Find(&messages).Error; err != nil {
 		return nil, err
