@@ -3,36 +3,31 @@ package middleware
 import (
 	"context"
 	"errors"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/hertz-contrib/jwt"
 	"log"
+	"main/controller/ctlModel/baseCtlModel"
+	"main/controller/ctlModel/userCtlModel"
+	"time"
+
+	"main/controller/ctlFunc"
 	"main/dal"
 	"main/global"
-	"net/http"
-	"time"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/hertz-contrib/jwt"
 )
 
-// biz/router/middleware/jwtutil.go
+const identityKey = "user_id"
+const UserIDKey = "user_id"
 
-// Claim 定义用户登陆信息结构体
-type Claim struct {
-	ID       int64
-	Username string
-}
-
-var (
-	JwtMiddleware *jwt.HertzJWTMiddleware
-	IdentityKey   = "user_id"
-)
+var Jwt *jwt.HertzJWTMiddleware
 
 func jwtMwInit() {
 	var userId int64
 	// the jwt middleware
-	JwtMiddleware1, err := jwt.New(&jwt.HertzJWTMiddleware{
+	JwtMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
 		// 置所属领域名称
-		Realm: "hertz jwt",
+		Realm: "gogo_dy_auth",
 		// 用于设置签名密钥
 		Key: []byte(global.Config.JwtKey),
 		// 设置 token 过期时间
@@ -44,30 +39,28 @@ func jwtMwInit() {
 		// 设置从 header 中获取 token 时的前缀
 		TokenHeadName: "Bearer",
 		// 用于设置检索身份的键
-		IdentityKey: IdentityKey,
+		IdentityKey: identityKey,
 
 		// 从 token 提取用户信息
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			return claims[IdentityKey]
+			return claims[identityKey]
 		},
 		// 认证
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			var loginStruct struct {
-				Username string `form:"username" json:"username" query:"username" vd:"(len($) > 0 && len($) < 32); msg:'Illegal format'"`
-				Password string `form:"password" json:"password" query:"password" vd:"(len($) > 0 && len($) < 32); msg:'Illegal format'"`
-			}
-			if err := c.BindAndValidate(&loginStruct); err != nil {
+			var reqObj userCtlModel.LoginReq
+			if err := c.BindAndValidate(&reqObj); err != nil {
 				return nil, err
 			}
-			user, err := dal.UserDal.CheckUser(loginStruct.Username, loginStruct.Password)
+
+			user, err := dal.UserDal.CheckUser(reqObj.Username, reqObj.Password)
 			if err != nil {
 				return nil, err
 			}
 			if user == nil {
 				return nil, errors.New("user already exists or wrong password")
 			}
-			c.Set("user_id", user.ID)
+			c.Set(UserIDKey, user.ID)
 			userId = user.ID
 			// 设置jwt负载的信息
 			return user.ID, err
@@ -76,19 +69,21 @@ func jwtMwInit() {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(int64); ok {
 				return jwt.MapClaims{
-					IdentityKey: v,
+					identityKey: v,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		// 登录校验成功，将token返回给前端
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
-			c.JSON(http.StatusOK, utils.H{
-				"status_code ": 0,
-				"status_msg ":  "登陆成功",
-				"user_id ":     userId,
-				"token":        token,
-			})
+			var resp = &userCtlModel.LoginResp{
+				BaseResp: baseCtlModel.NewBaseSuccessResp(),
+				LoginResponse: userCtlModel.LoginResponse{
+					UserId: userId,
+					Token:  token,
+				},
+			}
+			ctlFunc.Response(c, resp)
 		},
 		// 鉴权
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
@@ -103,29 +98,16 @@ func jwtMwInit() {
 		},
 		// 设置 jwt 校验流程发生错误时响应所包含的错误信息
 		HTTPStatusMessageFunc: func(e error, ctx context.Context, c *app.RequestContext) string {
-			hlog.CtxErrorf(ctx, "jwt biz err = %+v", e.Error())
 			return e.Error()
 		},
 		// jwt 验证流程失败的响应函数
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			BaseFailResponse(c, message)
+			ctlFunc.BaseFailedResp(c, message)
 		},
 	})
 	if err != nil {
-		log.Fatal("JWT Error:" + err.Error())
+		log.Fatal("JWT Init Error:" + err.Error())
 	}
 
-	JwtMiddleware = JwtMiddleware1
-}
-
-type BaseResponse struct {
-	StatusCode int32  `json:"status_code"`
-	StatusMsg  string `json:"status_msg"`
-}
-
-func BaseFailResponse(ctx *app.RequestContext, msg string) {
-	Response(ctx, BaseResponse{StatusCode: 1, StatusMsg: msg})
-}
-func Response(ctx *app.RequestContext, data interface{}) {
-	ctx.JSON(http.StatusOK, data)
+	Jwt = JwtMiddleware
 }
