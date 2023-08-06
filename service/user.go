@@ -51,15 +51,12 @@ func (u *userService) GetUserInfo(userId int64, token string) (response *dal.Use
 	if ok == false {
 		return nil, errors.New("token解析失败")
 	}
-	// ParsedUserId := claims.UserId
-	// //比对user_id,进行查询
-	// if ParsedUserId != userId {
-	// 	return nil, errors.New("token身份验证失败")
-	// }
 	var infoResponse = new(dal.UserInfoResponse)
 	err = dal.UserDal.GetUserInfoById(userId, infoResponse)
 	if err != nil {
 		return nil, err
 	}
+	// TODO 查询关注状态
+	infoResponse.IsFollow = false
 	return infoResponse, nil
 }

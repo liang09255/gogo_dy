@@ -16,7 +16,7 @@ type Video struct {
 	CreateTime    int64  `gorm:"autoCreateTime"`
 }
 
-// VideoInfo Videoinfo
+// VideoInfo 视频信息
 type VideoInfo struct {
 	Author        UserInfoResponse `json:"author"`         // 视频作者信息
 	CommentCount  int64            `json:"comment_count"`  // 视频的评论总数

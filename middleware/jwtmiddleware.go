@@ -23,14 +23,14 @@ type Claim struct {
 }
 
 var (
-	JwtMiddleware *jwt.HertzJWTMiddleware
-	IdentityKey   = "user_id"
+	Jwt         *jwt.HertzJWTMiddleware
+	IdentityKey = "user_id"
 )
 
 func jwtMwInit() {
 	var userId int64
 	// the jwt middleware
-	JwtMiddleware1, err := jwt.New(&jwt.HertzJWTMiddleware{
+	JwtMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
 		// 置所属领域名称
 		Realm: "hertz jwt",
 		// 用于设置签名密钥
@@ -103,7 +103,6 @@ func jwtMwInit() {
 		},
 		// 设置 jwt 校验流程发生错误时响应所包含的错误信息
 		HTTPStatusMessageFunc: func(e error, ctx context.Context, c *app.RequestContext) string {
-			hlog.CtxErrorf(ctx, "jwt biz err = %+v", e.Error())
 			return e.Error()
 		},
 		// jwt 验证流程失败的响应函数
@@ -115,7 +114,7 @@ func jwtMwInit() {
 		log.Fatal("JWT Error:" + err.Error())
 	}
 
-	JwtMiddleware = JwtMiddleware1
+	Jwt = JwtMiddleware
 }
 
 type BaseResponse struct {

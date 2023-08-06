@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/dal"
 	"main/service"
@@ -22,19 +21,8 @@ func String(value string) *string {
 	return &value
 }
 
-func Int64(value int64) *int64 {
-	return &value
-}
-
-func RegVedio(h *server.Hertz) {
-	h.GET("/douyin/feed/", Video.GetFeed)
-	h.POST("douyin/publish/action/", Video.PublishAction)
-	h.GET("/douyin/publish/list/", Video.Publishlist)
-	h.GET("/douyin/find/", Video.PlayVideo)
-}
-
-// GetFeed 不限制登录状态，返回按投稿时间倒序的视频列表，视频数由服务端控制，单次最多30个
-func (e *vedio) GetFeed(c context.Context, ctx *app.RequestContext) {
+// Feed 不限制登录状态，返回按投稿时间倒序的视频列表，视频数由服务端控制，单次最多30个
+func (e *vedio) Feed(c context.Context, ctx *app.RequestContext) {
 
 	var req service.DouyinFeedRequest
 	var resp service.DouyinFeedResponse

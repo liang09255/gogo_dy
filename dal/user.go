@@ -24,6 +24,7 @@ type UserInfoResponse struct {
 	Username      string `gorm:"not null" json:"name"`
 	FollowCount   int64  `gorm:"default:0" json:"follow_count"`
 	FollowerCount int64  `gorm:"default:0" json:"follower_count"`
+	IsFollow      bool   `json:"is_follow"`
 }
 
 type userDal struct{}

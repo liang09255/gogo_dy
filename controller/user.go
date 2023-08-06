@@ -3,22 +3,14 @@ package controller
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/middleware"
 	"main/service"
 	"strconv"
 )
 
 type userLoginController struct{}
 
-var UserLoginControllerInstance = &userLoginController{}
-
-func RegUser(h *server.Hertz) {
-	h.POST("/douyin/user/register/", UserLoginControllerInstance.Register)
-	h.POST("/douyin/user/login/", middleware.JwtMiddleware.LoginHandler)
-	h.GET("/douyin/user/", UserLoginControllerInstance.getUserInfo)
-}
+var UserCtl = &userLoginController{}
 
 func (u *userLoginController) Register(c context.Context, ctx *app.RequestContext) {
 	//获取参数username，password
@@ -42,7 +34,7 @@ func (u *userLoginController) Register(c context.Context, ctx *app.RequestContex
 	LoginSuccessResponse(ctx, "success", *LoginResponse)
 }
 
-func (u *userLoginController) getUserInfo(c context.Context, ctx *app.RequestContext) {
+func (u *userLoginController) UserInfo(c context.Context, ctx *app.RequestContext) {
 	//获取参数username，password
 	userId, ok := ctx.GetQuery("user_id")
 	if !ok {

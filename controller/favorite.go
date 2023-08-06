@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/service"
 	"strconv"
@@ -12,12 +11,6 @@ import (
 type favorite struct{}
 
 var Favorite = &favorite{}
-
-func RegFavorite(h *server.Hertz) {
-	favoriteGroup := h.Group("/douyin/favorite")
-	favoriteGroup.POST("/action", Favorite.Action)
-	favoriteGroup.GET("/list", Favorite.List)
-}
 
 func (e *favorite) Action(c context.Context, ctx *app.RequestContext) {
 	userIdStr, ok := ctx.GetQuery("userId")

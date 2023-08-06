@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/dal"
 	"main/service"
@@ -13,13 +12,6 @@ import (
 type comment struct{}
 
 var Comment = &comment{}
-
-func RegComment(h *server.Hertz) {
-
-	comment := h.Group("/douyin/comment")
-	comment.POST("/action", Comment.Action)
-	comment.GET("/list", Comment.List)
-}
 
 func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 	var comment dal.Comment
