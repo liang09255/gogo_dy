@@ -52,19 +52,25 @@ func (u *userService) Register(userName string, passWord string) (response userC
 	return
 }
 
-func (u *userService) GetUserInfo(userId int64) (response *userCtlModel.User, err error) {
+func (u *userService) GetUserInfo(userId, myID int64) (response *userCtlModel.User, err error) {
 	var user *dal.User
 	user, err = dal.UserDal.GetUserInfoById(userId)
 	if err != nil {
 		return nil, err
 	}
-	// TODO 查询关注状态
+	r, err := RelationService.MGetRelation(myID, []int64{userId})
+	var isFollow bool
+	if err != nil {
+		hlog.Error("get user relation status failed", err)
+	} else {
+		_, isFollow = r[userId]
+	}
 	response = &userCtlModel.User{
 		ID:            user.ID,
 		Username:      user.Username,
 		FollowCount:   user.FollowCount,
 		FollowerCount: user.FollowerCount,
-		IsFollow:      false,
+		IsFollow:      isFollow,
 	}
 	return
 }

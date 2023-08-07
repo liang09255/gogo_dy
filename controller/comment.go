@@ -49,5 +49,9 @@ func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, "comment Error")
 		return
 	}
-	ctlFunc.ResponseWithData(ctx, "", data)
+
+	ctlFunc.Response(ctx, commentCtlModel.ListResp{
+		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Comments: data,
+	})
 }
