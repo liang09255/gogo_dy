@@ -49,6 +49,7 @@ func (u *user) Login(c context.Context, ctx *app.RequestContext) {
 }
 
 func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
+	var myID = middleware.GetUserID(ctx)
 	var reqObj userCtlModel.InfoReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
@@ -58,7 +59,7 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 	userId := reqObj.UserId
 
 	//调service查用户信息
-	UserInfoResponse, err := service.UserService.GetUserInfo(userId)
+	UserInfoResponse, err := service.UserService.GetUserInfo(userId, myID)
 	if err != nil {
 		hlog.CtxErrorf(c, "get userinfo error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "get userinfo error")
