@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/controller/ctlModel/videoCtlModel"
 	"main/dal"
 	"main/utils/conv"
@@ -29,9 +30,15 @@ func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, 
 	msg := "没有指定的类型"
 	if actionType == 1 {
 		err = dal.FavoriteDal.PostFavoriteAction(ctx, userId, videoId)
+		if err := VideoService.AddFavoriteCount(videoId); err != nil {
+			hlog.Error(err)
+		}
 		msg = "点赞成功"
 	} else if actionType == 2 {
 		err = dal.FavoriteDal.CancelFavoriteAction(ctx, userId, videoId)
+		if err := VideoService.ReduceFavoriteCount(videoId); err != nil {
+			hlog.Error(err)
+		}
 		msg = "取消点赞成功"
 	}
 	if err != nil {

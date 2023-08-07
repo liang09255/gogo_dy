@@ -57,5 +57,20 @@ func (h *videoDal) MGetVideoInfo(ids []int64) ([]Video, error) {
 	var videos []Video
 	t := global.MysqlDB.Where("id in ?", ids).Find(&videos)
 	return videos, t.Error
+}
 
+func (h *videoDal) AddFavoriteCount(videoID int64) error {
+	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("favorite_count", gorm.Expr("favorite_count + ?", 1)).Error
+}
+
+func (h *videoDal) AddCommentCount(videoID int64) error {
+	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count + ?", 1)).Error
+}
+
+func (h *videoDal) ReduceFavoriteCount(videoID int64) error {
+	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).Error
+}
+
+func (h *videoDal) ReduceCommentCount(videoID int64) error {
+	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count - ?", 1)).Error
 }

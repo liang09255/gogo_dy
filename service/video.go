@@ -144,3 +144,19 @@ func (v *videoService) MGetVideoInfo(videoIds []int64, uid int64) (videos []vide
 	}
 	return
 }
+
+func (v *videoService) AddFavoriteCount(videoID int64) error {
+	return dal.VideoDal.AddFavoriteCount(videoID)
+}
+
+func (v *videoService) AddCommentCount(videoID int64) error {
+	return dal.VideoDal.AddCommentCount(videoID)
+}
+
+func (v *videoService) ReduceFavoriteCount(videoID int64) error {
+	return dal.VideoDal.ReduceFavoriteCount(videoID)
+}
+
+func (v *videoService) ReduceCommentCount(videoID int64) error {
+	return dal.VideoDal.ReduceCommentCount(videoID)
+}
