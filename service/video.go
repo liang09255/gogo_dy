@@ -1,98 +1,146 @@
 package service
 
-//
-//import (
-//	"github.com/cloudwego/hertz/pkg/common/hlog"
-//	"main/dal"
-//	"strconv"
-//	"strings"
-//)
-//
-//type DouyinFeedRequest struct {
-//	LatestTime *string `json:"latest_time,omitempty"` // 可选参数，限制返回视频的最新投稿时间戳，精确到秒，不填表示当前时间
-//	Token      *string `json:"token,omitempty"`       // 用户登录状态下设置
-//}
-//
-//type DouyinFeedResponse struct {
-//	NextTime   *int64          `json:"next_time"`   // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
-//	StatusCode int64           `json:"status_code"` // 状态码，0-成功，其他值-失败
-//	StatusMsg  *string         `json:"status_msg"`  // 返回状态描述
-//	VideoList  []dal.VideoInfo `json:"video_list"`  // 视频列表
-//}
-//
-//type DouyinPublishActionResponse struct {
-//	StatusCode int64   `json:"status_code"`
-//	StatusMsg  *string `json:"status_msg"`
-//}
-//
-//type DouyinPublishActionRequest struct {
-//	Token string `json:"token"`
-//	Data  []byte `json:"data"`
-//	Title string `json:"title"`
-//}
-//
-//type DouyinPublishListRequest struct {
-//	Token  string `json:"token"`   // 用户鉴权token
-//	UserID string `json:"user_id"` // 用户id
-//}
-//
-//type DouyinPublishListResponse struct {
-//	StatusCode int64           `json:"status_code"` // 状态码，0-成功，其他值-失败
-//	StatusMsg  *string         `json:"status_msg"`  // 返回状态描述
-//	VideoList  []dal.VideoInfo `json:"video_list"`  // 用户发布的视频列表
-//}
-//
-//type videoService struct{}
-//
-//var VideoService = &videoService{}
-//
-//// PublishAction 发布视频服务
-//func (h *videoService) PublishAction(video dal.Video, token string) error {
-//	//根据token获取用户名称
-//	s := strings.Split(token, "&")
-//	name := s[0]
-//
-//	var user dal.User
-//
-//	err := dal.UserDal.GetUserByUserName(name, &user)
-//
-//	userid := user.ID
-//
-//	if err != nil {
-//		hlog.Error(err)
-//		return err
-//	}
-//
-//	video.AuthorId = userid
-//	err = dal.VideoDal.AddVideo(video)
-//	if err != nil {
-//		hlog.Error(err)
-//	}
-//	return err
-//}
-//
-//// GetPublishList 获取发布的视频列表
-//func (h *relationService) GetPublishList(token string, id string, response *[]dal.VideoInfo) interface{} {
-//
-//	Id, _ := strconv.Atoi(id)
-//
-//	err := dal.VideoDal.GetPublishList(token, int64(Id), response)
-//
-//	if err != nil {
-//		hlog.Error(err)
-//	}
-//
-//	return err
-//}
-//
-//// Feed 获取视频Feed流
-//func (h *videoService) Feed(latest int64, token string, response *[]dal.VideoInfo) error {
-//
-//	err := dal.VideoDal.GetFeedList(latest, token, response)
-//
-//	if err != nil {
-//		hlog.Error(err)
-//	}
-//
-//	return err
-//}
+import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	uuid "github.com/satori/go.uuid"
+	"main/controller/ctlModel/userCtlModel"
+	"main/controller/ctlModel/videoCtlModel"
+	"main/dal"
+	"main/global"
+	"mime/multipart"
+	"strconv"
+)
+
+type videoService struct{}
+
+var VideoService = &videoService{}
+
+// PublishAction 发布视频服务
+func (v *videoService) PublishAction(file *multipart.FileHeader, title string, userID int64) error {
+	f, err := file.Open()
+	if err != nil {
+		return err
+	}
+	uploadFileKey := strconv.FormatInt(userID, 10) + "/" + uuid.NewV4().String() + ".mp4"
+	if err := global.AliOSSBucket.PutObject(uploadFileKey, f); err != nil {
+		return err
+	}
+	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_400,h_300,m_fast"
+
+	urlPrefix := "https://" + global.Config.AliOSS.Bucket + ".oss-cn-shenzhen.aliyuncs.com/"
+	videoUrl := urlPrefix + uploadFileKey
+	coverUrl := urlPrefix + coverFileKey
+
+	err = dal.VideoDal.AddVideo(userID, videoUrl, coverUrl, title)
+	if err != nil {
+		hlog.Error(err)
+	}
+	return err
+}
+
+// GetPublishList 获取发布的视频列表
+func (v *videoService) GetPublishList(userId int64) (ret []videoCtlModel.Video, err error) {
+	var videos []dal.Video
+	videos, err = dal.VideoDal.GetPublishList(userId)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range videos {
+		var video = videoCtlModel.Video{
+			ID:            v.Id,
+			Author:        userCtlModel.User{},
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    false,
+			Title:         v.Title,
+		}
+		ret = append(ret, video)
+	}
+	return
+}
+
+// Feed 获取视频Feed流
+func (v *videoService) Feed(latest, userID int64) (res []videoCtlModel.Video, err error) {
+	var videos []dal.Video
+	videos, err = dal.VideoDal.GetFeedList(latest)
+	if err != nil {
+		return nil, err
+	}
+
+	var authors = make(map[int64]userCtlModel.User)
+	var isFavoriteMap = make(map[int64]bool)
+	// 登录过的用户
+	if userID != 0 {
+		authorIds := make([]int64, 0)
+		for _, v := range videos {
+			authorIds = append(authorIds, v.AuthorId)
+		}
+		authors, err = UserService.MGetUserInfosMap(authorIds, userID)
+
+		videoIds := make([]int64, 0)
+		for _, v := range videos {
+			videoIds = append(videoIds, v.Id)
+		}
+		isFavoriteMap, err = FavoriteService.MGetIsFavorite(videoIds, userID)
+	}
+
+	for _, v := range videos {
+		var video = videoCtlModel.Video{
+			ID:            v.Id,
+			Author:        authors[v.AuthorId],
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    isFavoriteMap[v.Id],
+			Title:         v.Title,
+		}
+		res = append(res, video)
+	}
+	return
+}
+
+func (v *videoService) MGetVideoInfo(videoIds []int64, uid int64) (videos []videoCtlModel.Video, err error) {
+	// 获取视频信息
+	videoInfos, err := dal.VideoDal.MGetVideoInfo(videoIds)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取作者信息
+	authorIds := make([]int64, 0)
+	for _, v := range videoInfos {
+		authorIds = append(authorIds, v.AuthorId)
+	}
+	authors, err := UserService.MGetUserInfo(authorIds, uid)
+	if err != nil {
+		hlog.Error(err)
+	}
+	authorMap := make(map[int64]userCtlModel.User)
+	for _, v := range authors {
+		authorMap[v.ID] = v
+	}
+
+	// 获取用户是否收藏
+	isFavoriteMap, err := FavoriteService.MGetIsFavorite(videoIds, uid)
+	if err != nil {
+		hlog.Error(err)
+	}
+
+	for _, v := range videoInfos {
+		var video = videoCtlModel.Video{
+			ID:            v.Id,
+			Author:        authorMap[v.AuthorId],
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    isFavoriteMap[v.Id],
+			Title:         v.Title,
+		}
+		videos = append(videos, video)
+	}
+	return
+}

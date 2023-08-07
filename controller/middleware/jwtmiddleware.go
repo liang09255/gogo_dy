@@ -6,6 +6,7 @@ import (
 	"log"
 	"main/controller/ctlModel/baseCtlModel"
 	"main/controller/ctlModel/userCtlModel"
+	"main/utils/encrypts"
 	"time"
 
 	"main/controller/ctlFunc"
@@ -13,7 +14,6 @@ import (
 	"main/global"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/jwt"
 )
 
@@ -40,7 +40,6 @@ func jwtMwInit() {
 		TokenHeadName: "Bearer",
 		// 用于设置检索身份的键
 		IdentityKey: identityKey,
-
 		// 从 token 提取用户信息
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
@@ -53,7 +52,10 @@ func jwtMwInit() {
 				return nil, err
 			}
 
-			user, err := dal.UserDal.CheckUser(reqObj.Username, reqObj.Password)
+			username := reqObj.Username
+			password := encrypts.Md5(reqObj.Password + global.Config.PasswordSalt)
+
+			user, err := dal.UserDal.CheckUser(username, password)
 			if err != nil {
 				return nil, err
 			}
@@ -91,7 +93,6 @@ func jwtMwInit() {
 			if v, ok := data.(float64); ok {
 				currentUserId := int64(v)
 				c.Set("current_user_id", currentUserId)
-				hlog.CtxInfof(ctx, "Token is verified clientIP: "+c.ClientIP())
 				return true
 			}
 			return false

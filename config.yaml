@@ -3,3 +3,11 @@ mysql:
   dsn: "root:root@tcp(127.0.0.1:3306)/gogo_dy?charset=utf8mb4&parseTime=True&loc=Local"
 
 jwtKey: "secret_key&&gogo_dy"
+
+aliOSS:
+  bucket: "gogo-dy"
+  endpoint: "oss-cn-shenzhen.aliyuncs.com"
+  accessKeyId: "LTAI5tCENJkYLuRmV8ynJxrE"
+  accessKeySecret: "5femBgiIADzv8ZRHq1vrjJjndsAOKi"
+
+passwordSalt: "gogo_dy"

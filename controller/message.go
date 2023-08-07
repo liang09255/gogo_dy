@@ -39,7 +39,7 @@ func (m *message) Action(c context.Context, ctx *app.RequestContext) {
 func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 	userID := middleware.GetUserID(ctx)
 	var reqObj messageCtlModel.ChatReq
-	if err := ctx.BindAndValidate(&reqObj); err != nil {
+	if err := ctx.Bind(&reqObj); err != nil {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
 	}

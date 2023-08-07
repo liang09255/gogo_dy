@@ -8,8 +8,6 @@ import (
 
 const MaxUsernameLength = 32
 
-// TODO 字段不全，根据需要补充
-
 type User struct {
 	gorm.Model
 	ID            int64  `gorm:"primarykey" json:"user_id"`
@@ -62,7 +60,7 @@ func (u *userDal) GetUserInfoById(userId int64) (user *User, err error) {
 
 func (u *userDal) GetUserByUserName(userName string, user *User) error {
 	//直接传infoResponse会查询错误的数据表
-	t := global.MysqlDB.Where("username = ?", userName).Find(&user)
+	t := global.MysqlDB.Where("username = ?", userName).Find(user)
 	//id为零值，说明sql执行失败
 	if user.ID == 0 {
 		return errors.New("该用户不存在")
@@ -81,4 +79,12 @@ func (u *userDal) CheckUser(userName string, passWord string) (*User, error) {
 		return nil, errors.New("用户验证失败")
 	}
 	return user, t.Error
+}
+
+func (u *userDal) MGetUser(ids []int64) (users []*User, err error) {
+	t := global.MysqlDB.Where("id in ?", ids).Find(&users)
+	if t.Error != nil {
+		return nil, t.Error
+	}
+	return users, nil
 }
