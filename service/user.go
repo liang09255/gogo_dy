@@ -125,3 +125,19 @@ func (u *userService) MGetUserInfosMap(uids []int64, myUid ...int64) (users map[
 	}
 	return
 }
+
+func (u *userService) AddFollowCount(uid int64) error {
+	return dal.UserDal.AddFollowCount(uid)
+}
+
+func (u *userService) AddFollowerCount(uid int64) error {
+	return dal.UserDal.AddFollowerCount(uid)
+}
+
+func (u *userService) SubFollowCount(uid int64) error {
+	return dal.UserDal.SubFollowCount(uid)
+}
+
+func (u *userService) SubFollowerCount(uid int64) error {
+	return dal.UserDal.SubFollowerCount(uid)
+}

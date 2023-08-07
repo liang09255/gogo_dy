@@ -88,3 +88,19 @@ func (u *userDal) MGetUser(ids []int64) (users []*User, err error) {
 	}
 	return users, nil
 }
+
+func (u *userDal) AddFollowCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("follow_count", gorm.Expr("follow_count + ?", 1)).Error
+}
+
+func (u *userDal) SubFollowCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("follow_count", gorm.Expr("follow_count - ?", 1)).Error
+}
+
+func (u *userDal) AddFollowerCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("follower_count", gorm.Expr("follower_count + ?", 1)).Error
+}
+
+func (u *userDal) SubFollowerCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("follower_count", gorm.Expr("follower_count - ?", 1)).Error
+}
