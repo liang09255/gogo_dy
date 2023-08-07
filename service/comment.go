@@ -37,6 +37,11 @@ func (h *commentService) postComment(ctx context.Context, userID int64, c commen
 	if err != nil {
 		return commentCtlModel.Comment{}, err
 	}
+
+	if err := VideoService.AddCommentCount(c.VideoID); err != nil {
+		hlog.CtxErrorf(ctx, "add comment count error, err: %v", err)
+	}
+
 	userInfos, err := UserService.MGetUserInfo([]int64{userID}, userID)
 	if err != nil {
 		hlog.CtxErrorf(ctx, "get user info error, err: %v", err)
@@ -53,6 +58,11 @@ func (h *commentService) delComment(ctx context.Context, c commentCtlModel.Actio
 	var comment = dal.Comment{
 		ID: c.CommentID,
 	}
+
+	if err := VideoService.ReduceCommentCount(c.VideoID); err != nil {
+		hlog.CtxErrorf(ctx, "reduce comment count error, err: %v", err)
+	}
+
 	return commentCtlModel.Comment{}, dal.CommentDal.DelComment(ctx, &comment)
 }
 
