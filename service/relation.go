@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/controller/ctlModel/userCtlModel"
 	"main/dal"
 	"main/utils/conv"
@@ -19,8 +20,20 @@ const (
 // RelationAction 关系操作
 func (r *relationService) RelationAction(userID, toUserID int64, actionType int32) error {
 	if actionType == FollowAction {
+		if err := UserService.AddFollowCount(userID); err != nil {
+			hlog.Error(err)
+		}
+		if err := UserService.AddFollowerCount(toUserID); err != nil {
+			hlog.Error(err)
+		}
 		return dal.RelationDal.Follow(userID, toUserID)
 	} else if actionType == UnFollowAction {
+		if err := UserService.SubFollowCount(userID); err != nil {
+			hlog.Error(err)
+		}
+		if err := UserService.SubFollowerCount(toUserID); err != nil {
+			hlog.Error(err)
+		}
 		return dal.RelationDal.Delete(userID, toUserID)
 	}
 	return fmt.Errorf("invalid action type, action_type: %d", actionType)
