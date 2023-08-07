@@ -2,38 +2,28 @@ package service
 
 import (
 	"context"
-	"main/controller/ctlModel/userCtlModel"
 	"main/controller/ctlModel/videoCtlModel"
 	"main/dal"
+	"main/utils/conv"
 )
 
 type favoriteService struct{}
 
 var FavoriteService = &favoriteService{}
 
-// FixMe 缺少接口类型
 func (h *favoriteService) GetFavoriteList(ctx context.Context, userId int64) (videos []videoCtlModel.Video, err error) {
 	var videoIds []int64
 	videoIds, err = dal.FavoriteDal.GetFavoriteList(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-	// FixMe 获取Video和User信息
-	for _, videoId := range videoIds {
-		var video = videoCtlModel.Video{
-			ID:            videoId,
-			Author:        userCtlModel.User{},
-			PlayUrl:       "",
-			CoverUrl:      "",
-			FavoriteCount: 0,
-			CommentCount:  0,
-			IsFavorite:    true,
-			Title:         "undefined",
-		}
+	videoInfos, err := VideoService.MGetVideoInfo(videoIds, userId)
+	for _, video := range videoInfos {
 		videos = append(videos, video)
 	}
 	return
 }
+
 func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, videoId int64, actionType int32) (string, error) {
 	var err error
 	msg := "没有指定的类型"
@@ -48,4 +38,21 @@ func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, 
 		return "", err
 	}
 	return msg, nil
+}
+
+func (h *favoriteService) MGetIsFavorite(videoIds []int64, uid int64) (ret map[int64]bool, err error) {
+	favoriteIds, err := dal.FavoriteDal.GetFavoriteList(context.Background(), uid)
+	if err != nil {
+		return nil, err
+	}
+	ret = make(map[int64]bool)
+	videoIdMap := conv.Array2Map(videoIds)
+	for _, favoriteId := range favoriteIds {
+		if _, ok := videoIdMap[favoriteId]; ok {
+			ret[favoriteId] = true
+		} else {
+			ret[favoriteId] = false
+		}
+	}
+	return
 }

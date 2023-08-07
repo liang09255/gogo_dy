@@ -52,3 +52,10 @@ func (h *videoDal) GetFeedList(latest int64) ([]Video, error) {
 		Find(&videos)
 	return videos, t.Error
 }
+
+func (h *videoDal) MGetVideoInfo(ids []int64) ([]Video, error) {
+	var videos []Video
+	t := global.MysqlDB.Where("id in ?", ids).Find(&videos)
+	return videos, t.Error
+
+}

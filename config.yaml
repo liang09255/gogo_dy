@@ -9,3 +9,5 @@ aliOSS:
   endpoint: "oss-cn-shenzhen.aliyuncs.com"
   accessKeyId: "LTAI5tCENJkYLuRmV8ynJxrE"
   accessKeySecret: "5femBgiIADzv8ZRHq1vrjJjndsAOKi"
+
+passwordSalt: "gogo_dy"

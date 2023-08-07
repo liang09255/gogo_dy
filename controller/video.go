@@ -24,8 +24,19 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
+	var userID int64
+	// 单独处理token
+	token := ctx.Query("token")
+	if token != "" {
+		userID, err = middleware.GetUserIDFromToken(token)
+		if err != nil {
+			ctlFunc.BaseFailedResp(ctx, "token error")
+			return
+		}
+	}
+
 	//获取视频列表
-	videos, err := service.VideoService.Feed(reqObj.LatestTime)
+	videos, err := service.VideoService.Feed(reqObj.LatestTime, userID)
 
 	//resp. NextTime: 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
 	if err != nil {

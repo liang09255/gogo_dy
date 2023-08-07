@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/controller/ctlModel/commentCtlModel"
 	"main/controller/ctlModel/userCtlModel"
 	"main/dal"
@@ -36,8 +37,12 @@ func (h *commentService) postComment(ctx context.Context, userID int64, c commen
 	if err != nil {
 		return commentCtlModel.Comment{}, err
 	}
-	// TODO 获取用户信息
-	res.User = userCtlModel.User{}
+	userInfos, err := UserService.MGetUserInfo([]int64{userID}, userID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "get user info error, err: %v", err)
+	} else {
+		res.User = userInfos[0]
+	}
 	res.Content = comment.Content
 	res.ID = comment.ID
 	res.CreateDate = comment.CreatedAt.Format("2006-01-02 15:04:05")
@@ -63,12 +68,21 @@ func convertCommentListToCommentListResponse(commentList []*dal.Comment) []comme
 
 	commentListRes := make([]commentCtlModel.Comment, len(commentList))
 
+	uids := make([]int64, len(commentList))
+	for _, c := range commentList {
+		uids = append(uids, c.UserId)
+	}
+	userInfos, err := UserService.MGetUserInfosMap(uids)
+	if err != nil {
+		hlog.Errorf("get user info error, err: %v", err)
+		userInfos = make(map[int64]userCtlModel.User)
+	}
+
 	for i, msg := range commentList {
-		// TODO 获取用户信息
 		commentListRes[i] = commentCtlModel.Comment{
 			ID:         msg.ID,
 			Content:    msg.Content,
-			User:       userCtlModel.User{},
+			User:       userInfos[msg.UserId],
 			CreateDate: msg.CreatedAt.Format("2006-01-02 15:04:05"),
 		}
 	}

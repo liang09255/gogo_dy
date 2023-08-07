@@ -6,6 +6,7 @@ import (
 	"log"
 	"main/controller/ctlModel/baseCtlModel"
 	"main/controller/ctlModel/userCtlModel"
+	"main/utils/encrypts"
 	"time"
 
 	"main/controller/ctlFunc"
@@ -51,7 +52,10 @@ func jwtMwInit() {
 				return nil, err
 			}
 
-			user, err := dal.UserDal.CheckUser(reqObj.Username, reqObj.Password)
+			username := reqObj.Username
+			password := encrypts.Md5(reqObj.Password + global.Config.PasswordSalt)
+
+			user, err := dal.UserDal.CheckUser(username, password)
 			if err != nil {
 				return nil, err
 			}

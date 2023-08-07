@@ -11,6 +11,7 @@ type config struct {
 		AccessKeyId     string `json:"accessKeyId"`
 		AccessKeySecret string `json:"accessKeySecret"`
 	} `json:"aliOSS"`
+	PasswordSalt string `json:"passwordSalt"`
 }
 
 var Config = &config{}
