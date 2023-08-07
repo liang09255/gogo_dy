@@ -23,7 +23,7 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	comment, err := service.CommentService.PostCommentAction(c, userID, reqObj.VideoID, reqObj.CommentText, reqObj.ActionType)
+	comment, err := service.CommentService.PostCommentAction(c, userID, reqObj)
 	if err != nil {
 		hlog.CtxErrorf(c, "comment error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "comment Error")

@@ -38,10 +38,11 @@ func ReleaseToken(userId int64) (string, error) {
 	return tokenString, nil
 }
 
+// GetUserID 使用了jwt中间件的路由可通过此方法获取用户id
 func GetUserID(ctx *app.RequestContext) int64 {
 	id, ok := ctx.Get(UserIDKey)
 	if !ok {
-		hlog.Errorf("get userID from context failed, path: %s, maybe unused jet middleware", ctx.FullPath())
+		hlog.Errorf("get userID from context failed, path: %s, maybe unused jwt middleware in route", ctx.FullPath())
 		return 0
 	}
 	return int64(id.(float64))

@@ -1,4 +1,4 @@
-package relaitonCtlModel
+package relationCtlModel
 
 import (
 	"main/controller/ctlModel/baseCtlModel"

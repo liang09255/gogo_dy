@@ -20,7 +20,7 @@ var FavoriteDal = &favoriteDal{}
 func (f *favoriteDal) GetFavoriteList(ctx context.Context, userId int64) ([]int64, error) {
 	ids := make([]int64, 0)
 	if err := global.MysqlDB.WithContext(ctx).Where("id in (?)",
-		global.MysqlDB.WithContext(ctx).Table("favorites").Select("video_id").Where("user_id = ? AND deleted_at is null", userId).Find(&ids)).Error; err != nil {
+		global.MysqlDB.WithContext(ctx).Table("favorites").Select("video_id").Where("user_id = ?", userId).Find(&ids)).Error; err != nil {
 		return []int64{}, err
 	}
 
