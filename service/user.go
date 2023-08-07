@@ -21,10 +21,9 @@ func (u *userService) Register(userName string, passWord string) (response userC
 		err = fmt.Errorf("用户已存在")
 		return
 	}
-	hlog.Error("password: ", passWord, "salt: ", global.Config.PasswordSalt)
+
 	// 密码加密
 	passWord = encrypts.Md5(passWord + global.Config.PasswordSalt)
-	hlog.Error("password", passWord)
 
 	//调dal插入数据库
 	var userLogin = &dal.User{Username: userName, Password: passWord}
