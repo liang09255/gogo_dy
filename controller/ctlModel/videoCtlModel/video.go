@@ -20,7 +20,7 @@ type FeedResp struct {
 // 发布视频
 
 type PublishReq struct {
-	Title string `query:"title, required" vd:"len($)>0"`
+	Title string `form:"title, required" vd:"len($)>0"`
 }
 
 type PublishResp struct {
