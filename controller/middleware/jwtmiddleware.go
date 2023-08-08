@@ -35,7 +35,7 @@ func jwtMwInit() {
 		// 设置最大 token 刷新时间
 		MaxRefresh: time.Hour * 4,
 		// 设置 token 的获取源
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		TokenLookup: "header: Authorization, query: token, cookie: jwt, form: token",
 		// 设置从 header 中获取 token 时的前缀
 		TokenHeadName: "Bearer",
 		// 用于设置检索身份的键
