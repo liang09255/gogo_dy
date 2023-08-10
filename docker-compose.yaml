@@ -1,0 +1,7 @@
+version: 'v1.0.0'
+services:
+  gogo_dy:
+    ports:
+      - '8080:8080'
+    restart: always
+    image: 'liang09255/gogo_dy:v1.0.0'
