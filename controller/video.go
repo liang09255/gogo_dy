@@ -36,17 +36,18 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 	}
 
 	//获取视频列表
-	videos, err := service.VideoService.Feed(reqObj.LatestTime, userID)
-
+	videos, nextTime, err := service.VideoService.Feed(reqObj.LatestTime, userID)
 	//resp. NextTime: 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
 	if err != nil {
 		hlog.CtxErrorf(c, "Feed error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "Feed error")
 		return
 	}
+
 	ctlFunc.Response(ctx, videoCtlModel.FeedResp{
 		BaseResp: baseCtlModel.NewBaseSuccessResp(),
 		Videos:   videos,
+		NextTime: nextTime.UnixMicro(),
 	})
 }
 

@@ -45,8 +45,12 @@ func (h *videoDal) GetPublishList(id int64) ([]Video, error) {
 // GetFeedList 获取视频feed列表
 func (h *videoDal) GetFeedList(latest int64) ([]Video, error) {
 	var videos []Video
+	// 需要查找比latest早发布的视频
+	if latest == 0 {
+		latest = time.Now().UnixMicro()
+	}
 	t := global.MysqlDB.
-		Where("created_at > ?", time.UnixMicro(latest)).
+		Where("created_at < ?", time.UnixMicro(latest)).
 		Order("created_at DESC").
 		Limit(30).
 		Find(&videos)

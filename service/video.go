@@ -9,6 +9,7 @@ import (
 	"main/global"
 	"mime/multipart"
 	"strconv"
+	"time"
 )
 
 type videoService struct{}
@@ -82,11 +83,11 @@ func (v *videoService) GetPublishList(userId int64) (ret []videoCtlModel.Video, 
 }
 
 // Feed 获取视频Feed流
-func (v *videoService) Feed(latest, userID int64) (res []videoCtlModel.Video, err error) {
+func (v *videoService) Feed(latest, userID int64) (res []videoCtlModel.Video, nextTime time.Time, err error) {
 	var videos []dal.Video
 	videos, err = dal.VideoDal.GetFeedList(latest)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	var authors = make(map[int64]userCtlModel.User)
@@ -118,6 +119,12 @@ func (v *videoService) Feed(latest, userID int64) (res []videoCtlModel.Video, er
 			Title:         v.Title,
 		}
 		res = append(res, video)
+	}
+	if len(videos) != 0 {
+		// 最老的视频发布时间为下次获取的开始时间
+		nextTime = videos[len(videos)-1].CreatedAt
+	} else {
+		nextTime = time.Now()
 	}
 	return
 }

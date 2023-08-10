@@ -13,7 +13,7 @@ func Init(h *server.Hertz) {
 	userGroup.POST("login/", User.Login)
 	userGroup.GET("", middleware.Jwt.MiddlewareFunc(), User.UserInfo)
 	// 视频接口
-	dy.GET("feed/", Video.Feed)
+	dy.GET("feed", Video.Feed)
 	publish := dy.Group("publish/", middleware.Jwt.MiddlewareFunc())
 	publish.POST("action/", Video.PublishAction)
 	publish.GET("list/", Video.PublishList)
