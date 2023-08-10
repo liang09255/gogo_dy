@@ -33,7 +33,7 @@ func (m *messageDal) GetMessages(userID, toUserID int64, preMsgTime int64) ([]Me
 	var messages []Message
 	query := global.MysqlDB.
 		Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?) AND (created_at > ?)",
-			userID, toUserID, toUserID, userID, time.UnixMilli(preMsgTime)).
+			userID, toUserID, toUserID, userID, time.UnixMicro(preMsgTime)).
 		Order("created_at").Find(&messages)
 	return messages, query.Error
 }
