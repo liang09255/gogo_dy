@@ -94,5 +94,7 @@ func (r *relationService) MGetRelation(userID int64, toUserIDs []int64) (map[int
 			followMap[id] = struct{}{}
 		}
 	}
+	// 默认自己对自己是已关注的状态
+	followMap[userID] = struct{}{}
 	return followMap, nil
 }
