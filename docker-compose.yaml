@@ -8,3 +8,4 @@ services:
     image: 'liang09255/gogo_dy:v1.0.0'
     volumes:
       - './config.yaml:/app/config.yaml'
+    network_mode: 'host'
