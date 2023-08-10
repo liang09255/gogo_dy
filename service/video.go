@@ -25,7 +25,7 @@ func (v *videoService) PublishAction(file *multipart.FileHeader, title string, u
 	if err := global.AliOSSBucket.PutObject(uploadFileKey, f); err != nil {
 		return err
 	}
-	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_400,h_300,m_fast"
+	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_720,h_1280,m_fast"
 
 	urlPrefix := "https://" + global.Config.AliOSS.Bucket + ".oss-cn-shenzhen.aliyuncs.com/"
 	videoUrl := urlPrefix + uploadFileKey
