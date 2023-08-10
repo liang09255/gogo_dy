@@ -1,6 +1,7 @@
 version: '2'
 services:
   gogo_dy:
+    container_name: 'gogo_dy'
     ports:
       - '8080:8080'
     restart: always
