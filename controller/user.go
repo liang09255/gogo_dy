@@ -70,11 +70,14 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 	var resp = &userCtlModel.InfoResp{
 		BaseResp: baseCtlModel.NewBaseSuccessResp(),
 		User: userCtlModel.User{
-			ID:            UserInfoResponse.ID,
-			Username:      UserInfoResponse.Username,
-			FollowCount:   UserInfoResponse.FollowCount,
-			FollowerCount: UserInfoResponse.FollowerCount,
-			IsFollow:      UserInfoResponse.IsFollow,
+			ID:             UserInfoResponse.ID,
+			Username:       UserInfoResponse.Username,
+			FollowCount:    UserInfoResponse.FollowCount,
+			FollowerCount:  UserInfoResponse.FollowerCount,
+			IsFollow:       UserInfoResponse.IsFollow,
+			TotalFavorited: UserInfoResponse.TotalFavorited,
+			WorkCount:      UserInfoResponse.WorkCount,
+			FavoriteCount:  UserInfoResponse.FavoriteCount,
 		},
 	}
 	ctlFunc.Response(ctx, resp)

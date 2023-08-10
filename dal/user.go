@@ -10,11 +10,14 @@ const MaxUsernameLength = 32
 
 type User struct {
 	gorm.Model
-	ID            int64  `gorm:"primarykey" json:"user_id"`
-	Username      string `gorm:"not null" json:"user_name"`
-	Password      string `gorm:"not null" json:"password"`
-	FollowCount   int64  `gorm:"default:0" json:"follow_count"`
-	FollowerCount int64  `gorm:"default:0" json:"follower_count"`
+	ID             int64  `gorm:"primarykey" json:"user_id"`
+	Username       string `gorm:"not null" json:"user_name"`
+	Password       string `gorm:"not null" json:"password"`
+	FollowCount    int64  `gorm:"default:0" json:"follow_count"`
+	FollowerCount  int64  `gorm:"default:0" json:"follower_count"`
+	TotalFavorited string `gorm:"default:0" json:"total_favorited"` // 获点赞数量
+	WorkCount      int64  `gorm:"default:0" json:"work_count"`      // 作品数
+	FavoriteCount  int64  `gorm:"default:0" json:"favorite_count"`  //喜欢数
 }
 
 type userDal struct{}
@@ -103,4 +106,28 @@ func (u *userDal) AddFollowerCount(uid int64) error {
 
 func (u *userDal) SubFollowerCount(uid int64) error {
 	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("follower_count", gorm.Expr("follower_count - ?", 1)).Error
+}
+
+func (u *userDal) AddWorkCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("work_count", gorm.Expr("work_count+?", 1)).Error
+}
+
+func (u *userDal) SubWorkCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("work_count", gorm.Expr("work_count - ?", 1)).Error
+}
+
+func (u *userDal) AddTotalFavorited(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("total_favorited", gorm.Expr("total_favorited + ?", 1)).Error
+}
+
+func (u *userDal) SubTotalFavorited(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("total_favorited", gorm.Expr("total_favorited - ?", 1)).Error
+}
+
+func (u *userDal) AddFavoriteCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("favorite_count", gorm.Expr("favorite_count + ?", 1)).Error
+}
+
+func (u *userDal) SubFavoriteCount(uid int64) error {
+	return global.MysqlDB.Model(&User{}).Where("id = ?", uid).Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).Error
 }

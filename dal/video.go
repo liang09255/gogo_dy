@@ -44,9 +44,13 @@ func (h *videoDal) GetPublishList(id int64) ([]Video, error) {
 
 // GetFeedList 获取视频feed列表
 func (h *videoDal) GetFeedList(latest int64) ([]Video, error) {
+	// 传入的毫秒级别时间戳，需要进一步处理
+	// 这里拆分是为了避免毫秒直接转秒级会丢失进度，所以分为秒和毫秒两部分分别处理
+	seconds := latest / 1000
+	milliseconds := latest % 1000
 	var videos []Video
 	t := global.MysqlDB.
-		Where("created_at > ?", time.Unix(latest, 0)).
+		Where("created_at < ?", time.Unix(seconds, milliseconds*int64(time.Millisecond))).
 		Order("created_at DESC").
 		Limit(30).
 		Find(&videos)
@@ -73,4 +77,9 @@ func (h *videoDal) ReduceFavoriteCount(videoID int64) error {
 
 func (h *videoDal) ReduceCommentCount(videoID int64) error {
 	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count - ?", 1)).Error
+}
+
+func (h *videoDal) SelectByVId(videoID int64) (v *Video, err error) {
+	err = global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Find(&v).Error
+	return v, err
 }
