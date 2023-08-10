@@ -95,7 +95,7 @@ func (r *relationDal) GetAllFriend(Id int64) (friendIds []int64, err error) {
 		return
 	}
 	var friends []Relation
-	err = global.MysqlDB.Where("user_id = ? AND follow_id IN ?", Id, followIds).Find(&friends).Error
+	err = global.MysqlDB.Where("user_id IN ? AND follow_id = ?", followIds, Id).Find(&friends).Error
 	if err != nil {
 		return
 	}
