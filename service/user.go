@@ -65,11 +65,14 @@ func (u *userService) GetUserInfo(userId, myID int64) (response *userCtlModel.Us
 		_, isFollow = r[userId]
 	}
 	response = &userCtlModel.User{
-		ID:            user.ID,
-		Username:      user.Username,
-		FollowCount:   user.FollowCount,
-		FollowerCount: user.FollowerCount,
-		IsFollow:      isFollow,
+		ID:             user.ID,
+		Username:       user.Username,
+		FollowCount:    user.FollowCount,
+		FollowerCount:  user.FollowerCount,
+		IsFollow:       isFollow,
+		TotalFavorited: user.TotalFavorited,
+		WorkCount:      user.WorkCount,
+		FavoriteCount:  user.FavoriteCount,
 	}
 	return
 }
@@ -103,11 +106,14 @@ func (u *userService) MGetUserInfo(userIds []int64, uid ...int64) (users []userC
 	// 整合到userCtlModel.User
 	for _, userInfo := range userInfos {
 		var user = userCtlModel.User{
-			ID:            userInfo.ID,
-			Username:      userInfo.Username,
-			FollowCount:   userInfo.FollowCount,
-			FollowerCount: userInfo.FollowerCount,
-			IsFollow:      isFollow(userInfo.ID),
+			ID:             userInfo.ID,
+			Username:       userInfo.Username,
+			FollowCount:    userInfo.FollowCount,
+			FollowerCount:  userInfo.FollowerCount,
+			IsFollow:       isFollow(userInfo.ID),
+			TotalFavorited: userInfo.TotalFavorited,
+			WorkCount:      userInfo.WorkCount,
+			FavoriteCount:  userInfo.FavoriteCount,
 		}
 		users = append(users, user)
 	}

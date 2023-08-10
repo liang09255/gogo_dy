@@ -25,13 +25,18 @@ func (v *videoService) PublishAction(file *multipart.FileHeader, title string, u
 	if err := global.AliOSSBucket.PutObject(uploadFileKey, f); err != nil {
 		return err
 	}
-	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_400,h_300,m_fast"
+	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_720,h_1280,m_fast"
 
 	urlPrefix := "https://" + global.Config.AliOSS.Bucket + ".oss-cn-shenzhen.aliyuncs.com/"
 	videoUrl := urlPrefix + uploadFileKey
 	coverUrl := urlPrefix + coverFileKey
 
 	err = dal.VideoDal.AddVideo(userID, videoUrl, coverUrl, title)
+	if err != nil {
+		hlog.Error(err)
+	}
+	// 添加用户作品数
+	err = dal.UserDal.AddWorkCount(userID)
 	if err != nil {
 		hlog.Error(err)
 	}
@@ -45,10 +50,25 @@ func (v *videoService) GetPublishList(userId int64) (ret []videoCtlModel.Video, 
 	if err != nil {
 		return nil, err
 	}
+
+	user, err := dal.UserDal.GetUserInfoById(userId)
+	if err != nil {
+		return nil, err
+	}
+	u := userCtlModel.User{
+		ID:             user.ID,
+		Username:       user.Username,
+		FollowCount:    user.FollowerCount,
+		FollowerCount:  user.FollowerCount,
+		TotalFavorited: user.TotalFavorited,
+		WorkCount:      user.WorkCount,
+		FavoriteCount:  user.FavoriteCount,
+	}
+
 	for _, v := range videos {
 		var video = videoCtlModel.Video{
 			ID:            v.Id,
-			Author:        userCtlModel.User{},
+			Author:        u,
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.FavoriteCount,
