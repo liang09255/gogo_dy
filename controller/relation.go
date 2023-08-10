@@ -24,6 +24,12 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
+	// 禁止关注自己
+	if userID == reqObj.ToUserID {
+		ctlFunc.BaseSuccessResp(ctx)
+		return
+	}
+
 	err := service.RelationService.RelationAction(userID, reqObj.ToUserID, reqObj.ActionType)
 	if err != nil {
 		hlog.CtxErrorf(c, "relation action error: %v", err)
