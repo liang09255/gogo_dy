@@ -1,6 +1,7 @@
 package dal
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"main/global"
 	"time"
 
@@ -30,9 +31,10 @@ func (m *messageDal) NewMessage(FromUserID, toUserID int64, actionType int32, co
 }
 
 func (m *messageDal) GetMessages(userID, toUserID int64, preMsgTime int64) ([]Message, error) {
+	hlog.Info("preMsgTime", preMsgTime)
 	var messages []Message
-	query := global.MysqlDB.
-		Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?) AND (created_at > ?)",
+	query := global.MysqlDB.Debug().
+		Where("((to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)) AND (created_at > ?)",
 			userID, toUserID, toUserID, userID, time.UnixMicro(preMsgTime)).
 		Order("created_at").Find(&messages)
 	return messages, query.Error

@@ -34,7 +34,7 @@ func convertMessagesToChatResponse(messages []dal.Message) []messageCtlModel.Mes
 		chatMessage := messageCtlModel.Message{
 			ID:         int64(msg.ID),
 			Content:    msg.Content,
-			CreateTime: msg.CreatedAt.Format("2006-01-02 15:04:05"),
+			CreateTime: msg.CreatedAt.UnixMicro(),
 			FromUserID: msg.FromUserID,
 			ToUserID:   msg.ToUserID,
 		}
