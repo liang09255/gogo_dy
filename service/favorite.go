@@ -25,6 +25,7 @@ func (h *favoriteService) GetFavoriteList(ctx context.Context, userId int64) (vi
 	return
 }
 
+// PostFavoriteAction 点赞/取消点赞操作
 func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, videoId int64, actionType int32) (string, error) {
 	var err error
 	msg := "没有指定的类型"
@@ -33,11 +34,46 @@ func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, 
 		if err := VideoService.AddFavoriteCount(videoId); err != nil {
 			hlog.Error(err)
 		}
+		// 查询视频信息
+		v, err := dal.VideoDal.SelectByVId(videoId)
+		if err != nil {
+			hlog.Error(err)
+			return "Select By Video ID error", err
+		}
+		// 根据作者去添加作者的总点赞数
+		err = dal.UserDal.AddTotalFavorited(v.AuthorId)
+		if err != nil {
+			hlog.Error(err)
+			return "Add Total Favorited Error", err
+		}
+		// 添加自己的喜欢数
+		err = dal.UserDal.AddFavoriteCount(userId)
+		if err != nil {
+			hlog.Error(err)
+			return "Add Favorite Count error", err
+		}
 		msg = "点赞成功"
 	} else if actionType == 2 {
 		err = dal.FavoriteDal.CancelFavoriteAction(ctx, userId, videoId)
 		if err := VideoService.ReduceFavoriteCount(videoId); err != nil {
 			hlog.Error(err)
+		}
+		// 查询视频信息
+		v, err := dal.VideoDal.SelectByVId(videoId)
+		if err != nil {
+			hlog.Error(err)
+			return "Select By Video ID error", err
+		}
+		err = dal.UserDal.SubTotalFavorited(v.AuthorId)
+		if err != nil {
+			hlog.Error(err)
+			return "Sub Total Favorited Error", err
+		}
+		// 减少自己的喜欢数
+		err = dal.UserDal.SubFavoriteCount(userId)
+		if err != nil {
+			hlog.Error(err)
+			return "Sub Favorite Count Error", err
 		}
 		msg = "取消点赞成功"
 	}

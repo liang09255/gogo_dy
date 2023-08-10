@@ -78,3 +78,8 @@ func (h *videoDal) ReduceFavoriteCount(videoID int64) error {
 func (h *videoDal) ReduceCommentCount(videoID int64) error {
 	return global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count - ?", 1)).Error
 }
+
+func (h *videoDal) SelectByVId(videoID int64) (v *Video, err error) {
+	err = global.MysqlDB.Model(&Video{}).Where("id = ?", videoID).Find(&v).Error
+	return v, err
+}
