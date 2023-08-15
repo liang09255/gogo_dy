@@ -1,9 +1,9 @@
-version: '2'
+version: '3'
 services:
   gogo_dy:
     container_name: 'gogo_dy'
     restart: 'always'
-    image: 'liang09255/gogo_dy:v1.0.0'
+    image: 'liang09255/gogo_dy:v1.0.1'
     volumes:
       - './config.yaml:/app/config.yaml'
     network_mode: 'host'

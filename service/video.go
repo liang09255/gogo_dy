@@ -92,19 +92,29 @@ func (v *videoService) Feed(latest, userID int64) (res []videoCtlModel.Video, ne
 
 	var authors = make(map[int64]userCtlModel.User)
 	var isFavoriteMap = make(map[int64]bool)
+	authorIds := make([]int64, 0)
+	for _, v := range videos {
+		authorIds = append(authorIds, v.AuthorId)
+	}
 	// 登录过的用户
 	if userID != 0 {
-		authorIds := make([]int64, 0)
-		for _, v := range videos {
-			authorIds = append(authorIds, v.AuthorId)
-		}
 		authors, err = UserService.MGetUserInfosMap(authorIds, userID)
-
+		if err != nil {
+			hlog.Error("feed get user info err: ", err)
+		}
 		videoIds := make([]int64, 0)
 		for _, v := range videos {
 			videoIds = append(videoIds, v.Id)
 		}
 		isFavoriteMap, err = FavoriteService.MGetIsFavorite(videoIds, userID)
+		if err != nil {
+			hlog.Error("feed get is favorite err: ", err)
+		}
+	} else {
+		authors, err = UserService.MGetUserInfosMap(authorIds)
+		if err != nil {
+			hlog.Error("feed get user info err(未登录): ", err)
+		}
 	}
 
 	for _, v := range videos {

@@ -87,13 +87,9 @@ func (u *userService) MGetUserInfo(userIds []int64, uid ...int64) (users []userC
 		return nil, err
 	}
 	// 获取关注关系
-	var getIsFollow bool
-	var followMap map[int64]struct{}
+	var followMap = make(map[int64]struct{})
 	var isFollow func(uid int64) bool
 	if len(uid) != 0 {
-		getIsFollow = true
-	}
-	if getIsFollow {
 		followMap, err = RelationService.MGetRelation(uid[0], userIds)
 		if err != nil {
 			hlog.Error("get user relation status failed", err)
