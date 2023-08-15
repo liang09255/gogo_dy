@@ -1,13 +1,13 @@
 # 所有隐私内容全部写在配置文件中
 mysql:
-  dsn: "root:10086@gogo.com@tcp(111.173.80.63:3306)/gogo_dy?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:root@tcp(host:port)/gogo_dy?charset=utf8mb4&parseTime=True&loc=Local"
 
-jwtKey: "secret_key&&gogo_dy"
+jwtKey: "jwtKey"
 
 aliOSS:
-  bucket: "gogo-dy"
-  endpoint: "oss-cn-shenzhen.aliyuncs.com"
-  accessKeyId: "LTAI5tCENJkYLuRmV8ynJxrE"
-  accessKeySecret: "5femBgiIADzv8ZRHq1vrjJjndsAOKi"
+  bucket: "bucket"
+  endpoint: "endpoint"
+  accessKeyId: "accessKeyId"
+  accessKeySecret: "accessKeySecret"
 
-passwordSalt: "gogo_dy"
+passwordSalt: "passwordSalt"
