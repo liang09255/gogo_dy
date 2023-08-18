@@ -1,10 +1,14 @@
-VERSION = v1.0.1
+VERSION = v2.0.0
 
-docker_build:
-	docker build -t liang09255/gogo_dy:$(VERSION) .
+build_all:
+	make build_base
+	make build_api
 
-docker_push:
-	docker push liang09255/gogo_dy:$(VERSION)
+build_base:
+	docker build -t base:$(VERISON) .
+
+build_api:
+	docker build -t api:$(VERSION) ./api
 
 tidy_all:
 	cd ./api && go mod tidy
