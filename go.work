@@ -1,0 +1,9 @@
+go 1.20
+
+use (
+	./api
+	./chat
+	./user
+	./video
+	./common
+)
