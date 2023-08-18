@@ -1,6 +1,6 @@
 FROM golang:1.20-alpine
 WORKDIR /app
-COPY . .
+COPY .. .
 RUN go env -w GOPROXY=https://goproxy.cn
 RUN go mod tidy
 RUN go build .
