@@ -1,0 +1,17 @@
+syntax = "proto3";
+package user.service.v1;
+option go_package = "gogo_dy_user/pkg/service/user.service.v1";
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  int64 UserId = 1;
+  string Token = 2;
+}
+
+service UserService {
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+}
