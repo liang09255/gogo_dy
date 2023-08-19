@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/go-redis/redis/v8"
 	"time"
 )
 
