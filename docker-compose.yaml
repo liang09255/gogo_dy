@@ -48,11 +48,13 @@ services:
   gogo_user:
     container_name: gogo_user
     image: gogo_user:${GOGO_VERSION}
-    ports:
-      - 8081:8081
-      - 8882:8882
+    network_mode: 'host'
+  #    ports:
+  #      - 8081:8081
+  #      - 8882:8882
   gogo_api:
     container_name: gogo_api
     image: gogo_api:${GOGO_VERSION}
-    ports:
-      - 8080:8080
+    network_mode: 'host'
+#    ports:
+#      - 8080:8080
