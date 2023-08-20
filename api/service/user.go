@@ -1,13 +1,12 @@
 package service
 
 import (
+	"api/controller/ctlModel/userCtlModel"
+	"api/controller/middleware"
+	"api/dal"
+	"common/ggEncrypts"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlModel/userCtlModel"
-	"main/controller/middleware"
-	"main/dal"
-	"main/global"
-	"main/utils/encrypts"
 )
 
 type userService struct{}
@@ -23,7 +22,7 @@ func (u *userService) Register(userName string, passWord string) (response userC
 	}
 
 	// 密码加密
-	passWord = encrypts.Md5(passWord + global.Config.PasswordSalt)
+	passWord = ggEncrypts.MD5Password(passWord)
 
 	//调dal插入数据库
 	var userLogin = &dal.User{Username: userName, Password: passWord}
@@ -65,8 +64,8 @@ func (u *userService) GetUserInfo(userId, myID int64) (response *userCtlModel.Us
 		_, isFollow = r[userId]
 	}
 	response = &userCtlModel.User{
-		ID:             user.ID,
-		Username:       user.Username,
+		Id:             user.ID,
+		Name:           user.Username,
 		FollowCount:    user.FollowCount,
 		FollowerCount:  user.FollowerCount,
 		IsFollow:       isFollow,
@@ -102,8 +101,8 @@ func (u *userService) MGetUserInfo(userIds []int64, uid ...int64) (users []userC
 	// 整合到userCtlModel.User
 	for _, userInfo := range userInfos {
 		var user = userCtlModel.User{
-			ID:             userInfo.ID,
-			Username:       userInfo.Username,
+			Id:             userInfo.ID,
+			Name:           userInfo.Username,
 			FollowCount:    userInfo.FollowCount,
 			FollowerCount:  userInfo.FollowerCount,
 			IsFollow:       isFollow(userInfo.ID),
@@ -123,7 +122,7 @@ func (u *userService) MGetUserInfosMap(uids []int64, myUid ...int64) (users map[
 	}
 	users = make(map[int64]userCtlModel.User)
 	for _, user := range usersArray {
-		users[user.ID] = user
+		users[user.Id] = user
 	}
 	return
 }

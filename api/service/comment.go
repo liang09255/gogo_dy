@@ -1,12 +1,12 @@
 package service
 
 import (
+	"api/controller/ctlModel/commentCtlModel"
+	"api/controller/ctlModel/userCtlModel"
+	"api/dal"
 	"context"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlModel/commentCtlModel"
-	"main/controller/ctlModel/userCtlModel"
-	"main/dal"
 )
 
 type commentService struct{}

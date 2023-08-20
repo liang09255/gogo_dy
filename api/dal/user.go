@@ -1,9 +1,9 @@
 package dal
 
 import (
+	"api/global"
 	"errors"
 	"gorm.io/gorm"
-	"main/global"
 )
 
 const MaxUsernameLength = 32
@@ -15,7 +15,7 @@ type User struct {
 	Password       string `gorm:"not null" json:"password"`
 	FollowCount    int64  `gorm:"default:0" json:"follow_count"`
 	FollowerCount  int64  `gorm:"default:0" json:"follower_count"`
-	TotalFavorited string `gorm:"default:0" json:"total_favorited"` // 获点赞数量
+	TotalFavorited int64  `gorm:"default:0" json:"total_favorited"` // 获点赞数量
 	WorkCount      int64  `gorm:"default:0" json:"work_count"`      // 作品数
 	FavoriteCount  int64  `gorm:"default:0" json:"favorite_count"`  //喜欢数
 }

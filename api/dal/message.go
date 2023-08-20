@@ -1,8 +1,8 @@
 package dal
 
 import (
+	"api/global"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/global"
 	"time"
 
 	"gorm.io/gorm"

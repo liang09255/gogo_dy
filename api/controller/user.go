@@ -2,13 +2,18 @@ package controller
 
 import (
 	"context"
+	"time"
+
+	"api/controller/ctlFunc"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/userCtlModel"
+	"api/controller/middleware"
+	"api/global"
+	userRPC "common/ggIDL/user"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlFunc"
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/userCtlModel"
-	"main/controller/middleware"
-	"main/service"
+	"github.com/jinzhu/copier"
 )
 
 type user struct{}
@@ -22,11 +27,17 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
 	}
-	username := reqObj.Username
-	password := reqObj.Password
 
-	//调service注册，拿到token和user_id
-	LoginResponse, err := service.UserService.Register(username, password)
+	msg := &userRPC.RegisterRequest{
+		Username: reqObj.Username,
+		Password: reqObj.Password,
+	}
+	// 超时控制
+	c, cancel := context.WithTimeout(c, 2*time.Second)
+	defer cancel()
+
+	// 调grpc service注册，拿到token和user_id
+	RegisterResponse, err := global.UserClient.Register(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
 		ctlFunc.BaseFailedResp(ctx, "user register error")
@@ -34,14 +45,25 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	}
 
 	// 封装返回信息
-	var resp = userCtlModel.RegisterResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		RegisterResponse: userCtlModel.RegisterResponse{
-			UserId: LoginResponse.UserId,
-			Token:  LoginResponse.Token,
-		},
+	registerResponse := &userCtlModel.RegisterResponse{}
+	if err := copier.Copy(registerResponse, RegisterResponse); err != nil {
+		hlog.CtxErrorf(c, "user register error: %v", err)
+		ctlFunc.BaseFailedResp(ctx, "user register error")
+		return
 	}
-	ctlFunc.Response(ctx, &resp)
+
+	// 添加token
+	registerResponse.Token, err = middleware.ReleaseToken(registerResponse.UserId)
+	if err != nil {
+		hlog.CtxErrorf(c, "user register error: %v", err)
+		ctlFunc.BaseFailedResp(ctx, "user register error")
+		return
+	}
+	var response = userCtlModel.RegisterResp{
+		BaseResp:         baseCtlModel.NewBaseSuccessResp(),
+		RegisterResponse: *registerResponse,
+	}
+	ctlFunc.Response(ctx, &response)
 }
 
 func (u *user) Login(c context.Context, ctx *app.RequestContext) {
@@ -55,30 +77,32 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
 	}
-	//获取参数username，password
-	userId := reqObj.UserId
 
-	//调service查用户信息
-	UserInfoResponse, err := service.UserService.GetUserInfo(userId, myID)
+	var msg = &userRPC.UserInfoRequest{
+		UserId: []int64{reqObj.UserId},
+		MyId:   myID,
+	}
+
+	UserInfoResponse, err := global.UserClient.MGetUserInfo(c, msg)
 	if err != nil {
-		hlog.CtxErrorf(c, "get userinfo error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "get userinfo error")
+		hlog.CtxErrorf(c, "user register error: %v", err)
+		ctlFunc.BaseFailedResp(ctx, "user register error")
+		return
+	}
+
+	hlog.Infof("UserInfoResponse: %v", UserInfoResponse)
+
+	userInfo := &userCtlModel.User{}
+	if err := copier.Copy(userInfo, UserInfoResponse.UserInfo[0]); err != nil {
+		hlog.CtxErrorf(c, "user register error: %v", err)
+		ctlFunc.BaseFailedResp(ctx, "user register error")
 		return
 	}
 
 	// 封装返回信息
 	var resp = &userCtlModel.InfoResp{
 		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		User: userCtlModel.User{
-			ID:             UserInfoResponse.ID,
-			Username:       UserInfoResponse.Username,
-			FollowCount:    UserInfoResponse.FollowCount,
-			FollowerCount:  UserInfoResponse.FollowerCount,
-			IsFollow:       UserInfoResponse.IsFollow,
-			TotalFavorited: UserInfoResponse.TotalFavorited,
-			WorkCount:      UserInfoResponse.WorkCount,
-			FavoriteCount:  UserInfoResponse.FavoriteCount,
-		},
+		User:     *userInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }

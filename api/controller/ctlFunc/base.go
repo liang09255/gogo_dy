@@ -1,7 +1,7 @@
 package ctlFunc
 
 import (
-	"main/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/baseCtlModel"
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"

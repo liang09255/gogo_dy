@@ -1,8 +1,8 @@
 package relationCtlModel
 
 import (
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/userCtlModel"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/userCtlModel"
 )
 
 // 关注/取消关注

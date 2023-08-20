@@ -1,24 +1,21 @@
 package main
 
 import (
-	"common/shutDown"
-	"github.com/cloudwego/hertz/pkg/app/server"
-	"user/config"
+	"common/ggConfig"
+	"common/ggShutDown"
 	"user/router"
 )
 
 func main() {
+	userServerConfig := ggConfig.Config.UserServer
 	// 注册grpc服务
-	gc := router.RegisterGrpc()
+	gc := router.StartGrpc()
 
 	// 将grpc服务注册到etcd
 	router.RegisterEtcdServer()
 
-	h := server.Default(
-		server.WithHostPorts(config.C.SC.Addr),
-		server.WithMaxRequestBodySize(30<<20), // 最大30MB
-	)
-	h.Spin()
-
-	shutDown.ShutDown(config.C.SC.Name, config.C.SC.Addr, gc.Stop)
+	var exit = make(chan struct{})
+	<-exit
+	// todo 待完善功能
+	ggShutDown.ShutDown(userServerConfig.Name, userServerConfig.Addr, gc.Stop)
 }

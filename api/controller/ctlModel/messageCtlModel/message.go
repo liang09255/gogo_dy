@@ -1,6 +1,6 @@
 package messageCtlModel
 
-import "main/controller/ctlModel/baseCtlModel"
+import "api/controller/ctlModel/baseCtlModel"
 
 // 发送消息
 

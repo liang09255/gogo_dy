@@ -1,11 +1,11 @@
 package main
 
 import (
+	"api/controller"
+	"api/controller/middleware"
+	"api/dal"
+	"api/global"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"main/controller"
-	"main/controller/middleware"
-	"main/dal"
-	"main/global"
 )
 
 func main() {

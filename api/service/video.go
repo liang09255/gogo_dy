@@ -1,12 +1,13 @@
 package service
 
 import (
+	"api/controller/ctlModel/userCtlModel"
+	"api/controller/ctlModel/videoCtlModel"
+	"api/dal"
+	"api/global"
+	"common/ggConfig"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	uuid "github.com/satori/go.uuid"
-	"main/controller/ctlModel/userCtlModel"
-	"main/controller/ctlModel/videoCtlModel"
-	"main/dal"
-	"main/global"
 	"mime/multipart"
 	"strconv"
 	"time"
@@ -28,7 +29,7 @@ func (v *videoService) PublishAction(file *multipart.FileHeader, title string, u
 	}
 	coverFileKey := uploadFileKey + "?x-oss-process=video/snapshot,t_1000,f_jpg,w_720,h_1280,m_fast"
 
-	urlPrefix := "https://" + global.Config.AliOSS.Bucket + ".oss-cn-shenzhen.aliyuncs.com/"
+	urlPrefix := "https://" + ggConfig.Config.AliOSS.Bucket + ".oss-cn-shenzhen.aliyuncs.com/"
 	videoUrl := urlPrefix + uploadFileKey
 	coverUrl := urlPrefix + coverFileKey
 
@@ -57,8 +58,8 @@ func (v *videoService) GetPublishList(userId int64) (ret []videoCtlModel.Video, 
 		return nil, err
 	}
 	u := userCtlModel.User{
-		ID:             user.ID,
-		Username:       user.Username,
+		Id:             user.ID,
+		Name:           user.Username,
 		FollowCount:    user.FollowerCount,
 		FollowerCount:  user.FollowerCount,
 		TotalFavorited: user.TotalFavorited,
@@ -157,7 +158,7 @@ func (v *videoService) MGetVideoInfo(videoIds []int64, uid int64) (videos []vide
 	}
 	authorMap := make(map[int64]userCtlModel.User)
 	for _, v := range authors {
-		authorMap[v.ID] = v
+		authorMap[v.Id] = v
 	}
 
 	// 获取用户是否收藏

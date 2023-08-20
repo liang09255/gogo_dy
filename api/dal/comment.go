@@ -1,9 +1,9 @@
 package dal
 
 import (
+	"api/global"
 	"context"
 	"gorm.io/gorm"
-	"main/global"
 )
 
 type Comment struct {

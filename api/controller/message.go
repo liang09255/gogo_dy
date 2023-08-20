@@ -1,14 +1,14 @@
 package controller
 
 import (
+	"api/controller/ctlFunc"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/messageCtlModel"
+	"api/controller/middleware"
+	"api/service"
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlFunc"
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/messageCtlModel"
-	"main/controller/middleware"
-	"main/service"
 )
 
 type message struct{}

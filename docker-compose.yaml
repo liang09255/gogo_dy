@@ -45,14 +45,14 @@ services:
     ports:
       - ${ETCD_PORT}:2379
       - 2380:2380
-#  GoGo_dy_User:
-#    container_name: gogo_dy_user
-#    image: gogo_dy_user:latest
-#    ports:
-#      - 8081:8081
-#      - 8881:8881
-#  GoGo_dy_Api:
-#    container_name: gogo_dy_api
-#    image: gogo_dy_api:latest
-#    ports:
-#      - 8080:8080
+  gogo_user:
+    container_name: gogo_user
+    image: gogo_user:${GOGO_VERSION}
+    ports:
+      - 8081:8081
+      - 8882:8882
+  gogo_api:
+    container_name: gogo_api
+    image: gogo_api:${GOGO_VERSION}
+    ports:
+      - 8080:8080

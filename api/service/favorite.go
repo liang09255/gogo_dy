@@ -1,11 +1,11 @@
 package service
 
 import (
+	"api/controller/ctlModel/videoCtlModel"
+	"api/dal"
+	"common/ggConv"
 	"context"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlModel/videoCtlModel"
-	"main/dal"
-	"main/utils/conv"
 )
 
 type favoriteService struct{}
@@ -38,7 +38,7 @@ func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, 
 		v, err := dal.VideoDal.SelectByVId(videoId)
 		if err != nil {
 			hlog.Error(err)
-			return "Select By Video ID error", err
+			return "Select By Video Id error", err
 		}
 		// 根据作者去添加作者的总点赞数
 		err = dal.UserDal.AddTotalFavorited(v.AuthorId)
@@ -62,7 +62,7 @@ func (h *favoriteService) PostFavoriteAction(ctx context.Context, userId int64, 
 		v, err := dal.VideoDal.SelectByVId(videoId)
 		if err != nil {
 			hlog.Error(err)
-			return "Select By Video ID error", err
+			return "Select By Video Id error", err
 		}
 		err = dal.UserDal.SubTotalFavorited(v.AuthorId)
 		if err != nil {
@@ -89,7 +89,7 @@ func (h *favoriteService) MGetIsFavorite(videoIds []int64, uid int64) (ret map[i
 		return nil, err
 	}
 	ret = make(map[int64]bool)
-	videoIdMap := conv.Array2Map(videoIds)
+	videoIdMap := ggConv.Array2Map(videoIds)
 	for _, favoriteId := range favoriteIds {
 		if _, ok := videoIdMap[favoriteId]; ok {
 			ret[favoriteId] = true

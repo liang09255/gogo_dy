@@ -1,14 +1,14 @@
 package controller
 
 import (
+	"api/controller/ctlFunc"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/videoCtlModel"
+	"api/controller/middleware"
+	"api/service"
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlFunc"
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/videoCtlModel"
-	"main/controller/middleware"
-	"main/service"
 )
 
 type video struct{}

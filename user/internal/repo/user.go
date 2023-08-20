@@ -2,11 +2,12 @@ package repo
 
 import (
 	"context"
-	"user/internal/data"
-	"user/internal/database"
+	"user/internal/model"
 )
 
 type UserRepo interface {
-	GetUserCountByUsername(ctx context.Context, userName string) (total int64, err error)
-	AddUser(conn database.DbConn, ctx context.Context, mem *data.User) (err error)
+	Exist(ctx context.Context, userName string) bool
+	CreateUser(ctx context.Context, user *model.User) error
+	CheckUser(ctx context.Context, user *model.User) error
+	MGetUserInfo(ctx context.Context, uids []int64) (users []model.User, err error)
 }

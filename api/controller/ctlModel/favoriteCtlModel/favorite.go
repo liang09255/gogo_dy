@@ -1,8 +1,8 @@
 package favoriteCtlModel
 
 import (
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/videoCtlModel"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/videoCtlModel"
 )
 
 // 点赞

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"api/controller/ctlModel/messageCtlModel"
+	"api/dal"
 	"fmt"
-	"main/controller/ctlModel/messageCtlModel"
-	"main/dal"
 )
 
 type messageService struct{}
@@ -16,7 +16,7 @@ func (m *messageService) SendMessage(fromUsrID, toUserID int64, actionType int32
 		return
 	}
 	// 如果没有错误，返回成功消息
-	msg = fmt.Sprintf("Message sent to user with ID %d, content: %s", toUserID, content)
+	msg = fmt.Sprintf("Message sent to user with Id %d, content: %s", toUserID, content)
 	return
 }
 

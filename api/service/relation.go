@@ -1,11 +1,11 @@
 package service
 
 import (
+	"api/controller/ctlModel/userCtlModel"
+	"api/dal"
+	"common/ggConv"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"main/controller/ctlModel/userCtlModel"
-	"main/dal"
-	"main/utils/conv"
 )
 
 type relationService struct{}
@@ -87,7 +87,7 @@ func (r *relationService) MGetRelation(userID int64, toUserIDs []int64) (map[int
 	if err != nil {
 		return nil, err
 	}
-	toUserIDMap := conv.Array2Map(toUserIDs)
+	toUserIDMap := ggConv.Array2Map(toUserIDs)
 	followMap := make(map[int64]struct{})
 	for _, id := range followIds {
 		if _, ok := toUserIDMap[id]; ok {

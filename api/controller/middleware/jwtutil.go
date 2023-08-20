@@ -1,17 +1,17 @@
 package middleware
 
 import (
+	"common/ggConfig"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/dgrijalva/jwt-go"
-	"main/global"
 	"time"
 )
 
 var jwtKey []byte
 
 func jwtUtilInit() {
-	jwtKey = []byte(global.Config.JwtKey)
+	jwtKey = []byte(ggConfig.Config.JwtKey)
 }
 
 type Claims struct {

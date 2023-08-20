@@ -1,75 +1,60 @@
 package router
 
 import (
-	"common/discovery"
-	"common/idl/user"
+	"common/ggConfig"
+	"common/ggDiscovery"
+	"common/ggIDL/user"
+	"common/ggLog"
+	"user/pkg/service"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"log"
 	"net"
-	"user/config"
-	user_service_v1 "user/pkg/service/user.service.v1"
 )
 
-type gRPCConfig struct {
-	// grpc启动服务的地址
-	Addr         string
-	RegisterFunc func(*grpc.Server)
-}
-
-func RegisterGrpc() *grpc.Server {
-	c := gRPCConfig{
-		Addr: config.C.GC.Addr,
-		RegisterFunc: func(g *grpc.Server) {
-			user.RegisterUserServiceServer(g, user_service_v1.New())
-		}}
+func StartGrpc() *grpc.Server {
+	userServerConfig := ggConfig.Config.UserServer
 
 	// 接口缓存 拦截器
-	s := grpc.NewServer(
-	//grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-	//	otelgrpc.UnaryServerInterceptor(),
-	//	interceptor.New().CacheInterceptor(),
-	//)),
-	)
+	g := grpc.NewServer()
+	user.RegisterUserServer(g, service.New())
 
-	// 注册服务
-	c.RegisterFunc(s)
-	lis, err := net.Listen("tcp", config.C.GC.Addr)
+	lis, err := net.Listen("tcp", userServerConfig.Addr)
 	if err != nil {
-		log.Println("cannot listen")
+		ggLog.Fatalf("端口监听失败: %s", err.Error())
 	}
-	// 用协程，否则main中会卡住
+
 	go func() {
-		log.Printf("grpc server started as: %s \n", config.C.GC.Addr)
-		err = s.Serve(lis)
-		if err != nil {
-			log.Println("server started error", err)
-			return
+		ggLog.Infof("grpc server started at %s", userServerConfig.Addr)
+		if err = g.Serve(lis); err != nil {
+			ggLog.Fatalf("grpc server started error: %s", err.Error())
 		}
 	}()
-	return s
+
+	return g
 }
 
 func RegisterEtcdServer() {
+	etcdConfig := ggConfig.Config.Etcd
+	userServerConfig := ggConfig.Config.UserServer
 	// 实现grpc接口，拓展一下，使得可以识别etcd的链接
 	// 创建了一个Resolver
 	// Resolver实现了Build()和Scheme()，所以Resolver实现了Builder接口
-	etcdRegister := discovery.NewResolver(config.C.EC.Addrs)
+	etcdRegister := ggDiscovery.NewResolver(etcdConfig.Addrs)
 	resolver.Register(etcdRegister)
 
 	// 构建grpc服务
-	info := discovery.Server{
-		Name:    config.C.GC.Name,
-		Addr:    config.C.GC.Addr,
-		Version: config.C.GC.Version,
-		Weight:  config.C.GC.Weight,
+	info := ggDiscovery.Server{
+		Name:    userServerConfig.Name,
+		Addr:    userServerConfig.Addr,
+		Version: "v1.0.0",
+		Weight:  1,
 	}
 
 	// grpc服务注册
-	r := discovery.NewRegister(config.C.EC.Addrs)
+	r := ggDiscovery.NewRegister(etcdConfig.Addrs)
 	_, err := r.Register(info, 2)
 	if err != nil {
-		log.Fatalln(err)
+		ggLog.Fatalf("grpc server register error: %s", err.Error())
 	}
 }

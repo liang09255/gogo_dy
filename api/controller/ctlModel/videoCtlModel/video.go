@@ -1,8 +1,8 @@
 package videoCtlModel
 
 import (
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/userCtlModel"
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/userCtlModel"
 )
 
 // Feed流

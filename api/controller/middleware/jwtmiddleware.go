@@ -1,18 +1,18 @@
 package middleware
 
 import (
+	"api/controller/ctlModel/baseCtlModel"
+	"api/controller/ctlModel/userCtlModel"
+	"api/global"
+	"common/ggConfig"
+	userRPC "common/ggIDL/user"
 	"context"
-	"errors"
+	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log"
-	"main/controller/ctlModel/baseCtlModel"
-	"main/controller/ctlModel/userCtlModel"
-	"main/utils/encrypts"
 	"time"
 
-	"main/controller/ctlFunc"
-	"main/dal"
-	"main/global"
-
+	"api/controller/ctlFunc"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/jwt"
 )
@@ -29,7 +29,7 @@ func jwtMwInit() {
 		// 置所属领域名称
 		Realm: "gogo_dy_auth",
 		// 用于设置签名密钥
-		Key: []byte(global.Config.JwtKey),
+		Key: []byte(ggConfig.Config.JwtKey),
 		// 设置 token 过期时间
 		Timeout: time.Hour * 24,
 		// 设置最大 token 刷新时间
@@ -52,20 +52,23 @@ func jwtMwInit() {
 				return nil, err
 			}
 
-			username := reqObj.Username
-			password := encrypts.Md5(reqObj.Password + global.Config.PasswordSalt)
+			msg := &userRPC.LoginRequest{
+				Username: reqObj.Username,
+				Password: reqObj.Password,
+			}
 
-			user, err := dal.UserDal.CheckUser(username, password)
+			ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+			defer cancel()
+
+			LoginResponse, err := global.UserClient.Login(ctx, msg)
 			if err != nil {
-				return nil, err
+				hlog.CtxErrorf(ctx, "user login error: %v", err)
+				return nil, fmt.Errorf("user login error")
 			}
-			if user == nil {
-				return nil, errors.New("user already exists or wrong password")
-			}
-			c.Set(UserIDKey, user.ID)
-			userId = user.ID
-			// 设置jwt负载的信息
-			return user.ID, err
+
+			c.Set(UserIDKey, LoginResponse.UserId)
+			userId = LoginResponse.UserId
+			return userId, err
 		},
 		// 登陆成功后为向 token 中添加自定义负载信息
 		PayloadFunc: func(data interface{}) jwt.MapClaims {

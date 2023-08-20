@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"api/controller/middleware"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"main/controller/middleware"
 )
 
 func Init(h *server.Hertz) {

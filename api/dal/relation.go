@@ -1,8 +1,8 @@
 package dal
 
 import (
+	"api/global"
 	"gorm.io/gorm"
-	"main/global"
 )
 
 type relationDal struct{}
