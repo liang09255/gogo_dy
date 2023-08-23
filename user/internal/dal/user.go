@@ -49,3 +49,21 @@ func (ud *UserDal) MGetUserInfo(ctx context.Context, uids []int64) (users []mode
 	t := ud.conn.WithContext(ctx).Where("id in ?", uids).Find(&users)
 	return users, t.Error
 }
+
+func (ud *UserDal) TransactionExample(ctx context.Context, conn database.DbConn, otherData string) error {
+	// do something
+	var err error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ud *UserDal) TransactionExample2(ctx context.Context, conn database.DbConn, otherData string) error {
+	//do other thing
+	var err error
+	if err != nil {
+		return err
+	}
+	return nil
+}
