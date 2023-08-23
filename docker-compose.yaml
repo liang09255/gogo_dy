@@ -1,11 +1,60 @@
 version: '3'
 services:
-  gogo_dy:
-    container_name: 'gogo_dy'
-    restart: 'always'
-    image: 'liang09255/gogo_dy:v1.0.1'
-    volumes:
-      - './config.yaml:/app/config.yaml'
-    network_mode: 'host'
+  mysql:
+    container_name: mysql8
+    image: mysql:${MYSQL_VERSION}
+    restart: always
+    ports:
+      - 3306:3306
     environment:
-      - 'TZ=Asia/Shanghai' 
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 10086@gogo.com
+      MYSQL_DATABASE: gogo_dy
+    volumes:
+      - ${MYSQL_DIR}/data:/var/lib/mysql
+      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
+      - ${MYSQL_DIR}/logs:/logs
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+  Redis:
+    container_name: redis5
+    image: redis:${REDIS_VERSION}
+    restart: always
+    volumes:
+      - ${REDIS_DIR}/data:/data
+      - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
+    ports:
+      - ${REDIS_PORT}:6379
+    command: redis-server /etc/redis/redis.conf
+  Etcd:
+    container_name: etcd3
+    image: bitnami/etcd:${ETCD_VERSION}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    privileged: true
+    volumes:
+      - ${ETCD_DIR}/data:/bitnami/etcd/data
+    ports:
+      - ${ETCD_PORT}:2379
+      - 2380:2380
+  gogo_user:
+    container_name: gogo_user
+    image: gogo_user:${GOGO_VERSION}
+    network_mode: 'host'
+  #    ports:
+  #      - 8081:8081
+  #      - 8882:8882
+  gogo_api:
+    container_name: gogo_api
+    image: gogo_api:${GOGO_VERSION}
+    network_mode: 'host'
+#    ports:
+#      - 8080:8080
