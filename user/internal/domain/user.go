@@ -116,7 +116,6 @@ func (ud *UserDomain) TransactionExample(ctx context.Context, otherData string) 
 	// 可以换别的repo调用其他表
 	err = ud.userRepo.TransactionExample2(ctx, conn, otherData)
 	if err != nil {
-		conn.Rollback()
 		return err
 	}
 	conn.Commit()
