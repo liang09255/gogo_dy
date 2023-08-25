@@ -79,11 +79,6 @@ func (f *FavoriteDal) CancelFavoriteAction(ctx context.Context, userId int64, vi
 		return err
 	}
 
-	if id != -1 {
-		// 存在该记录
-		return errors.New("重复记录")
-	}
-
 	// TODO 删除该记录,虽然有delete字段，但是点赞记录可以考虑直接删除而不保留历史点赞数据
 	// TODO 因为每次写入或删除都需要进行一次查询，读写次数都较多，将历史点赞记录整体删除了可以减小开销
 	// 这里用的是gorm的delete，因为有delete_at字段，自动实现软删除,如果需要直接删除记录还需要自己修改,要么删除delete_at字段，要么使用unscoped

@@ -30,7 +30,7 @@ func (v *VideoDal) AddFavoriteCount(ctx context.Context, id int64, count int64) 
 // CancelFavoriteCount 取消点赞数
 func (v *VideoDal) CancelFavoriteCount(ctx context.Context, id int64, count int64) error {
 	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ? and favorite_count > ?", id, count).
+		Where("id = ? and favorite_count >= ?", id, count).
 		Update("favorite_count", gorm.Expr("favorite_count - ?", count)).Error
 }
 
@@ -44,7 +44,7 @@ func (v *VideoDal) AddCommentCount(ctx context.Context, id int64, count int64) e
 // ReduceCommentCount 减少评论数
 func (v *VideoDal) ReduceCommentCount(ctx context.Context, id int64, count int64) error {
 	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ? and comment_count > ?", id, count).
+		Where("id = ? and comment_count >= ?", id, count).
 		Update("comment_count", gorm.Expr("comment_count - ?", count)).Error
 }
 

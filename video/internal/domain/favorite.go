@@ -38,20 +38,24 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 	if actionType == video.ActionType_Add {
 		err = fd.favoriteRepo.PostFavoriteAction(ctx, userid, videoid)
 		if err != nil {
+			ggLog.Errorf("新增用户:%d 点赞数错误:%v", userid, err)
 			return err
 		}
 		err = fd.videoRepo.AddFavoriteCount(ctx, videoid, 1)
 		if err != nil {
+			ggLog.Errorf("新增用户:%d 视频点赞数错误:%v", userid, err)
 			return err
 		}
 	} else {
 		err = fd.favoriteRepo.CancelFavoriteAction(ctx, userid, videoid)
 		if err != nil {
+			ggLog.Errorf("减少用户:%d 点赞数错误:%v", userid, err)
 			return err
 		}
 
 		err = fd.videoRepo.CancelFavoriteCount(ctx, videoid, 1)
 		if err != nil {
+			ggLog.Errorf("减少用户:%d 视频点赞数错误:%v", userid, err)
 			return err
 		}
 	}

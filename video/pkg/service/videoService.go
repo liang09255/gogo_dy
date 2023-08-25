@@ -23,7 +23,7 @@ func (v VideoService) FavoriteAction(ctx context.Context, request *video.Favorit
 	userid := request.UserId
 	videoid := request.VideoId
 	err := v.favoriteDomain.FavoriteAction(ctx, userid, videoid, request.ActionType)
-	if err != nil && err.Error() != "重复记录" {
+	if err != nil {
 		return &video.FavoriteActionResponse{}, err
 	}
 
