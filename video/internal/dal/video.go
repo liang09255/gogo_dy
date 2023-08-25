@@ -57,3 +57,12 @@ func (v *VideoDal) MGetVideoInfo(ctx context.Context, ids []int64) ([]model.Vide
 
 	return videoList, t.Error
 }
+
+func (v *VideoDal) GetVideoInfo(ctx context.Context, videoId int64) (model.Video, error) {
+	var video model.Video
+	t := v.conn.WithContext(ctx).Model(&model.Video{}).
+		Where("id = ?", videoId).
+		Find(&video)
+
+	return video, t.Error
+}

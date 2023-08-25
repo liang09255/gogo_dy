@@ -23,6 +23,15 @@ func (v VideoService) FavoriteAction(ctx context.Context, request *video.Favorit
 	userid := request.UserId
 	videoid := request.VideoId
 	err := v.favoriteDomain.FavoriteAction(ctx, userid, videoid, request.ActionType)
+	if err != nil && err.Error() != "重复记录" {
+		return &video.FavoriteActionResponse{}, err
+	}
+
+	// 获得视频作者
+	videoInfo, err := v.videoDomain.GetVideo(ctx, videoid)
+	if err != nil {
+		return &video.FavoriteActionResponse{}, err
+	}
 
 	// TODO 分布式事务，保证跨服务的数据一致
 	// TODO 或者使用消息队列，解耦服务之间的依赖，写入消息然后由user服务来消费，解决顺序消费以及消息不丢失的问题即可确保数据的最终一致性
@@ -30,8 +39,14 @@ func (v VideoService) FavoriteAction(ctx context.Context, request *video.Favorit
 	// TODO 使用消息队列的好处是，前两者成功了，如果用户服务崩溃，在重启后也能达到数据一致(一段时间内数据不一致)，但是使用分布式事务的话，就是整体的修改都会丢失(保证数据的强一致)
 	// 调用user客户端
 	// 构造请求
-	req := &user.TotalFavoritedActionRequest{UserId: userid, Action: int64(request.ActionType), Count: 1}
-	_, err = v.userClient.TotalFavoritedAction(ctx, req)
+	r := &user.UserFavoriteActionRequest{
+		UserId:   userid,
+		Action:   int64(request.ActionType),
+		ToUserId: videoInfo.AuthorId,
+		Count:    1,
+	}
+	// 增加获赞数
+	_, err = v.userClient.UserFavoriteAction(ctx, r)
 	if err != nil {
 		// TODO 回滚前一阶段的提交
 		ggLog.Error("调用User服务错误:", err)

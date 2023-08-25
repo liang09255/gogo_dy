@@ -37,12 +37,17 @@ func (f *FavoriteDal) PostFavoriteAction(ctx context.Context, userId int64, vide
 		UserId:  userId,
 		VideoId: videoId,
 	}
-	var id int64
+	var id = -1
 	// 这里改为使用first，原先用count要查全表，这里只需要找到第一个匹配项
 	err := f.conn.WithContext(ctx).Model(model.Favorite{}).
 		Select("id").
 		Where("user_id = ? and video_id = ? and deleted_at is null ", userId, videoId).
 		First(&id).Error
+	if err == nil && id != -1 {
+		// 说明存在该记录
+		// 这里需要返回一个error，因为前面是事务，需要回滚
+		return errors.New("重复记录")
+	}
 
 	// 查找不到，则创建一个新纪录
 	// TODO 开启一个事务，需要修改的有多个地方，同个服务的话就是视频表+点赞表，跨服务的还有用户表需要更改
@@ -60,7 +65,7 @@ func (f *FavoriteDal) PostFavoriteAction(ctx context.Context, userId int64, vide
 func (f *FavoriteDal) CancelFavoriteAction(ctx context.Context, userId int64, videoId int64) error {
 	// 存在记录则删除，不存在则直接返回
 	// user_id和video_id可以考虑建一个联合索引
-	var id int64
+	var id = -1
 	err := f.conn.WithContext(ctx).Model(model.Favorite{}).
 		Select("id").
 		Where("user_id = ? and video_id = ? and deleted_at is null ", userId, videoId).
@@ -69,8 +74,14 @@ func (f *FavoriteDal) CancelFavoriteAction(ctx context.Context, userId int64, vi
 	//if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 	//	return error
 	//}
+
 	if err != nil {
 		return err
+	}
+
+	if id != -1 {
+		// 存在该记录
+		return errors.New("重复记录")
 	}
 
 	// TODO 删除该记录,虽然有delete字段，但是点赞记录可以考虑直接删除而不保留历史点赞数据

@@ -19,11 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_Register_FullMethodName             = "/user.User/Register"
-	User_Login_FullMethodName                = "/user.User/Login"
-	User_MGetUserInfo_FullMethodName         = "/user.User/MGetUserInfo"
-	User_TotalFavoritedAction_FullMethodName = "/user.User/TotalFavoritedAction"
-	User_FavoriteCountAction_FullMethodName  = "/user.User/FavoriteCountAction"
+	User_Register_FullMethodName           = "/user.User/Register"
+	User_Login_FullMethodName              = "/user.User/Login"
+	User_MGetUserInfo_FullMethodName       = "/user.User/MGetUserInfo"
+	User_UserFavoriteAction_FullMethodName = "/user.User/UserFavoriteAction"
 )
 
 // UserClient is the client API for User service.
@@ -33,10 +32,8 @@ type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	MGetUserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
-	// 获赞数操作
-	TotalFavoritedAction(ctx context.Context, in *TotalFavoritedActionRequest, opts ...grpc.CallOption) (*TotalFavoritedActionResponse, error)
-	// 喜欢数操作
-	FavoriteCountAction(ctx context.Context, in *FavoriteCountRequest, opts ...grpc.CallOption) (*FavoriteCountResponse, error)
+	// 点赞操作 - 一个增加一个减少
+	UserFavoriteAction(ctx context.Context, in *UserFavoriteActionRequest, opts ...grpc.CallOption) (*UserFavoriteActionResponse, error)
 }
 
 type userClient struct {
@@ -74,18 +71,9 @@ func (c *userClient) MGetUserInfo(ctx context.Context, in *UserInfoRequest, opts
 	return out, nil
 }
 
-func (c *userClient) TotalFavoritedAction(ctx context.Context, in *TotalFavoritedActionRequest, opts ...grpc.CallOption) (*TotalFavoritedActionResponse, error) {
-	out := new(TotalFavoritedActionResponse)
-	err := c.cc.Invoke(ctx, User_TotalFavoritedAction_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) FavoriteCountAction(ctx context.Context, in *FavoriteCountRequest, opts ...grpc.CallOption) (*FavoriteCountResponse, error) {
-	out := new(FavoriteCountResponse)
-	err := c.cc.Invoke(ctx, User_FavoriteCountAction_FullMethodName, in, out, opts...)
+func (c *userClient) UserFavoriteAction(ctx context.Context, in *UserFavoriteActionRequest, opts ...grpc.CallOption) (*UserFavoriteActionResponse, error) {
+	out := new(UserFavoriteActionResponse)
+	err := c.cc.Invoke(ctx, User_UserFavoriteAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +87,8 @@ type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	MGetUserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
-	// 获赞数操作
-	TotalFavoritedAction(context.Context, *TotalFavoritedActionRequest) (*TotalFavoritedActionResponse, error)
-	// 喜欢数操作
-	FavoriteCountAction(context.Context, *FavoriteCountRequest) (*FavoriteCountResponse, error)
+	// 点赞操作 - 一个增加一个减少
+	UserFavoriteAction(context.Context, *UserFavoriteActionRequest) (*UserFavoriteActionResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -119,11 +105,8 @@ func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*LoginResp
 func (UnimplementedUserServer) MGetUserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MGetUserInfo not implemented")
 }
-func (UnimplementedUserServer) TotalFavoritedAction(context.Context, *TotalFavoritedActionRequest) (*TotalFavoritedActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TotalFavoritedAction not implemented")
-}
-func (UnimplementedUserServer) FavoriteCountAction(context.Context, *FavoriteCountRequest) (*FavoriteCountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FavoriteCountAction not implemented")
+func (UnimplementedUserServer) UserFavoriteAction(context.Context, *UserFavoriteActionRequest) (*UserFavoriteActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserFavoriteAction not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -192,38 +175,20 @@ func _User_MGetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_TotalFavoritedAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TotalFavoritedActionRequest)
+func _User_UserFavoriteAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserFavoriteActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).TotalFavoritedAction(ctx, in)
+		return srv.(UserServer).UserFavoriteAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_TotalFavoritedAction_FullMethodName,
+		FullMethod: User_UserFavoriteAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).TotalFavoritedAction(ctx, req.(*TotalFavoritedActionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_FavoriteCountAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FavoriteCountRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).FavoriteCountAction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_FavoriteCountAction_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).FavoriteCountAction(ctx, req.(*FavoriteCountRequest))
+		return srv.(UserServer).UserFavoriteAction(ctx, req.(*UserFavoriteActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -248,12 +213,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_MGetUserInfo_Handler,
 		},
 		{
-			MethodName: "TotalFavoritedAction",
-			Handler:    _User_TotalFavoritedAction_Handler,
-		},
-		{
-			MethodName: "FavoriteCountAction",
-			Handler:    _User_FavoriteCountAction_Handler,
+			MethodName: "UserFavoriteAction",
+			Handler:    _User_UserFavoriteAction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

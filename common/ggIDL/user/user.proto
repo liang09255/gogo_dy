@@ -29,34 +29,6 @@ message UserInfoResponse{
   repeated UserInfoModel userInfo = 1;
 }
 
-
-// 获点赞数操作
-message TotalFavoritedActionRequest {
-  // 用户id
-  int64 user_id = 1;
-  // 增加数量
-  int64 count = 2;
-  // 操作 - 1为增加，2为减少
-  int64 action = 3;
-}
-
-
-message TotalFavoritedActionResponse{
-
-}
-
-// 喜欢数操作
-message FavoriteCountRequest {
-  // 用户id
-  int64 user_id = 1;
-  // 增加数量
-  int64 count = 2;
-  // 操作 - 1为增加，2为减少
-  int64 action = 3;
-}
-
-message FavoriteCountResponse{}
-
 message UserInfoModel {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
@@ -71,13 +43,22 @@ message UserInfoModel {
   int64 favorite_count = 11; //点赞数量
 }
 
+message UserFavoriteActionRequest {
+  // 发起人
+  int64 user_id = 1;
+  // 被点赞/取消赞人
+  int64 to_user_id = 2;
+  // 数量
+  int64 count = 3;
+  int64 action = 4;
+}
+
+message UserFavoriteActionResponse{}
 
 service User {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc MGetUserInfo(UserInfoRequest) returns (UserInfoResponse) {}
-  // 获赞数操作
-  rpc TotalFavoritedAction(TotalFavoritedActionRequest) returns(TotalFavoritedActionResponse) {}
-  // 喜欢数操作
-  rpc FavoriteCountAction(FavoriteCountRequest) returns(FavoriteCountResponse){}
+  // 点赞操作 - 一个增加一个减少
+  rpc UserFavoriteAction(UserFavoriteActionRequest) returns(UserFavoriteActionResponse){}
 }

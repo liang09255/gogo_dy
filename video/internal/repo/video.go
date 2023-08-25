@@ -16,4 +16,5 @@ type VideoRepo interface {
 	ReduceCommentCount(ctx context.Context, id int64, count int64) error
 	// 批量获得视频信息
 	MGetVideoInfo(ctx context.Context, ids []int64) ([]model.Video, error)
+	GetVideoInfo(ctx context.Context, videoId int64) (model.Video, error)
 }
