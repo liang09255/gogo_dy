@@ -3,6 +3,7 @@ package dal
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"user/internal/database"
 
 	"user/internal/model"
@@ -66,4 +67,33 @@ func (ud *UserDal) TransactionExample2(ctx context.Context, conn database.DbConn
 		return err
 	}
 	return nil
+}
+
+// 点赞相关
+func (ud *UserDal) AddTotalFavorited(ctx context.Context, userid int64, count int64) error {
+	t := ud.conn.WithContext(ctx).Model(&model.User{}).
+		Where("id = ?", userid).
+		Update("total_favorited", gorm.Expr("total_favorited + ?", count))
+	return t.Error
+}
+
+func (ud *UserDal) SubTotalFavorited(ctx context.Context, userid int64, count int64) error {
+	t := ud.conn.WithContext(ctx).Model(&model.User{}).
+		Where("id = ?", userid).
+		Update("total_favorited", gorm.Expr("total_favorited - ?", count))
+	return t.Error
+}
+
+func (ud *UserDal) AddFavoriteCount(ctx context.Context, userid int64, count int64) error {
+	t := ud.conn.WithContext(ctx).Model(&model.User{}).
+		Where("id = ?", userid).
+		Update("favorite_count", gorm.Expr("favorite_count + ?", count))
+	return t.Error
+}
+
+func (ud *UserDal) SubFavoriteCount(ctx context.Context, userid int64, count int64) error {
+	t := ud.conn.WithContext(ctx).Model(&model.User{}).
+		Where("id = ?", userid).
+		Update("favorite_count", gorm.Expr("favorite_count - ?", count))
+	return t.Error
 }

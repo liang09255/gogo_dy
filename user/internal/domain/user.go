@@ -121,3 +121,42 @@ func (ud *UserDomain) TransactionExample(ctx context.Context, otherData string) 
 	conn.Commit()
 	return nil
 }
+
+func (ud *UserDomain) TotalFavoritedAction(ctx context.Context, userid int64, count int64, action int64) error {
+	var err error
+	if action == 1 {
+		err = ud.userRepo.AddTotalFavorited(ctx, userid, count)
+		if err != nil {
+			ggLog.Errorf("UserId: %d 增加被赞数失败,错误为:%v", userid, err)
+		}
+	} else if action == 2 {
+		err = ud.userRepo.SubTotalFavorited(ctx, userid, count)
+		if err != nil {
+			ggLog.Errorf("UserId : %d 减少被点赞失败，错误为:%v", userid, err)
+		}
+	} else {
+		ggLog.Errorf("UserId:%d,传入的操作参数错误", userid)
+	}
+
+	return nil
+
+}
+
+func (ud *UserDomain) FavoriteCountAction(ctx context.Context, userid int64, count int64, action int64) error {
+	var err error
+	if action == 1 {
+		err = ud.userRepo.AddFavoriteCount(ctx, userid, count)
+		if err != nil {
+			ggLog.Errorf("UserId: %d 增加点赞数失败,错误为:%v", userid, err)
+		}
+	} else if action == 2 {
+		err = ud.userRepo.SubFavoriteCount(ctx, userid, count)
+		if err != nil {
+			ggLog.Errorf("UserId : %d 减少点赞数失败，错误为:%v", userid, err)
+		}
+	} else {
+		ggLog.Errorf("UserId:%d,传入的操作参数错误", userid)
+	}
+
+	return nil
+}

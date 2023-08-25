@@ -4,6 +4,7 @@ import (
 	"common/ggConfig"
 	"common/ggDB"
 	"common/ggIDL/user"
+	"common/ggIDL/video"
 	"common/ggRPC"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -13,16 +14,24 @@ import (
 var MysqlDB *gorm.DB
 var AliOSSBucket *oss.Bucket
 
-var UserClient user.UserClient
+var (
+	UserClient  user.UserClient
+	VideoClient video.VideoServiceClient
+)
 
 func Init() {
 	InitMysqlDb()
 	InitAliOSSBucket()
 	InitUserClient()
+	InitVideoClient()
 }
 
 func InitUserClient() {
 	UserClient = ggRPC.GetUserClient()
+}
+
+func InitVideoClient() {
+	VideoClient = ggRPC.GetVideoClient()
 }
 
 func InitMysqlDb() {
