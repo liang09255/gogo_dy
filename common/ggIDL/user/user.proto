@@ -1,6 +1,6 @@
 syntax = "proto3";
 package user;
-option go_package = "common/idl/user";
+option go_package = "common/ggIDL/user";
 
 message RegisterRequest {
   string username = 1;
@@ -29,6 +29,34 @@ message UserInfoResponse{
   repeated UserInfoModel userInfo = 1;
 }
 
+
+// 获点赞数操作
+message TotalFavoritedActionRequest {
+  // 用户id
+  int64 user_id = 1;
+  // 增加数量
+  int64 count = 2;
+  // 操作 - 1为增加，2为减少
+  int64 action = 3;
+}
+
+
+message TotalFavoritedActionResponse{
+
+}
+
+// 喜欢数操作
+message FavoriteCountRequest {
+  // 用户id
+  int64 user_id = 1;
+  // 增加数量
+  int64 count = 2;
+  // 操作 - 1为增加，2为减少
+  int64 action = 3;
+}
+
+message FavoriteCountResponse{}
+
 message UserInfoModel {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
@@ -48,4 +76,8 @@ service User {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc MGetUserInfo(UserInfoRequest) returns (UserInfoResponse) {}
+  // 获赞数操作
+  rpc TotalFavoritedAction(TotalFavoritedActionRequest) returns(TotalFavoritedActionResponse) {}
+  // 喜欢数操作
+  rpc FavoriteCountAction(FavoriteCountRequest) returns(FavoriteCountResponse){}
 }
