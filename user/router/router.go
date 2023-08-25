@@ -5,6 +5,7 @@ import (
 	"common/ggDiscovery"
 	"common/ggIDL/user"
 	"common/ggLog"
+	"common/grpcInterceptors/recovery"
 	"user/pkg/service"
 
 	"google.golang.org/grpc"
@@ -16,7 +17,25 @@ func StartGrpc() *grpc.Server {
 	userServerConfig := ggConfig.Config.UserServer
 
 	// 接口缓存 拦截器
-	g := grpc.NewServer()
+	// recovery中间件
+	var recoveryFunc recovery.RecoveryHandlerFunc
+	// 做成配置项主要是为了扩展，比如多个微服务的log不是同一个实例,或者不需要log记录，这里用闭包处理就不需要每次都传值
+	// 自定义的恢复方法
+	recoveryFunc = func(p any) (err error) {
+		panicErr := recovery.DefaultRecovery(p)
+		// 记录panic错误 - 根据需要修改显示捕获到的错误的格式
+		ggLog.Panic(panicErr.Error())
+		return panicErr
+	}
+	// 方法作为配置传入
+	opts := []recovery.Option{
+		recovery.WithRecoveryHandler(recoveryFunc),
+	}
+	interceptor := grpc.UnaryInterceptor(
+		recovery.UnaryServerInterceptor(opts...))
+
+	// 创建grpc服务端
+	g := grpc.NewServer(interceptor)
 	user.RegisterUserServer(g, service.New())
 
 	lis, err := net.Listen("tcp", userServerConfig.Addr)
