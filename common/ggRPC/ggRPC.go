@@ -4,6 +4,7 @@ import (
 	"common/ggConfig"
 	"common/ggDiscovery"
 	"common/ggIDL/user"
+	"common/ggIDL/video"
 	"common/ggLog"
 	"fmt"
 	"google.golang.org/grpc"
@@ -16,7 +17,9 @@ func GetUserClient() user.UserClient {
 	return user.NewUserClient(conn)
 }
 
-func GetVideoClient() {
+func GetVideoClient() video.VideoServiceClient {
+	conn := initClient(ggConfig.Config.VideoServer.Name)
+	return video.NewVideoServiceClient(conn)
 }
 
 func GetChatClient() {
