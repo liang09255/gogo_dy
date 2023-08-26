@@ -30,4 +30,9 @@ type config struct {
 		Addr string
 		Http string
 	}
+	ChatServer struct {
+		Name string
+		Addr string
+		Http string
+	}
 }

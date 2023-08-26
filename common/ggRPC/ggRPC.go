@@ -3,6 +3,7 @@ package ggRPC
 import (
 	"common/ggConfig"
 	"common/ggDiscovery"
+	"common/ggIDL/chat"
 	"common/ggIDL/user"
 	"common/ggLog"
 	"fmt"
@@ -19,8 +20,9 @@ func GetUserClient() user.UserClient {
 func GetVideoClient() {
 }
 
-func GetChatClient() {
-
+func GetChatClient() chat.ChatClient {
+	conn := initClient(ggConfig.Config.ChatServer.Name)
+	return chat.NewChatClient(conn)
 }
 
 func initClient(name string) *grpc.ClientConn {
