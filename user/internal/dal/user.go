@@ -46,11 +46,26 @@ func (ud *UserDal) CheckUser(ctx context.Context, user *model.User) error {
 }
 
 func (ud *UserDal) MGetUserInfo(ctx context.Context, uids []int64) (users []model.User, err error) {
+
 	t := ud.conn.WithContext(ctx).Where("id in ?", uids).Find(&users)
+
 	return users, t.Error
 }
 
-func (ud *UserDal) TransactionExample(ctx context.Context, conn database.DbConn, otherData string) error {
+func (ud *UserDal) GetRelation(ctx context.Context, myid, taruserid int64) bool {
+
+	user := new(model.Relation)
+
+	t := ud.conn.WithContext(ctx).Where("follow_id = ? AND user_id = ?", myid, taruserid).First(&user)
+
+	if t.Error != nil {
+		return false
+	} else {
+		return true
+  }
+}
+  
+  func (ud *UserDal) TransactionExample(ctx context.Context, conn database.DbConn, otherData string) error {
 	// do something
 	var err error
 	if err != nil {
@@ -67,3 +82,5 @@ func (ud *UserDal) TransactionExample2(ctx context.Context, conn database.DbConn
 	}
 	return nil
 }
+
+
