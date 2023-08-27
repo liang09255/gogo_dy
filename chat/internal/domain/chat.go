@@ -45,7 +45,7 @@ func (cd *ChatDomain) List(ctx context.Context, fromId int64, toId int64, preMsg
 		messages = append(messages, msgList...)
 		// 异步写缓存
 		gopool.Go(func() {
-			if err := cd.chatCacheRepo.MSetChatInfo(context.Background(), msgList, 1*time.Second); err != nil {
+			if err := cd.chatCacheRepo.MSetChatInfo(context.Background(), msgList, 1*time.Minute); err != nil {
 				ggLog.Error("写入缓存失败:", err)
 			}
 			ggLog.Debugf("写入缓存成功, mid:%v", msgList)

@@ -33,11 +33,10 @@ func (c *ChatCacheDal) MGetChatInfo(ctx context.Context, fromId int64, toId int6
 	if result.Err() != nil {
 		return nil, result.Err()
 	}
-	var message model.Message
+	err = json.Unmarshal([]byte(result.Val()), &messages)
 	if err != nil {
 		return nil, err
 	}
-	messages = append(messages, message)
 	return
 }
 
@@ -47,7 +46,7 @@ func (c *ChatCacheDal) MSetChatInfo(ctx context.Context, messages []model.Messag
 		if err != nil {
 			return err
 		}
-		cacheKey := c.getMessageCacheKey(int64(message.FromUserID + message.ToUserID))
+		cacheKey := c.getMessageCacheKey(message.FromUserID + message.ToUserID)
 		// 随机过期时间，防止缓存雪崩
 		expireTime := expire + time.Duration(rand.Intn(10))*time.Second
 		c := c.conn.Set(ctx, cacheKey, msgJson, expireTime)

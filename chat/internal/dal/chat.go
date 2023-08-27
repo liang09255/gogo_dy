@@ -29,6 +29,6 @@ func (md *ChatDal) MGetListByMIds(ctx context.Context, mIds []int64) (messages [
 	return messages, t.Error
 }
 func (md *ChatDal) MGetList(ctx context.Context, fromId int64, toId int64, preMsgTime int64) (messages []model.Message, err error) {
-	t := md.conn.WithContext(ctx).Where("from_user_id = ? AND to_user_id = ? AND created_at > ?", fromId, toId, time.UnixMicro(preMsgTime)).Find(&messages)
+	t := md.conn.WithContext(ctx).Where("from_user_id = ? AND to_user_id = ? AND created_at > ?", fromId, toId, time.UnixMicro(preMsgTime)).Order("created_at").Find(&messages)
 	return messages, t.Error
 }
