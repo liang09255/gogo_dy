@@ -5,6 +5,9 @@ import (
 	"common/ggDiscovery"
 	"common/ggIDL/user"
 	"common/ggLog"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"user/internal/interceptor"
 	"user/pkg/service"
 
 	"google.golang.org/grpc"
@@ -16,7 +19,11 @@ func StartGrpc() *grpc.Server {
 	userServerConfig := ggConfig.Config.UserServer
 
 	// 接口缓存 拦截器
-	g := grpc.NewServer()
+	g := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			otelgrpc.UnaryServerInterceptor(),
+			interceptor.New().CacheInterceptor(),
+		)))
 	user.RegisterUserServer(g, service.New())
 
 	lis, err := net.Listen("tcp", userServerConfig.Addr)

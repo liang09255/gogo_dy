@@ -37,6 +37,9 @@ func (us *UserService) Register(ctx context.Context, msg *user.RegisterRequest) 
 		return &user.RegisterResponse{}, err
 	}
 
+	// 在业务处理逻辑最后，调用kafka的SendLog()，将删除缓存的消息发送到kafka，可以被goroutine捕获到。
+	// utils.SendCache([]byte("sign"))
+
 	return &user.RegisterResponse{UserId: uid}, nil
 }
 
