@@ -3,6 +3,7 @@ package global
 import (
 	"common/ggConfig"
 	"common/ggDB"
+	"common/ggIDL/chat"
 	"common/ggIDL/relation"
 	"common/ggIDL/user"
 	"common/ggRPC"
@@ -15,6 +16,7 @@ var MysqlDB *gorm.DB
 var AliOSSBucket *oss.Bucket
 
 var UserClient user.UserClient
+var ChatClient chat.ChatClient
 
 var RelationClient relation.RelationClient
 
@@ -22,13 +24,16 @@ func Init() {
 	InitMysqlDb()
 	InitAliOSSBucket()
 	InitUserClient()
+	InitChatClient()
 }
 
 func InitUserClient() {
 	UserClient = ggRPC.GetUserClient()
 	RelationClient = ggRPC.GetRelationClient()
 }
-
+func InitChatClient() {
+	ChatClient = ggRPC.GetChatClient()
+}
 func InitMysqlDb() {
 	MysqlDB = ggDB.NewMySQL()
 }

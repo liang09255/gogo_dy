@@ -1,0 +1,46 @@
+syntax = "proto3";
+package chat;
+option go_package = "common/idl/chat";
+import "google/protobuf/timestamp.proto";
+
+message ListRequest {
+  int64 from_user_id =1;
+  int64 to_user_id = 2;
+  int64 pre_msg_time = 3;
+
+}
+enum ActionType
+{
+  _ = 0; // proto3中，首成员必须为0
+  Add = 1;
+  Cancel = 2;
+}
+message ChatInfoModel {
+  int64 id = 1;
+  string content = 2;
+  google.protobuf.Timestamp  create_time = 3;
+  int64 from_user_id = 4;
+  int64 to_user_id = 5;
+  int32 action_type = 6;
+}
+
+message ListResponse {
+  repeated  ChatInfoModel list = 1;
+}
+message ChatActionRequest{
+  int64 from_user_id = 1;
+  int64 to_user_id =2 ;
+  ActionType action_type = 3;
+  string content = 4;
+}
+
+message ChatActionResponse {
+  string msg = 1;
+}
+
+
+
+service Chat {
+  rpc Action(ChatActionRequest) returns (ChatActionResponse){}
+  rpc List(ListRequest) returns (ListResponse){}
+}
