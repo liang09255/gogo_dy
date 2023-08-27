@@ -3,6 +3,7 @@ package router
 import (
 	"common/ggConfig"
 	"common/ggDiscovery"
+	"common/ggIDL/relation"
 	"common/ggIDL/user"
 	"common/ggLog"
 	"common/grpcInterceptors/recovery"
@@ -36,6 +37,10 @@ func StartGrpc() *grpc.Server {
 
 	// 创建grpc服务端
 	g := grpc.NewServer(interceptor)
+
+
+	relation.RegisterRelationServer(g, service.New2())
+
 	user.RegisterUserServer(g, service.New())
 
 	lis, err := net.Listen("tcp", userServerConfig.Addr)

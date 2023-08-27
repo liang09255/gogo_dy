@@ -33,4 +33,15 @@ type config struct {
 	}
 	UserServer  Server
 	VideoServer Server
+	UserServer struct {
+		Name string
+		Addr string
+		Http string
+	}
+	ChatServer struct {
+		Name string
+		Addr string
+		Http string
+	}
+
 }

@@ -3,6 +3,8 @@ package global
 import (
 	"common/ggConfig"
 	"common/ggDB"
+	"common/ggIDL/chat"
+	"common/ggIDL/relation"
 	"common/ggIDL/user"
 	"common/ggIDL/video"
 	"common/ggRPC"
@@ -17,17 +19,25 @@ var AliOSSBucket *oss.Bucket
 var (
 	UserClient  user.UserClient
 	VideoClient video.VideoServiceClient
+  ChatClient chat.ChatClient
+  RelationClient relation.RelationClient
 )
+
 
 func Init() {
 	InitMysqlDb()
 	InitAliOSSBucket()
 	InitUserClient()
 	InitVideoClient()
+	InitChatClient()
 }
 
 func InitUserClient() {
 	UserClient = ggRPC.GetUserClient()
+	RelationClient = ggRPC.GetRelationClient()
+}
+func InitChatClient() {
+	ChatClient = ggRPC.GetChatClient()
 }
 
 func InitVideoClient() {
