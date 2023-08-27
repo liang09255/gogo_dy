@@ -62,5 +62,25 @@ func (ud *UserDal) GetRelation(ctx context.Context, myid, taruserid int64) bool 
 		return false
 	} else {
 		return true
-	}
+  }
 }
+  
+  func (ud *UserDal) TransactionExample(ctx context.Context, conn database.DbConn, otherData string) error {
+	// do something
+	var err error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ud *UserDal) TransactionExample2(ctx context.Context, conn database.DbConn, otherData string) error {
+	//do other thing
+	var err error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+

@@ -101,8 +101,29 @@ func (ud *UserDomain) MGetUserInfo(ctx context.Context, uids []int64) (userInfo 
 }
 
 func (ud *UserDomain) MGetUserRelation(ctx context.Context, myid int64, userinfo []*user.UserInfoModel) {
-
 	for _, item := range userinfo {
 		item.IsFollow = ud.userRepo.GetRelation(ctx, myid, item.Id)
 	}
+}
+
+func (ud *UserDomain) TransactionExample(ctx context.Context, otherData string) (err error) {
+	// 开启事务
+	conn := ud.tranRepo.NewTransactionConn()
+	conn.Begin()
+	defer func() {
+		if err != nil {
+			conn.Rollback()
+		}
+	}()
+	err = ud.userRepo.TransactionExample(ctx, conn, otherData)
+	if err != nil {
+		return err
+	}
+	// 可以换别的repo调用其他表
+	err = ud.userRepo.TransactionExample2(ctx, conn, otherData)
+	if err != nil {
+		return err
+	}
+	conn.Commit()
+	return nil
 }
