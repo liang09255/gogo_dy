@@ -6,6 +6,7 @@ import (
 	"common/ggIDL/chat"
 	"common/ggIDL/relation"
 	"common/ggIDL/user"
+	"common/ggIDL/video"
 	"common/ggRPC"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -15,15 +16,19 @@ import (
 var MysqlDB *gorm.DB
 var AliOSSBucket *oss.Bucket
 
-var UserClient user.UserClient
-var ChatClient chat.ChatClient
+var (
+	UserClient  user.UserClient
+	VideoClient video.VideoServiceClient
+  ChatClient chat.ChatClient
+  RelationClient relation.RelationClient
+)
 
-var RelationClient relation.RelationClient
 
 func Init() {
 	InitMysqlDb()
 	InitAliOSSBucket()
 	InitUserClient()
+	InitVideoClient()
 	InitChatClient()
 }
 
@@ -34,6 +39,11 @@ func InitUserClient() {
 func InitChatClient() {
 	ChatClient = ggRPC.GetChatClient()
 }
+
+func InitVideoClient() {
+	VideoClient = ggRPC.GetVideoClient()
+}
+
 func InitMysqlDb() {
 	MysqlDB = ggDB.NewMySQL()
 }

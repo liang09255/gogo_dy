@@ -1,5 +1,11 @@
 package ggConfig
 
+type Server struct {
+	Name string
+	Addr string
+	Http string
+}
+
 type config struct {
 	Mysql struct {
 		Username string
@@ -25,6 +31,8 @@ type config struct {
 	Etcd struct {
 		Addrs []string
 	}
+	UserServer  Server
+	VideoServer Server
 	UserServer struct {
 		Name string
 		Addr string
@@ -35,4 +43,5 @@ type config struct {
 		Addr string
 		Http string
 	}
+
 }

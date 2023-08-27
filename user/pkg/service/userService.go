@@ -57,3 +57,12 @@ func (us *UserService) MGetUserInfo(ctx context.Context, request *user.UserInfoR
 
 	return &user.UserInfoResponse{UserInfo: userInfo}, nil
 }
+
+func (us *UserService) UserFavoriteAction(ctx context.Context, request *user.UserFavoriteActionRequest) (resp *user.UserFavoriteActionResponse, err error) {
+	userid := request.UserId
+	toUserid := request.ToUserId
+	count := request.Count
+	action := request.Action
+	err = us.userDomain.FavoriteAction(ctx, userid, toUserid, count, action)
+	return &user.UserFavoriteActionResponse{}, err
+}

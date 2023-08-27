@@ -6,6 +6,7 @@ import (
 	"common/ggIDL/chat"
 	"common/ggIDL/relation"
 	"common/ggIDL/user"
+	"common/ggIDL/video"
 	"common/ggLog"
 	"fmt"
 	"google.golang.org/grpc"
@@ -16,6 +17,12 @@ import (
 func GetUserClient() user.UserClient {
 	conn := initClient(ggConfig.Config.UserServer.Name)
 	return user.NewUserClient(conn)
+}
+
+
+func GetVideoClient() video.VideoServiceClient {
+	conn := initClient(ggConfig.Config.VideoServer.Name)
+	return video.NewVideoServiceClient(conn)
 }
 
 func GetRelationClient() relation.RelationClient {
