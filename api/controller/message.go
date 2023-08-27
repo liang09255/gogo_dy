@@ -83,16 +83,19 @@ func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, "get chat messages error")
 		return
 	}
-	messageInfo := &[]messageCtlModel.Message{}
-	// Fixme  数据错误
-	if err := copier.Copy(messageInfo, MessageInfoResponse.List); err != nil {
-		hlog.CtxErrorf(c, "message list error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "message list error")
-		return
+	var messageInfo []messageCtlModel.Message
+	for _, m := range MessageInfoResponse.List {
+		messageInfo = append(messageInfo, messageCtlModel.Message{
+			ID:         m.Id,
+			Content:    m.Content,
+			CreateTime: m.CreateTime.AsTime().UnixMilli(),
+			FromUserID: m.FromUserId,
+			ToUserID:   m.ToUserId,
+		})
 	}
 	var resp = &messageCtlModel.ChatResp{
 		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Messages: *messageInfo,
+		Messages: messageInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }
