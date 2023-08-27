@@ -41,16 +41,19 @@ func (us *UserService) Register(ctx context.Context, msg *user.RegisterRequest) 
 }
 
 func (us *UserService) MGetUserInfo(ctx context.Context, request *user.UserInfoRequest) (*user.UserInfoResponse, error) {
-	userId := request.UserId
-	// todo: 获取用户关系
-	//myId := request.MyId
 
+	userId := request.UserId
 	userInfo, err := us.userDomain.MGetUserInfo(ctx, userId)
+
 	if err != nil {
 		return &user.UserInfoResponse{}, err
 	}
 	if len(userInfo) == 0 {
 		return &user.UserInfoResponse{}, fmt.Errorf("用户不存在")
 	}
+	//获取用户关系
+	myId := request.MyId
+	us.userDomain.MGetUserRelation(ctx, myId, userInfo)
+
 	return &user.UserInfoResponse{UserInfo: userInfo}, nil
 }

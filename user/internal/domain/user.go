@@ -100,6 +100,12 @@ func (ud *UserDomain) MGetUserInfo(ctx context.Context, uids []int64) (userInfo 
 	return userInfo, nil
 }
 
+func (ud *UserDomain) MGetUserRelation(ctx context.Context, myid int64, userinfo []*user.UserInfoModel) {
+	for _, item := range userinfo {
+		item.IsFollow = ud.userRepo.GetRelation(ctx, myid, item.Id)
+	}
+}
+
 func (ud *UserDomain) TransactionExample(ctx context.Context, otherData string) (err error) {
 	// 开启事务
 	conn := ud.tranRepo.NewTransactionConn()

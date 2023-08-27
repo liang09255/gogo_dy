@@ -4,6 +4,7 @@ import (
 	"common/ggConfig"
 	"common/ggDB"
 	"common/ggIDL/chat"
+	"common/ggIDL/relation"
 	"common/ggIDL/user"
 	"common/ggRPC"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -17,6 +18,8 @@ var AliOSSBucket *oss.Bucket
 var UserClient user.UserClient
 var ChatClient chat.ChatClient
 
+var RelationClient relation.RelationClient
+
 func Init() {
 	InitMysqlDb()
 	InitAliOSSBucket()
@@ -26,6 +29,7 @@ func Init() {
 
 func InitUserClient() {
 	UserClient = ggRPC.GetUserClient()
+	RelationClient = ggRPC.GetRelationClient()
 }
 func InitChatClient() {
 	ChatClient = ggRPC.GetChatClient()
