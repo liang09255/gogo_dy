@@ -8,6 +8,8 @@ import (
 	"common/ggIP"
 	"common/ggLog"
 	"common/grpcInterceptors/recovery"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"net"
@@ -25,7 +27,12 @@ func StartGrpc() *grpc.Server {
 	opts := []recovery.Option{
 		recovery.WithRecoveryHandler(recoveryFunc),
 	}
-	interceptor := grpc.UnaryInterceptor(recovery.UnaryServerInterceptor(opts...))
+	interceptor := grpc.UnaryInterceptor(
+		grpc_middleware.ChainUnaryServer(
+			otelgrpc.UnaryServerInterceptor(),
+			//interceptor.New().CacheInterceptor(), TODO 待定
+			recovery.UnaryServerInterceptor(opts...),
+		))
 
 	// 接口缓存 拦截器
 	g := grpc.NewServer(interceptor)

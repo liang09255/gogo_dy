@@ -14,18 +14,8 @@ import (
 	"google.golang.org/grpc/resolver"
 	"net"
 
-	"common/ggConfig"
-	"common/ggDiscovery"
-	"common/ggIDL/user"
-	"common/ggLog"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"user/internal/interceptor"
-	"user/pkg/service"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/resolver"
-	"net"
 )
 
 func StartGrpc() *grpc.Server {
@@ -49,7 +39,7 @@ func StartGrpc() *grpc.Server {
 	interceptor := grpc.UnaryInterceptor(
 		grpc_middleware.ChainUnaryServer(
 			otelgrpc.UnaryServerInterceptor(),
-			interceptor.New().CacheInterceptor(),
+			//interceptor.New().CacheInterceptor(), TODO 待定
 			recovery.UnaryServerInterceptor(opts...),
 		))
 
