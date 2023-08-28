@@ -22,7 +22,7 @@ func GetReader(brokers []string, groupId, topic string) *KafkaReader {
 	k := &KafkaReader{
 		R: r,
 	}
-	go k.readMsg()
+	// go k.readMsg()
 	return k
 }
 

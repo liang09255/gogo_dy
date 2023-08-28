@@ -18,10 +18,15 @@ func main() {
 	// 初始化kafka
 	kafkaCloseFunc := utils.InitKafkaWriter()
 
+	// 初始化kafka消费者
+	reader := utils.NewKafkaCacheReader()
+	go reader.DeleteCache()
+
 	// 优雅启停的时候，将grpc服务一起停掉
 	stop := func() {
 		gc.Stop()
 		kafkaCloseFunc()
+		reader.KR.Close()
 	}
 
 	var exit = make(chan struct{})
