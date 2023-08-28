@@ -7,6 +7,7 @@ import (
 	"common/ggIDL/chat"
 	"common/ggIP"
 	"common/ggLog"
+	"common/grpcInterceptors/recovery"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"net"
@@ -15,8 +16,19 @@ import (
 func StartGrpc() *grpc.Server {
 	chatServerConfig := ggConfig.Config.ChatServer
 
+	var recoveryFunc recovery.RecoveryHandlerFunc
+	recoveryFunc = func(p any) (err error) {
+		panicErr := recovery.DefaultRecovery(p)
+		ggLog.Error(panicErr.Error())
+		return panicErr
+	}
+	opts := []recovery.Option{
+		recovery.WithRecoveryHandler(recoveryFunc),
+	}
+	interceptor := grpc.UnaryInterceptor(recovery.UnaryServerInterceptor(opts...))
+
 	// 接口缓存 拦截器
-	g := grpc.NewServer()
+	g := grpc.NewServer(interceptor)
 	chat.RegisterChatServer(g, service.New())
 
 	lis, err := net.Listen("tcp", chatServerConfig.Addr)

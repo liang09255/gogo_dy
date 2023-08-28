@@ -42,12 +42,13 @@ services:
     privileged: true
 #    volumes:
 #      - ${ETCD_DIR}/data:/bitnami/etcd/data
-    ports:
-      - ${ETCD_PORT}:2379
-      - 2380:2380
+#    ports:
+#      - ${ETCD_PORT}:2379
+#      - 2380:2380
   gogo_user:
     container_name: gogo_user
     image: gogo_user:${GOGO_VERSION}
+    restart: always
 #    network_mode: 'host'
     depends_on:
       - mysql
@@ -56,6 +57,7 @@ services:
   gogo_chat:
     container_name: gogo_chat
     image: gogo_chat:${GOGO_VERSION}
+    restart: always
 #    network_mode: 'host'
     depends_on:
       - mysql
@@ -64,6 +66,7 @@ services:
   gogo_video:
     container_name: gogo_video
     image: gogo_video:${GOGO_VERSION}
+    restart: always
 #    network_mode: 'host'
     depends_on:
       - mysql
@@ -72,7 +75,7 @@ services:
   gogo_api:
     container_name: gogo_api
     image: gogo_api:${GOGO_VERSION}
-#    network_mode: 'host'
+    restart: always
     ports:
       - "8080:8080"
     depends_on:
