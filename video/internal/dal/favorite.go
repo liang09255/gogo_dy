@@ -1,6 +1,7 @@
 package dal
 
 import (
+	"common/ggLog"
 	"context"
 	"errors"
 	"gorm.io/gorm"
@@ -51,6 +52,10 @@ func (f *FavoriteDal) PostFavoriteAction(ctx context.Context, userId int64, vide
 
 	// 查找不到，则创建一个新纪录
 	// TODO 开启一个事务，需要修改的有多个地方，同个服务的话就是视频表+点赞表，跨服务的还有用户表需要更改
+	/* 	by.lxs
+	不考虑事务了，可以另外新建个表维护自己的点赞信息
+	额外维护一个点赞数更新字段，每次查询时判断该字段上次更新时间是否为一天内，如果太久没更新就去点赞表count一下，最终一致就好
+	*/
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return f.conn.WithContext(ctx).Model(&model.Favorite{}).Create(&favorite).Error
 	}
@@ -81,6 +86,7 @@ func (f *FavoriteDal) CancelFavoriteAction(ctx context.Context, userId int64, vi
 
 	// TODO 删除该记录,虽然有delete字段，但是点赞记录可以考虑直接删除而不保留历史点赞数据
 	// TODO 因为每次写入或删除都需要进行一次查询，读写次数都较多，将历史点赞记录整体删除了可以减小开销
+	// TODO 可以(by.lxs)
 	// 这里用的是gorm的delete，因为有delete_at字段，自动实现软删除,如果需要直接删除记录还需要自己修改,要么删除delete_at字段，要么使用unscoped
 	err = f.conn.WithContext(ctx).Model(model.Favorite{}).
 		Where("user_id = ? and video_id = ?", userId, videoId).
@@ -97,4 +103,38 @@ func (f *FavoriteDal) GetFavoriteListByUserId(ctx context.Context, userid int64)
 		Find(&ids).Error
 
 	return ids, err
+}
+
+// GetFavoritedCount 获得用户点赞数
+func (f *FavoriteDal) GetFavoriteCount(ctx context.Context, userID int64) int64 {
+	var count int64
+	err := f.conn.WithContext(ctx).Model(&model.Favorite{}).
+		Where("user_id = ? and deleted_at is null", userID).
+		Count(&count).Error
+	if err != nil {
+		ggLog.Error("GetFavoriteCount error:", err)
+	}
+	return count
+}
+
+// GetFavoriteCountByVideoID 获取视频被点赞数
+func (f *FavoriteDal) GetFavoriteCountByVideoID(ctx context.Context, videoID []int64) map[int64]int64 {
+	res := make(map[int64]int64)
+	queryRes := make([]struct {
+		VideoId int64
+		Count   int64
+	}, 0)
+	err := f.conn.WithContext(ctx).Model(&model.Favorite{}).
+		Select("video_id, count(*) as count").
+		Where("video_id in ?", videoID).
+		Group("video_id").
+		Scan(&queryRes).Error
+	if err != nil {
+		ggLog.Errorf("获取点赞数错误:%v", err)
+		return nil
+	}
+	for _, v := range queryRes {
+		res[v.VideoId] = v.Count
+	}
+	return res
 }

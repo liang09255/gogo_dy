@@ -61,8 +61,6 @@ message FavoriteListResponse {
   repeated Video video_list = 1;
 }
 
-
-
 // 视频评论
 message CommentActionRequest {
   int64 video_id =1;
@@ -99,9 +97,62 @@ message CommentListResponse{
   repeated Comment comment_list = 1;
 }
 
-// 查询是否点赞接口
+message UploadVideoRequest {
+  // 视频标题
+  string title = 1;
+  // 视频封面
+  string cover_url = 2;
+  // 视频地址
+  string play_url = 3;
+  // 用户id
+  int64 user_id = 4;
+}
 
-// 收藏请求
+message UploadVideoResponse {
+}
+
+message VideoListRequest {
+  // 用户id
+  int64 user_id = 1;
+}
+
+message VideoListResponse {
+  repeated Video video_list = 1;
+}
+
+message FeedRequest {
+  int64 user_id = 1;
+  int64 latest = 2;
+}
+
+message FeedResponse {
+  repeated Video video_list = 1;
+  int64 nextTime = 2;
+}
+
+message GetTotalFavoriteCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalFavoriteCountResponse {
+  int64 count = 1;
+}
+
+message GetTotalVideoCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalVideoCountResponse {
+  int64 count = 1;
+}
+
+message GetTotalLikeCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalLikeCountResponse {
+  int64 count = 1;
+}
 
 service VideoService {
   // 点赞方法
@@ -112,4 +163,16 @@ service VideoService {
   rpc CommentAction(CommentActionRequest) returns (CommentActionResponse) {}
   // 评论列表方法
   rpc CommentList(CommentListRequest) returns (CommentListResponse) {}
+  // 上传视频
+  rpc UploadVideo(UploadVideoRequest) returns (UploadVideoResponse) {}
+  // 视频列表
+  rpc VideoList(VideoListRequest) returns (VideoListResponse) {}
+  // 视频流
+  rpc Feed(FeedRequest) returns (FeedResponse) {}
+  // 获取用户总点赞数
+  rpc GetTotalFavoriteCount(GetTotalFavoriteCountRequest) returns (GetTotalFavoriteCountResponse) {}
+  // 获取用户总视频数
+  rpc GetTotalVideoCount(GetTotalVideoCountRequest) returns (GetTotalVideoCountResponse) {}
+  // 获取用户总喜欢数
+  rpc GetTotalLikeCount(GetTotalLikeCountRequest) returns (GetTotalLikeCountResponse) {}
 }

@@ -88,7 +88,7 @@ func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 		messageInfo = append(messageInfo, messageCtlModel.Message{
 			ID:         m.Id,
 			Content:    m.Content,
-			CreateTime: m.CreateTime.AsTime().UnixMilli(),
+			CreateTime: m.CreateTime.AsTime().UnixMicro(),
 			FromUserID: m.FromUserId,
 			ToUserID:   m.ToUserId,
 		})

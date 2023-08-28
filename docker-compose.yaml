@@ -10,27 +10,27 @@ services:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 10086@gogo.com
       MYSQL_DATABASE: gogo_dy
-    volumes:
-      - ${MYSQL_DIR}/data:/var/lib/mysql
-      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
-      - ${MYSQL_DIR}/logs:/logs
+#    volumes:
+#      - ${MYSQL_DIR}/data:/var/lib/mysql
+#      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
+#      - ${MYSQL_DIR}/logs:/logs
     command:
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --explicit_defaults_for_timestamp=true
       --lower_case_table_names=1
-  Redis:
+  redis:
     container_name: redis5
     image: redis:${REDIS_VERSION}
     restart: always
     volumes:
       - ${REDIS_DIR}/data:/data
       - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
-    ports:
-      - ${REDIS_PORT}:6379
+#    ports:
+#      - ${REDIS_PORT}:6379
     command: redis-server /etc/redis/redis.conf
-  Etcd:
+  etcd:
     container_name: etcd3
     image: bitnami/etcd:${ETCD_VERSION}
     deploy:
@@ -40,21 +40,42 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
-    volumes:
-      - ${ETCD_DIR}/data:/bitnami/etcd/data
+#    volumes:
+#      - ${ETCD_DIR}/data:/bitnami/etcd/data
     ports:
       - ${ETCD_PORT}:2379
       - 2380:2380
   gogo_user:
     container_name: gogo_user
     image: gogo_user:${GOGO_VERSION}
-    network_mode: 'host'
-  #    ports:
-  #      - 8081:8081
-  #      - 8882:8882
+#    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+  gogo_chat:
+    container_name: gogo_chat
+    image: gogo_chat:${GOGO_VERSION}
+#    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+  gogo_video:
+    container_name: gogo_video
+    image: gogo_video:${GOGO_VERSION}
+#    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
   gogo_api:
     container_name: gogo_api
     image: gogo_api:${GOGO_VERSION}
-    network_mode: 'host'
-#    ports:
-#      - 8080:8080
+#    network_mode: 'host'
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gogo_user
+      - gogo_chat
+      - gogo_video

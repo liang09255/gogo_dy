@@ -91,8 +91,6 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	//var videos = make([]*videoCtlModel.Video, 0)
-	hlog.Info(videoListResp.VideoList)
 	videos := make([]videoCtlModel.Video, 0)
 
 	for _, v := range videoListResp.VideoList {
@@ -118,11 +116,6 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 		videos = append(videos, video)
 
 	}
-	//if err := copier.Copy(&videos, videoListResp.VideoList); err != nil {
-	//	hlog.CtxErrorf(c, "get video favorite list error : %v", err)
-	//	ctlFunc.BaseFailedResp(ctx, "get favorite list error")
-	//	return
-	//}
 
 	ctlFunc.Response(ctx, favoriteCtlModel.ListResp{
 		BaseResp: baseCtlModel.NewBaseSuccessResp(),

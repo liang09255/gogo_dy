@@ -1,7 +1,7 @@
 mysql:
   username: root
   password: 10086@gogo.com
-  host: "mysql8"
+  host: 111.173.80.63
   port: 3306
   db: gogo_dy
 
@@ -16,14 +16,14 @@ aliOSS:
 passwordSalt: "gogo_dy"
 
 redis:
-  host: "redis5"
+  host: "111.173.80.63"
   port: 6379
   password: ""
   db: 0
 
 etcd:
   addrs:
-    - "etcd3:2379"
+    - "111.173.80.63:2379"
 
 userServer:
   name: "user"

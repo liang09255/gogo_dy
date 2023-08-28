@@ -78,6 +78,7 @@ func (ud *UserDomain) MGetUserInfo(ctx context.Context, uids []int64) (userInfo 
 		gopool.Go(func() {
 			if err := ud.userCacheRepo.MSetUserInfo(context.Background(), missUsers, 1*time.Minute); err != nil {
 				ggLog.Error("写入缓存失败:", err)
+				return
 			}
 			ggLog.Debugf("写入缓存成功, uid:%v", missUids)
 		})
@@ -98,113 +99,4 @@ func (ud *UserDomain) MGetUserInfo(ctx context.Context, uids []int64) (userInfo 
 		})
 	}
 	return userInfo, nil
-}
-
-func (ud *UserDomain) MGetUserRelation(ctx context.Context, myid int64, userinfo []*user.UserInfoModel) {
-	for _, item := range userinfo {
-		item.IsFollow = ud.userRepo.GetRelation(ctx, myid, item.Id)
-	}
-}
-
-func (ud *UserDomain) TransactionExample(ctx context.Context, otherData string) (err error) {
-	// 开启事务
-	conn := ud.tranRepo.NewTransactionConn()
-	conn.Begin()
-	defer func() {
-		if err != nil {
-			conn.Rollback()
-		}
-	}()
-	err = ud.userRepo.TransactionExample(ctx, conn, otherData)
-	if err != nil {
-		return err
-	}
-	// 可以换别的repo调用其他表
-	err = ud.userRepo.TransactionExample2(ctx, conn, otherData)
-	if err != nil {
-		return err
-	}
-	conn.Commit()
-	return nil
-}
-
-//func (ud *UserDomain) TotalFavoritedAction(ctx context.Context, userid int64, count int64, action int64) error {
-//	var err error
-//	if action == 1 {
-//		err = ud.userRepo.AddTotalFavorited(ctx, userid, count)
-//		if err != nil {
-//			ggLog.Errorf("UserId: %d 增加被赞数失败,错误为:%v", userid, err)
-//		}
-//	} else if action == 2 {
-//		err = ud.userRepo.SubTotalFavorited(ctx, userid, count)
-//		if err != nil {
-//			ggLog.Errorf("UserId : %d 减少被点赞失败，错误为:%v", userid, err)
-//		}
-//	} else {
-//		ggLog.Errorf("UserId:%d,传入的操作参数错误", userid)
-//	}
-//
-//	return nil
-//
-//}
-
-//func (ud *UserDomain) FavoriteCountAction(ctx context.Context, userid int64, count int64, action int64) error {
-//	var err error
-//	if action == 1 {
-//		err = ud.userRepo.AddFavoriteCount(ctx, userid, count)
-//		if err != nil {
-//			ggLog.Errorf("UserId: %d 增加点赞数失败,错误为:%v", userid, err)
-//		}
-//	} else if action == 2 {
-//		err = ud.userRepo.SubFavoriteCount(ctx, userid, count)
-//		if err != nil {
-//			ggLog.Errorf("UserId : %d 减少点赞数失败，错误为:%v", userid, err)
-//		}
-//	} else {
-//		ggLog.Errorf("UserId:%d,传入的操作参数错误", userid)
-//	}
-//
-//	return nil
-//}
-
-func (ud *UserDomain) FavoriteAction(ctx context.Context, userid int64, to_userid int64, count int64, actionType int64) (err error) {
-	conn := ud.tranRepo.NewTransactionConn()
-	conn.Begin()
-	defer func() {
-		if err != nil {
-			conn.Rollback()
-		}
-	}()
-	// 如果是点赞操作
-	if actionType == 1 {
-		// 调用增加方法
-		// 给点赞者点赞数量+1
-		err = ud.userRepo.AddFavoriteCount(ctx, userid, count)
-		if err != nil {
-			ggLog.Errorf("增加User: %d 的点赞数量错误:%v", userid, err)
-			return err
-		}
-		// 给被点赞者数量增加
-		err = ud.userRepo.AddTotalFavorited(ctx, to_userid, count)
-		if err != nil {
-			ggLog.Errorf("增加User: %d 的被点赞数量错误:%v", userid, err)
-			return err
-		}
-	} else {
-		// 减少点赞数
-		err = ud.userRepo.SubFavoriteCount(ctx, userid, count)
-		if err != nil {
-			ggLog.Errorf("减少User: %d 的点赞数量错误:%v", userid, err)
-			return err
-		}
-
-		err = ud.userRepo.SubTotalFavorited(ctx, to_userid, count)
-		if err != nil {
-			ggLog.Errorf("减少User: %d 的被点赞数量错误:%v", userid, err)
-			return err
-		}
-	}
-
-	conn.Commit()
-	return nil
 }

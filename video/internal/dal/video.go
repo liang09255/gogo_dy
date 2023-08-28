@@ -2,7 +2,7 @@ package dal
 
 import (
 	"context"
-	"gorm.io/gorm"
+	"time"
 	"video/internal/database"
 	"video/internal/model"
 	"video/internal/repo"
@@ -20,37 +20,41 @@ func NewVideoDao() *VideoDal {
 	}
 }
 
-// PostFavoriteCount 增加点赞数
-func (v *VideoDal) AddFavoriteCount(ctx context.Context, id int64, count int64) error {
-	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ?", id).
-		Update("favorite_count", gorm.Expr("favorite_count + ?", count)).Error
+func (v *VideoDal) NewVideo(ctx context.Context, userID int64, videoURL, coverURL, title string) error {
+	var video = model.Video{
+		AuthorId:      userID,
+		PlayUrl:       videoURL,
+		CoverUrl:      coverURL,
+		FavoriteCount: 0,
+		CommentCount:  0,
+		Title:         title,
+	}
+	return v.conn.WithContext(ctx).Create(&video).Error
 }
 
-// CancelFavoriteCount 取消点赞数
-func (v *VideoDal) CancelFavoriteCount(ctx context.Context, id int64, count int64) error {
-	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ? and favorite_count >= ?", id, count).
-		Update("favorite_count", gorm.Expr("favorite_count - ?", count)).Error
+func (v *VideoDal) PublishList(ctx context.Context, userID int64) ([]*model.Video, error) {
+	var videos []*model.Video
+	t := v.conn.WithContext(ctx).Where("author_id = ?", userID).Find(&videos)
+	return videos, t.Error
 }
 
-// AddCommentCount 增加评论数
-func (v *VideoDal) AddCommentCount(ctx context.Context, id int64, count int64) error {
-	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ?", id).
-		Update("comment_count", gorm.Expr("comment_count + ?", count)).Error
-}
-
-// ReduceCommentCount 减少评论数
-func (v *VideoDal) ReduceCommentCount(ctx context.Context, id int64, count int64) error {
-	return v.conn.WithContext(ctx).Model(&model.Video{}).
-		Where("id = ? and comment_count >= ?", id, count).
-		Update("comment_count", gorm.Expr("comment_count - ?", count)).Error
+func (v *VideoDal) Feed(ctx context.Context, latest int64) ([]*model.Video, error) {
+	var videos []*model.Video
+	// 需要查找比latest早发布的视频
+	if latest == 0 {
+		latest = time.Now().UnixMicro()
+	}
+	t := v.conn.WithContext(ctx).
+		Where("created_at < ?", time.UnixMicro(latest)).
+		Order("created_at DESC").
+		Limit(30).
+		Find(&videos)
+	return videos, t.Error
 }
 
 // MGetVideoInfo 批量获得视频信息
-func (v *VideoDal) MGetVideoInfo(ctx context.Context, ids []int64) ([]model.Video, error) {
-	var videoList []model.Video
+func (v *VideoDal) MGetVideoInfo(ctx context.Context, ids []int64) ([]*model.Video, error) {
+	var videoList []*model.Video
 	t := v.conn.WithContext(ctx).Model(&model.Video{}).
 		Where("id in ?", ids).
 		Find(&videoList)
@@ -58,8 +62,8 @@ func (v *VideoDal) MGetVideoInfo(ctx context.Context, ids []int64) ([]model.Vide
 	return videoList, t.Error
 }
 
-func (v *VideoDal) GetVideoInfo(ctx context.Context, videoId int64) (model.Video, error) {
-	var video model.Video
+func (v *VideoDal) GetVideoInfo(ctx context.Context, videoId int64) (*model.Video, error) {
+	var video *model.Video
 	t := v.conn.WithContext(ctx).Model(&model.Video{}).
 		Where("id = ?", videoId).
 		Find(&video)

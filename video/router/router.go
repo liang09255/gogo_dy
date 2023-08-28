@@ -4,6 +4,7 @@ import (
 	"common/ggConfig"
 	"common/ggDiscovery"
 	"common/ggIDL/video"
+	"common/ggIP"
 	"common/ggLog"
 	"common/grpcInterceptors/recovery"
 	"google.golang.org/grpc"
@@ -61,6 +62,8 @@ func RegisterEtcdServer() {
 	// Resolver实现了Build()和Scheme()，所以Resolver实现了Builder接口
 	etcdRegister := ggDiscovery.NewResolver(etcdConfig.Addrs)
 	resolver.Register(etcdRegister)
+
+	videoServerConfig.Addr = ggIP.GetIP() + ":" + videoServerConfig.Port
 
 	// 构建grpc服务
 	info := ggDiscovery.Server{

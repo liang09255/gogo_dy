@@ -1,10 +1,10 @@
 package ggDiscovery
 
 import (
+	"common/ggLog"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -108,22 +108,22 @@ func (r *Register) keepAlive() {
 		select {
 		case <-r.closeCh:
 			if err := r.unregister(); err != nil {
-				hlog.Error("unregister failed", err)
+				ggLog.Error("unregister failed", err)
 			}
 			if _, err := r.cli.Revoke(context.Background(), r.leasesID); err != nil {
-				hlog.Error("revoke failed", err)
+				ggLog.Error("revoke failed", err)
 			}
 			return
 		case res := <-r.keepAliveCh:
 			if res == nil {
 				if err := r.register(); err != nil {
-					hlog.Error("register failed", err)
+					ggLog.Error("register failed", err)
 				}
 			}
 		case <-ticker.C:
 			if r.keepAliveCh == nil {
 				if err := r.register(); err != nil {
-					hlog.Error("register failed", err)
+					ggLog.Error("register failed", err)
 				}
 			}
 		}

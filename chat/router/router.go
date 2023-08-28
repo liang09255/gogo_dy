@@ -5,6 +5,7 @@ import (
 	"common/ggConfig"
 	"common/ggDiscovery"
 	"common/ggIDL/chat"
+	"common/ggIP"
 	"common/ggLog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
@@ -41,6 +42,8 @@ func RegisterEtcdServer() {
 	// Resolver实现了Build()和Scheme()，所以Resolver实现了Builder接口
 	etcdRegister := ggDiscovery.NewResolver(etcdConfig.Addrs)
 	resolver.Register(etcdRegister)
+
+	chatServiceConfig.Addr = ggIP.GetIP() + ":" + chatServiceConfig.Port
 
 	// 构建grpc服务
 	info := ggDiscovery.Server{

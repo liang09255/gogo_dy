@@ -1,11 +1,5 @@
 package ggConfig
 
-type Server struct {
-	Name string
-	Addr string
-	Http string
-}
-
 type config struct {
 	Mysql struct {
 		Username string
@@ -33,15 +27,12 @@ type config struct {
 	}
 	UserServer  Server
 	VideoServer Server
-	UserServer struct {
-		Name string
-		Addr string
-		Http string
-	}
-	ChatServer struct {
-		Name string
-		Addr string
-		Http string
-	}
+	ChatServer  Server
+}
 
+type Server struct {
+	Name string
+	Addr string
+	Http string
+	Port string
 }

@@ -46,7 +46,7 @@ func recoverFrom(ctx context.Context, p any, r RecoveryHandlerFuncContext) error
 	return DefaultRecovery(p)
 }
 
-// 默认的一个处理方法，捕捉了panic构造成了一个结构体
+// DefaultRecovery 默认的一个处理方法，捕捉了panic构造成了一个结构体
 func DefaultRecovery(p any) *PanicError {
 	stack := make([]string, 64<<10)
 	//stack = stack[:runtime.Stack(stack, false)]

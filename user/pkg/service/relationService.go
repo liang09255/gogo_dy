@@ -22,6 +22,7 @@ var _ relation.RelationServer = (*RelationService)(nil)
 func New2() *RelationService {
 	return &RelationService{
 		relationDomain: domain.NewRelationDomain(),
+		userDomain:     domain.NewUserDomain(),
 	}
 }
 
@@ -54,7 +55,7 @@ func (rs *RelationService) FollowList(ctx context.Context, request *relation.Fol
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
 	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
-		tmp.IsFollow = user.IsFollow
+		tmp.IsFollow = true
 		tmp.Id = user.Id
 		tmp.Name = user.Name
 		tmp.FollowCount = user.FollowCount
@@ -81,9 +82,10 @@ func (rs *RelationService) FollowerList(ctx context.Context, request *relation.F
 	}
 	var res []*relation.UserInfoModel
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
+	isFollowMap := rs.relationDomain.GetIsFollow(ctx, request.MyId, uids)
 	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
-		tmp.IsFollow = user.IsFollow
+		tmp.IsFollow = isFollowMap[user.Id]
 		tmp.Id = user.Id
 		tmp.Name = user.Name
 		tmp.FollowCount = user.FollowCount
@@ -112,7 +114,7 @@ func (rs *RelationService) FriendList(ctx context.Context, request *relation.Fri
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
 	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
-		tmp.IsFollow = user.IsFollow
+		tmp.IsFollow = true
 		tmp.Id = user.Id
 		tmp.Name = user.Name
 		tmp.FollowCount = user.FollowCount
@@ -131,5 +133,4 @@ func (rs *RelationService) FriendList(ctx context.Context, request *relation.Fri
 	}
 
 	return &relation.FriendListResponse{UserInfo: res}, nil
-
 }

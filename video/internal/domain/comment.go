@@ -52,14 +52,6 @@ func (vd *CommentDomain) CommentAction(ctx context.Context, req *video.CommentAc
 
 		// 类型转换
 		videoCommentResp = Comment2Pb([]model.Comment{*commentResp})[0]
-
-		// 增加视频表
-		err = vd.videoRepo.AddCommentCount(ctx, req.VideoId, 1)
-		if err != nil {
-			ggLog.Errorf("视频表添加评论数错误，用户:%d 错误:%v", req.UserId, err)
-			return nil, err
-		}
-
 	} else if req.ActionType == video.ActionType_Cancel {
 		comment := &model.Comment{
 			ID: req.CommentId,
@@ -67,12 +59,6 @@ func (vd *CommentDomain) CommentAction(ctx context.Context, req *video.CommentAc
 		err = vd.commentRepo.DeleteComment(ctx, comment)
 		if err != nil {
 			ggLog.Errorf("用户:%d 删除评论错误:%v", req.UserId, err)
-			return nil, err
-		}
-		// 减少视频表
-		err = vd.videoRepo.ReduceCommentCount(ctx, comment.VideoId, 1)
-		if err != nil {
-			ggLog.Errorf("视频表删除评论数错误，用户:%d 错误:%v", req.UserId, err)
 			return nil, err
 		}
 	}
@@ -109,4 +95,8 @@ func Comment2Pb(commentList []model.Comment) []*video.Comment {
 	}
 
 	return pbs
+}
+
+func (vd *CommentDomain) GetCommentCountByVideoID(ctx context.Context, videoIDs []int64) map[int64]int64 {
+	return vd.commentRepo.MGetCommentCount(ctx, videoIDs)
 }

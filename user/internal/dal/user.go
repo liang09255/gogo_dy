@@ -3,7 +3,6 @@ package dal
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"user/internal/database"
 
 	"user/internal/model"
@@ -52,64 +51,3 @@ func (ud *UserDal) MGetUserInfo(ctx context.Context, uids []int64) (users []mode
 
 	return users, t.Error
 }
-
-func (ud *UserDal) GetRelation(ctx context.Context, myid, taruserid int64) bool {
-
-	user := new(model.Relation)
-
-	t := ud.conn.WithContext(ctx).Where("follow_id = ? AND user_id = ?", myid, taruserid).First(&user)
-
-	if t.Error != nil {
-		return false
-	} else {
-		return true
-  }
-}
-  
-  func (ud *UserDal) TransactionExample(ctx context.Context, conn database.DbConn, otherData string) error {
-	// do something
-	var err error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (ud *UserDal) TransactionExample2(ctx context.Context, conn database.DbConn, otherData string) error {
-	//do other thing
-	var err error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// 点赞相关
-func (ud *UserDal) AddTotalFavorited(ctx context.Context, userid int64, count int64) error {
-	t := ud.conn.WithContext(ctx).Model(&model.User{}).
-		Where("id = ?", userid).
-		Update("total_favorited", gorm.Expr("total_favorited + ?", count))
-	return t.Error
-}
-
-func (ud *UserDal) SubTotalFavorited(ctx context.Context, userid int64, count int64) error {
-	t := ud.conn.WithContext(ctx).Model(&model.User{}).
-		Where("id = ?", userid).
-		Update("total_favorited", gorm.Expr("total_favorited - ?", count))
-	return t.Error
-}
-
-func (ud *UserDal) AddFavoriteCount(ctx context.Context, userid int64, count int64) error {
-	t := ud.conn.WithContext(ctx).Model(&model.User{}).
-		Where("id = ?", userid).
-		Update("favorite_count", gorm.Expr("favorite_count + ?", count))
-	return t.Error
-}
-
-func (ud *UserDal) SubFavoriteCount(ctx context.Context, userid int64, count int64) error {
-	t := ud.conn.WithContext(ctx).Model(&model.User{}).
-		Where("id = ?", userid).
-		Update("favorite_count", gorm.Expr("favorite_count - ?", count))
-	return t.Error
-}
-

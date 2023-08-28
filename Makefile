@@ -4,6 +4,8 @@ build_all:
 	make build_base
 	make build_api
 	make build_user
+	make build_chat
+	make build_video
 
 build_base:
 	docker build -t gogo_base:$(VERSION) --build-arg GOGO_VERSION=$(VERSION) .
@@ -13,6 +15,12 @@ build_api:
 
 build_user:
 	docker build -t gogo_user:$(VERSION) --build-arg GOGO_VERSION=$(VERSION) ./user
+
+build_chat:
+	docker build -t gogo_chat:$(VERSION) --build-arg GOGO_VERSION=$(VERSION) ./chat
+
+build_video:
+	docker build -t gogo_video:$(VERSION) --build-arg GOGO_VERSION=$(VERSION) ./video
 
 tidy_all:
 	cd ./api && go mod tidy

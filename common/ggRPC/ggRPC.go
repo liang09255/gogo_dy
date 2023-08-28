@@ -19,7 +19,6 @@ func GetUserClient() user.UserClient {
 	return user.NewUserClient(conn)
 }
 
-
 func GetVideoClient() video.VideoServiceClient {
 	conn := initClient(ggConfig.Config.VideoServer.Name)
 	return video.NewVideoServiceClient(conn)
@@ -28,10 +27,6 @@ func GetVideoClient() video.VideoServiceClient {
 func GetRelationClient() relation.RelationClient {
 	conn := initClient(ggConfig.Config.UserServer.Name)
 	return relation.NewRelationClient(conn)
-}
-
-func GetVideoClient() {
-
 }
 
 func GetChatClient() chat.ChatClient {

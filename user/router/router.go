@@ -5,6 +5,7 @@ import (
 	"common/ggDiscovery"
 	"common/ggIDL/relation"
 	"common/ggIDL/user"
+	"common/ggIP"
 	"common/ggLog"
 	"common/grpcInterceptors/recovery"
 	"user/pkg/service"
@@ -25,7 +26,7 @@ func StartGrpc() *grpc.Server {
 	recoveryFunc = func(p any) (err error) {
 		panicErr := recovery.DefaultRecovery(p)
 		// 记录panic错误 - 根据需要修改显示捕获到的错误的格式
-		ggLog.Panic(panicErr.Error())
+		ggLog.Error(panicErr)
 		return panicErr
 	}
 	// 方法作为配置传入
@@ -37,7 +38,6 @@ func StartGrpc() *grpc.Server {
 
 	// 创建grpc服务端
 	g := grpc.NewServer(interceptor)
-
 
 	relation.RegisterRelationServer(g, service.New2())
 
@@ -64,6 +64,7 @@ func RegisterEtcdServer() {
 	// 实现grpc接口，拓展一下，使得可以识别etcd的链接
 	// 创建了一个Resolver
 	// Resolver实现了Build()和Scheme()，所以Resolver实现了Builder接口
+	userServerConfig.Addr = ggIP.GetIP() + ":" + userServerConfig.Port
 	etcdRegister := ggDiscovery.NewResolver(etcdConfig.Addrs)
 	resolver.Register(etcdRegister)
 
