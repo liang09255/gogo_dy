@@ -1,0 +1,44 @@
+mysql:
+  username: root
+  password: 10086@gogo.com
+  host: 111.173.80.63
+  port: 3306
+  db: gogo_dy
+
+jwtKey: "secret_key&&gogo_dy"
+
+aliOSS:
+  bucket: "gogo-dy"
+  endpoint: "oss-cn-shenzhen.aliyuncs.com"
+  accessKeyId: "LTAI5tCENJkYLuRmV8ynJxrE"
+  accessKeySecret: "5femBgiIADzv8ZRHq1vrjJjndsAOKi"
+
+passwordSalt: "gogo_dy"
+
+redis:
+  host: "111.173.80.63"
+  port: 6379
+  password: ""
+  db: 0
+
+etcd:
+  addrs:
+    - "111.173.80.63:2379"
+
+userServer:
+  name: "user"
+  addr: "0.0.0.0:8081"
+  port: 8081
+  http: "0.0.0.0:8082"
+
+chatServer:
+  name: "chat"
+  addr: "0.0.0.0:8083"
+  port: 8083
+  http: "0.0.0.0:8084"
+
+videoServer:
+  name: "video"
+  addr: "0.0.0.0:8085"
+  port: 8085
+  http: "0.0.0.0:8086"
