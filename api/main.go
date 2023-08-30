@@ -3,14 +3,12 @@ package main
 import (
 	"api/controller"
 	"api/controller/middleware"
-	"api/dal"
 	"api/global"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
 	global.Init()
-	dal.Init()
 	middleware.Init()
 
 	// 1024code 只能使用8080
