@@ -3,10 +3,13 @@ package main
 import (
 	"common/ggConfig"
 	"common/ggShutDown"
+	"video/internal/dal"
 	"video/router"
 )
 
 func main() {
+	dal.Init()
+
 	videoServerConfig := ggConfig.Config.VideoServer
 	// 注册grpc服务
 	gc := router.StartGrpc()

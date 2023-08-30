@@ -3,11 +3,14 @@ package main
 import (
 	"common/ggConfig"
 	"common/ggShutDown"
+	"user/internal/dal"
 	"user/pkg/utils"
 	"user/router"
 )
 
 func main() {
+	dal.Init()
+
 	userServerConfig := ggConfig.Config.UserServer
 	// 注册grpc服务
 	gc := router.StartGrpc()
