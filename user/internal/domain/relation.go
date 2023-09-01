@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"common/ggConv"
+	"common/ggLog"
 	"context"
 	"fmt"
 	"user/internal/dal"
@@ -43,4 +45,21 @@ func (ud *RelationDomain) GetFollowerList(ctx context.Context, userid int64) (us
 
 func (ud *RelationDomain) GetFriendList(ctx context.Context, userid int64) (users []int64, err error) {
 	return ud.relationRepo.GetAllFriend(ctx, userid)
+}
+
+func (ud *RelationDomain) GetIsFollow(ctx context.Context, myID int64, targetID []int64) map[int64]bool {
+	res := make(map[int64]bool)
+	defer func() {
+		res[myID] = true
+	}()
+	followIDs, err := ud.relationRepo.GetAllFollow(ctx, myID)
+	if err != nil {
+		ggLog.Error(err)
+		return res
+	}
+	followIDMap := ggConv.Array2BoolMap(followIDs)
+	for _, id := range targetID {
+		res[id] = followIDMap[id]
+	}
+	return res
 }

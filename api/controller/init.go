@@ -2,11 +2,13 @@ package controller
 
 import (
 	"api/controller/middleware"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func Init(h *server.Hertz) {
 	dy := h.Group("/douyin/")
+	h.Use(recovery.Recovery())
 	// 用户接口
 	userGroup := dy.Group("user/")
 	userGroup.POST("register/", User.Register)

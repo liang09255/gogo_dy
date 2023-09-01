@@ -5,19 +5,46 @@ import (
 	"common/ggDiscovery"
 	"common/ggIDL/relation"
 	"common/ggIDL/user"
+	"common/ggIP"
 	"common/ggLog"
+	"common/grpcInterceptors/recovery"
 	"user/pkg/service"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"net"
+
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 func StartGrpc() *grpc.Server {
 	userServerConfig := ggConfig.Config.UserServer
 
 	// 接口缓存 拦截器
-	g := grpc.NewServer()
+	// recovery中间件
+	var recoveryFunc recovery.RecoveryHandlerFunc
+	// 做成配置项主要是为了扩展，比如多个微服务的log不是同一个实例,或者不需要log记录，这里用闭包处理就不需要每次都传值
+	// 自定义的恢复方法
+	recoveryFunc = func(p any) (err error) {
+		panicErr := recovery.DefaultRecovery(p)
+		// 记录panic错误 - 根据需要修改显示捕获到的错误的格式
+		ggLog.Error(panicErr)
+		return panicErr
+	}
+	// 方法作为配置传入
+	opts := []recovery.Option{
+		recovery.WithRecoveryHandler(recoveryFunc),
+	}
+	interceptor := grpc.UnaryInterceptor(
+		grpc_middleware.ChainUnaryServer(
+			otelgrpc.UnaryServerInterceptor(),
+			//interceptor.New().CacheInterceptor(), TODO 待定
+			recovery.UnaryServerInterceptor(opts...),
+		))
+
+	// 创建grpc服务端
+	g := grpc.NewServer(interceptor)
 
 	relation.RegisterRelationServer(g, service.New2())
 	user.RegisterUserServer(g, service.New())
@@ -43,6 +70,7 @@ func RegisterEtcdServer() {
 	// 实现grpc接口，拓展一下，使得可以识别etcd的链接
 	// 创建了一个Resolver
 	// Resolver实现了Build()和Scheme()，所以Resolver实现了Builder接口
+	userServerConfig.Addr = ggIP.GetIP() + ":" + userServerConfig.Port
 	etcdRegister := ggDiscovery.NewResolver(etcdConfig.Addrs)
 	resolver.Register(etcdRegister)
 

@@ -1,8 +1,9 @@
 package ggDiscovery
 
 import (
+	"common/ggLog"
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc/resolver"
@@ -101,7 +102,7 @@ func (r *Resolver) watch() {
 			}
 		case <-ticker.C:
 			if err := r.sync(); err != nil {
-				hlog.Error("sync failed", err)
+				ggLog.Error("sync failed", err)
 			}
 		}
 	}

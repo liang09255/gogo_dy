@@ -15,3 +15,12 @@ func Array2BoolMap[T comparable](array []T) map[T]bool {
 	}
 	return m
 }
+
+// Map2Array 只保留key的信息
+func Map2Array[T comparable](m map[T]any) []T {
+	array := make([]T, 0, len(m))
+	for k, _ := range m {
+		array = append(array, k)
+	}
+	return array
+}

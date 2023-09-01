@@ -157,8 +157,6 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	hlog.Infof("FriendListResponse: %v", FriendListResponse)
-
 	var userInfo []userCtlModel.User
 	tmp := &userCtlModel.User{}
 	for _, user := range FriendListResponse.UserInfo {
