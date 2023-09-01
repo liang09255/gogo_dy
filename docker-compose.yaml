@@ -10,27 +10,27 @@ services:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 10086@gogo.com
       MYSQL_DATABASE: gogo_dy
-    volumes:
-      - ${MYSQL_DIR}/data:/var/lib/mysql
-      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
-      - ${MYSQL_DIR}/logs:/logs
+    #    volumes:
+    #      - ${MYSQL_DIR}/data:/var/lib/mysql
+    #      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
+    #      - ${MYSQL_DIR}/logs:/logs
     command:
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --explicit_defaults_for_timestamp=true
       --lower_case_table_names=1
-  Redis:
+  redis:
     container_name: redis5
     image: redis:${REDIS_VERSION}
     restart: always
     volumes:
       - ${REDIS_DIR}/data:/data
       - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
-    ports:
-      - ${REDIS_PORT}:6379
+    #    ports:
+    #      - ${REDIS_PORT}:6379
     command: redis-server /etc/redis/redis.conf
-  Etcd:
+  etcd:
     container_name: etcd3
     image: bitnami/etcd:${ETCD_VERSION}
     deploy:
@@ -40,21 +40,120 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
-    volumes:
-      - ${ETCD_DIR}/data:/bitnami/etcd/data
-    ports:
-      - ${ETCD_PORT}:2379
-      - 2380:2380
+  #    volumes:
+  #      - ${ETCD_DIR}/data:/bitnami/etcd/data
+  #    ports:
+  #      - ${ETCD_PORT}:2379
+  #      - 2380:2380
   gogo_user:
     container_name: gogo_user
     image: gogo_user:${GOGO_VERSION}
-    network_mode: 'host'
-  #    ports:
-  #      - 8081:8081
-  #      - 8882:8882
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+  gogo_chat:
+    container_name: gogo_chat
+    image: gogo_chat:${GOGO_VERSION}
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+  gogo_video:
+    container_name: gogo_video
+    image: gogo_video:${GOGO_VERSION}
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
   gogo_api:
     container_name: gogo_api
     image: gogo_api:${GOGO_VERSION}
-    network_mode: 'host'
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gogo_user
+      - gogo_chat
+      - gogo_video
+  kafdrop:
+    container_name: kafdrop
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - "kafka"
+  kafka:
+    container_name: kafka
+    image: obsidiandynamics/kafka
+    restart: "no"
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+#  es:
+#    container_name: es
+#    image: elasticsearch:8.6.0
+#    volumes:
+#      - ${ES_DIR}/data:/usr/share/elasticsearch/data
+#      - ${ES_DIR}/logs:/usr/share/elasticsearch/logs
+#      - ${ES_DIR}/plugins:/usr/share/elasticsearch/plugins
 #    ports:
-#      - 8080:8080
+#      - 9200:9200
+#      - 9300:9300
+#    environment:
+#      - node.name=es
+#      - cluster.name=elasticsearch
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - xpack.security.enabled=false
+#      - xpack.security.http.ssl.enabled=false
+#      - xpack.security.transport.ssl.enabled=false
+#    privileged: true
+#  kibana:
+#    image: kibana:8.6.0
+#    container_name: kibana
+#    depends_on:
+#      - es
+#    environment:
+#      SERVER_NAME: kibana
+#      SERVER_HOST: "0.0.0.0"
+#      ELASTICSEARCH_HOSTS: http://es:9200
+#    ports:
+#      - 5601:5601
+#  logstash:
+#    image: logstash:8.6.0
+#    container_name: logstash
+#    volumes:
+#      - ${LOGSTASH_DIR}/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#      - ${LOGSTASH_DIR}/logstash.yml:/usr/share/logstash/config/logstash.yml
+#      - ${LOGSTASH_DIR}/log/:/home/public/
+#    ports:
+#      - '5044:5044'
+#      - '50000:50000/tcp'
+#      - '50000:50000/udp'
+#      - '9600:9600'
+#    environment:
+#      LS_JAVA_OPTS: -Xms1024m -Xmx1024m
+#      TZ: Asia/Shanghai
+#      MONITORING_ENABLED: false
+#    depends_on:
+#      - es

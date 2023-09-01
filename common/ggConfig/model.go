@@ -25,9 +25,14 @@ type config struct {
 	Etcd struct {
 		Addrs []string
 	}
-	UserServer struct {
-		Name string
-		Addr string
-		Http string
-	}
+	UserServer  Server
+	VideoServer Server
+	ChatServer  Server
+}
+
+type Server struct {
+	Name string
+	Addr string
+	Http string
+	Port string
 }

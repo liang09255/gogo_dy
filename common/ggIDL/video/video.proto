@@ -1,0 +1,178 @@
+syntax = "proto3";
+package video;
+option go_package = "common/ggIDL/video";
+
+import "user/user.proto";
+
+// 引入user信息
+
+// 获取视频流
+//message FeedRequest{
+//
+//}
+
+enum ActionType
+{
+  _ = 0; // proto3中，首成员必须为0
+  Add = 1;
+  Cancel = 2;
+}
+
+// 视频结构
+message Video {
+  int64 id = 1;
+  // 视频作者信息
+  user.UserInfoModel author = 2;
+  // 视频播放地址
+  string play_url = 3;
+  // 视频封面地址
+  string cover_url = 4;
+  // 点赞总数
+  int64 favorite_count = 5;
+  // 视频的评论总数
+  int64 comment_count = 6;
+  // 是否点赞
+  bool is_favorite = 7;
+  // 视频标题
+  string title = 8;
+}
+
+
+
+// 点赞/取消点赞请求
+message FavoriteActionRequest {
+  // 视频id
+  int64 video_id = 1;
+  // 操作
+  ActionType action_type = 2;
+  // 用户id
+  int64 user_id = 3;
+}
+
+message FavoriteActionResponse {
+}
+
+// 喜欢列表 - 用户所有的点赞视频
+message FavoriteListRequest {
+  int64 user_id = 1;
+}
+
+message FavoriteListResponse {
+  repeated Video video_list = 1;
+}
+
+// 视频评论
+message CommentActionRequest {
+  int64 video_id =1;
+  // 评论操作 1-发布 2-删除
+  ActionType action_type = 2;
+  // 评论内容
+  string comment_text = 3;
+  // 删除的评论id
+  int64 comment_id = 4;
+  // 用户id
+  int64 user_id = 5;
+}
+
+message CommentActionResponse{
+  Comment comment = 1;
+}
+
+message Comment {
+  // 返回评论内容
+  int64 id = 1;
+  // 用户信息
+  user.UserInfoModel user = 2;
+  string content = 3;
+  // mm-dd格式的日期
+  string create_date = 4;
+}
+
+// 评论列表
+message CommentListRequest {
+  int64 video_id = 1;
+}
+
+message CommentListResponse{
+  repeated Comment comment_list = 1;
+}
+
+message UploadVideoRequest {
+  // 视频标题
+  string title = 1;
+  // 视频封面
+  string cover_url = 2;
+  // 视频地址
+  string play_url = 3;
+  // 用户id
+  int64 user_id = 4;
+}
+
+message UploadVideoResponse {
+}
+
+message VideoListRequest {
+  // 用户id
+  int64 user_id = 1;
+}
+
+message VideoListResponse {
+  repeated Video video_list = 1;
+}
+
+message FeedRequest {
+  int64 user_id = 1;
+  int64 latest = 2;
+}
+
+message FeedResponse {
+  repeated Video video_list = 1;
+  int64 nextTime = 2;
+}
+
+message GetTotalFavoriteCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalFavoriteCountResponse {
+  int64 count = 1;
+}
+
+message GetTotalVideoCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalVideoCountResponse {
+  int64 count = 1;
+}
+
+message GetTotalLikeCountRequest {
+  int64 user_id = 1;
+}
+
+message GetTotalLikeCountResponse {
+  int64 count = 1;
+}
+
+service VideoService {
+  // 点赞方法
+  rpc FavoriteAction(FavoriteActionRequest) returns (FavoriteActionResponse) {}
+  // 喜欢列表方法
+  rpc FavoriteList(FavoriteListRequest) returns (FavoriteListResponse) {}
+  // 视频评论方法
+  rpc CommentAction(CommentActionRequest) returns (CommentActionResponse) {}
+  // 评论列表方法
+  rpc CommentList(CommentListRequest) returns (CommentListResponse) {}
+  // 上传视频
+  rpc UploadVideo(UploadVideoRequest) returns (UploadVideoResponse) {}
+  // 视频列表
+  rpc VideoList(VideoListRequest) returns (VideoListResponse) {}
+  // 视频流
+  rpc Feed(FeedRequest) returns (FeedResponse) {}
+  // 获取用户总点赞数
+  rpc GetTotalFavoriteCount(GetTotalFavoriteCountRequest) returns (GetTotalFavoriteCountResponse) {}
+  // 获取用户总视频数
+  rpc GetTotalVideoCount(GetTotalVideoCountRequest) returns (GetTotalVideoCountResponse) {}
+  // 获取用户总喜欢数
+  rpc GetTotalLikeCount(GetTotalLikeCountRequest) returns (GetTotalLikeCountResponse) {}
+}

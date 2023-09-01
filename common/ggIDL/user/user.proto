@@ -1,6 +1,6 @@
 syntax = "proto3";
 package user;
-option go_package = "common/idl/user";
+option go_package = "common/ggIDL/user";
 
 message RegisterRequest {
   string username = 1;
@@ -43,6 +43,7 @@ message UserInfoModel {
   int64 favorite_count = 11; //点赞数量
 }
 
+message UserFavoriteActionResponse{}
 
 service User {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
