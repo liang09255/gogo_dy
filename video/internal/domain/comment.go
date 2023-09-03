@@ -44,6 +44,9 @@ func (vd *CommentDomain) CommentAction(ctx context.Context, req *video.CommentAc
 			VideoId: req.VideoId,
 			Content: req.CommentText,
 		}
+		// 缓存视频评论数
+		// 查看是否存在，如果存在则直接改，然后插入数据库后，合并计算由定时任务处理，如果不存在则插入数据库
+
 		commentResp, err := vd.commentRepo.AddComment(ctx, comment)
 		if err != nil {
 			ggLog.Errorf("用户:%d 发表评论错误:%v", req.UserId, err)

@@ -109,6 +109,8 @@ func (v VideoService) FavoriteAction(ctx context.Context, request *video.Favorit
 	// 点赞操作
 	userid := request.UserId
 	videoid := request.VideoId
+	// 获得被点赞的视频作者的id
+
 	err := v.favoriteDomain.FavoriteAction(ctx, userid, videoid, request.ActionType)
 	return &video.FavoriteActionResponse{}, err
 }

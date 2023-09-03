@@ -1,4 +1,9 @@
 version: '3'
+
+#networks:
+#  gogo_dy_net:
+#    driver: bridge
+
 services:
   mysql:
     container_name: mysql8
@@ -24,6 +29,8 @@ services:
     container_name: redis5
     image: redis:${REDIS_VERSION}
     restart: always
+    ports:
+      - "6379:6379"
     volumes:
       - ${REDIS_DIR}/data:/data
       - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
@@ -40,48 +47,51 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
+    ports:
+      - "2379:2379"
   #    volumes:
   #      - ${ETCD_DIR}/data:/bitnami/etcd/data
   #    ports:
   #      - ${ETCD_PORT}:2379
   #      - 2380:2380
-  gogo_user:
-    container_name: gogo_user
-    image: gogo_user:${GOGO_VERSION}
-    restart: always
-    #    network_mode: 'host'
-    depends_on:
-      - mysql
-      - redis
-      - etcd
-  gogo_chat:
-    container_name: gogo_chat
-    image: gogo_chat:${GOGO_VERSION}
-    restart: always
-    #    network_mode: 'host'
-    depends_on:
-      - mysql
-      - redis
-      - etcd
-  gogo_video:
-    container_name: gogo_video
-    image: gogo_video:${GOGO_VERSION}
-    restart: always
-    #    network_mode: 'host'
-    depends_on:
-      - mysql
-      - redis
-      - etcd
-  gogo_api:
-    container_name: gogo_api
-    image: gogo_api:${GOGO_VERSION}
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - gogo_user
-      - gogo_chat
-      - gogo_video
+
+#  gogo_user:
+#    container_name: gogo_user
+#    image: gogo_user:${GOGO_VERSION}
+#    restart: always
+#    #    network_mode: 'host'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - etcd
+#  gogo_chat:
+#    container_name: gogo_chat
+#    image: gogo_chat:${GOGO_VERSION}
+#    restart: always
+#    #    network_mode: 'host'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - etcd
+#  gogo_video:
+#    container_name: gogo_video
+#    image: gogo_video:${GOGO_VERSION}
+#    restart: always
+#    #    network_mode: 'host'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - etcd
+#  gogo_api:
+#    container_name: gogo_api
+#    image: gogo_api:${GOGO_VERSION}
+#    restart: always
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - gogo_user
+#      - gogo_chat
+#      - gogo_video
   kafdrop:
     container_name: kafdrop
     image: obsidiandynamics/kafdrop

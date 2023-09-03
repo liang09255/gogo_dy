@@ -21,6 +21,7 @@ func NewMySQL() *gorm.DB {
 	if err != nil {
 		ggLog.Fatalf("database initialize failed", err)
 	}
+
 	ggLog.Infof("数据库连接成功!")
 	return db
 }
