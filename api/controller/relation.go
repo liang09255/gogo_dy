@@ -64,10 +64,10 @@ func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	userID := middleware.GetUserID(ctx)
+	//userID := middleware.GetUserID(ctx)
 
 	var msg = &relationRPC.FollowListRequest{
-		MyId: userID,
+		MyId: reqObj.UserID,
 	}
 
 	FollowListResponse, err := global.RelationClient.FollowList(c, msg)
@@ -103,10 +103,10 @@ func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 		ctlFunc.BaseFailedResp(ctx, err.Error())
 		return
 	}
-	userID := middleware.GetUserID(ctx)
+	//userID := middleware.GetUserID(ctx)
 
 	var msg = &relationRPC.FollowerListRequest{
-		MyId: userID,
+		MyId: reqObj.UserID,
 	}
 
 	FollowerListResponse, err := global.RelationClient.FollowerList(c, msg)
@@ -144,10 +144,10 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	userID := middleware.GetUserID(ctx)
+	//userID := middleware.GetUserID(ctx)
 
 	var msg = &relationRPC.FriendListRequest{
-		MyId: userID,
+		MyId: reqObj.UserID,
 	}
 
 	FriendListResponse, err := global.RelationClient.FriendList(c, msg)

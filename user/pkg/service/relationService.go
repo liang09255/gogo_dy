@@ -63,8 +63,8 @@ func (rs *RelationService) FollowList(ctx context.Context, request *relation.Fol
 	}
 	var res []*relation.UserInfoModel
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
-	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
+		var tmp relation.UserInfoModel
 		tmp.IsFollow = true
 		tmp.Id = user.Id
 		tmp.Name = user.Name
@@ -93,8 +93,8 @@ func (rs *RelationService) FollowerList(ctx context.Context, request *relation.F
 	var res []*relation.UserInfoModel
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
 	isFollowMap := rs.relationDomain.GetIsFollow(ctx, request.MyId, uids)
-	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
+		var tmp relation.UserInfoModel
 		tmp.IsFollow = isFollowMap[user.Id]
 		tmp.Id = user.Id
 		tmp.Name = user.Name
@@ -122,8 +122,8 @@ func (rs *RelationService) FriendList(ctx context.Context, request *relation.Fri
 	}
 	var res []*relation.UserInfoModel
 	userinfo, err := rs.userDomain.MGetUserInfo(ctx, uids)
-	var tmp relation.UserInfoModel
 	for _, user := range userinfo {
+		var tmp relation.UserInfoModel
 		tmp.IsFollow = true
 		tmp.Id = user.Id
 		tmp.Name = user.Name
