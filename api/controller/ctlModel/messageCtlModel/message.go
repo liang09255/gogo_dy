@@ -11,7 +11,7 @@ type ActionReq struct {
 }
 
 type ActionResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 }
 
 // 获取消息列表
@@ -22,7 +22,7 @@ type ChatReq struct {
 }
 
 type ChatResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Messages []Message `json:"message_list"`
 }
 

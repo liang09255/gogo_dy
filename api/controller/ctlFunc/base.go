@@ -15,6 +15,10 @@ func BaseSuccessResp(ctx *app.RequestContext, msg ...string) {
 	Response(ctx, baseCtlModel.NewBaseSuccessResp(msg...))
 }
 
-func BaseFailedResp(ctx *app.RequestContext, msg ...string) {
-	Response(ctx, baseCtlModel.NewBaseFailedResp(msg...))
+func BaseFailedResp(ctx *app.RequestContext, err error) {
+	ctx.Error(err)
+}
+
+func BaseFailedRespWithMsg(ctx *app.RequestContext, msg string) {
+	Response(ctx, baseCtlModel.APIError{StatusCode: http.StatusOK, StatusMsg: msg})
 }

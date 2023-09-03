@@ -1,37 +1,40 @@
 package baseCtlModel
 
-const (
-	SuccessCode = 0
-	FailCode    = 1
-)
-
-type BaseResp struct {
+type APIError struct {
+	StatusCode int32
+	StatusMsg  string
+}
+type APIBaseResp struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg"`
 }
 
-func NewBaseSuccessResp(msg ...string) BaseResp {
-	if len(msg) == 0 {
-		return BaseResp{
-			StatusCode: SuccessCode,
-			StatusMsg:  "Success",
-		}
-	}
-	return BaseResp{
-		StatusCode: SuccessCode,
-		StatusMsg:  msg[0],
+func newError(code int32, msg string) APIError {
+	return APIError{
+		StatusCode: code,
+		StatusMsg:  msg,
 	}
 }
 
-func NewBaseFailedResp(msg ...string) BaseResp {
-	if len(msg) == 0 {
-		return BaseResp{
-			StatusCode: FailCode,
-			StatusMsg:  "Failed",
-		}
+func newBaseResp(code int32, msg string) APIBaseResp {
+	return APIBaseResp{
+		StatusCode: code,
+		StatusMsg:  msg,
 	}
-	return BaseResp{
-		StatusCode: FailCode,
-		StatusMsg:  msg[0],
+}
+
+func NewBaseSuccessResp(msg ...string) APIBaseResp {
+	if len(msg) == 0 {
+		return Success
+	}
+	return newBaseResp(0, msg[0])
+}
+func (b APIError) Error() string {
+	return b.StatusMsg
+}
+func (b APIError) WithDetails(msg string) APIError {
+	return APIError{
+		StatusCode: b.StatusCode,
+		StatusMsg:  b.StatusMsg + ": " + msg,
 	}
 }

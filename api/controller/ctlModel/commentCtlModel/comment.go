@@ -15,7 +15,7 @@ type ActionReq struct {
 }
 
 type ActionResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Comment Comment `json:"comment"`
 }
 
@@ -26,7 +26,7 @@ type ListReq struct {
 }
 
 type ListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Comments []Comment `json:"comment_list"`
 }
 

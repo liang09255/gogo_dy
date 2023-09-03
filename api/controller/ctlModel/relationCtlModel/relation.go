@@ -13,7 +13,7 @@ type ActionReq struct {
 }
 
 type ActionResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 }
 
 // 获取关注列表
@@ -23,7 +23,7 @@ type FollowListReq struct {
 }
 
 type FollowListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Users []userCtlModel.User `json:"user_list"`
 }
 
@@ -34,7 +34,7 @@ type FollowerListReq struct {
 }
 
 type FollowerListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Users []userCtlModel.User `json:"user_list"`
 }
 
@@ -45,6 +45,6 @@ type FriendListReq struct {
 }
 
 type FriendListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIError
 	Users []userCtlModel.User `json:"user_list"`
 }
