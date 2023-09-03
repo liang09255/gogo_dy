@@ -3,7 +3,9 @@ package service
 import (
 	"common/ggIDL/relation"
 	"context"
+	"encoding/json"
 	"user/internal/domain"
+	"user/pkg/utils"
 )
 
 const (
@@ -38,11 +40,19 @@ func (rs *RelationService) Action(ctx context.Context, msg *relation.ActionReque
 
 	err := rs.relationDomain.RelationAction(ctx, myid, touserid, msg.ActionType)
 
-	if err != nil {
-		return &relation.ActionResponse{}, err
+	if err == nil {
+		// 如果操作成功，发送消息到 Kafka
+		relationMsg := map[string]interface{}{
+			"userID":   myid,
+			"targetID": touserid,
+			"action":   msg.ActionType,
+		}
+		msgData, _ := json.Marshal(relationMsg)              // 转换为JSON格式
+		utils.SendMessageToKafka("relation_action", msgData) // 发送到Kafka
 	}
 
-	return &relation.ActionResponse{}, nil
+	return &relation.ActionResponse{}, err
+
 }
 
 func (rs *RelationService) FollowList(ctx context.Context, request *relation.FollowListRequest) (*relation.FollowListResponse, error) {

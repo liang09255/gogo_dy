@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a06aeea9-6f25-46d0-a20e-ba72bf38404e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/user/internal/dal/followStats.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/ggDB/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggDB/mysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/ggIDL/user/user.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggIDL/user/user.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/ggIDL/user/user.proto" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggIDL/user/user.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/ggIDL/user/user_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggIDL/user/user_grpc.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.work.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.work.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/user/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/dal/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/dal/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/dal/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/dal/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/dal/userCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/dal/userCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/domain/relation.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/domain/relation.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/domain/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/domain/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/model/relation.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/model/relation.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/internal/repo/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/internal/repo/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/pkg/service/relationService.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/pkg/service/relationService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/pkg/service/userService.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/pkg/service/userService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/pkg/utils/kafka.go" beforeDir="false" afterPath="$PROJECT_DIR$/user/pkg/utils/kafka.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../Program Files/Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": -1
+}]]></component>
+  <component name="ProjectId" id="2Uft3yruKmtYWhBmKSSOvrk05Zc" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/workspace/backend/bytedance_go_douyin/gogo_dy/user",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.goide.configuration.GoLibrariesConfigurableProvider"
+  }
+}]]></component>
+  <component name="RunManager" selected="Go Build.go build main.go">
+    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gogo_dy" />
+      <working_directory value="$PROJECT_DIR$/user" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/user/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="gobench common/ggKafka" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gogo_dy" />
+      <working_directory value="$PROJECT_DIR$/common/ggKafka" />
+      <root_directory value="$PROJECT_DIR$/common" />
+      <kind value="PACKAGE" />
+      <package value="common/ggKafka" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gobench" />
+      <method v="2" />
+    </configuration>
+    <configuration name="build_user" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="build_user" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile" />
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml.gogo_api: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="services">
+            <list>
+              <option value="gogo_api" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="user/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="user/Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Makefile Target.build_user" />
+        <item itemvalue="Docker.user/Dockerfile" />
+        <item itemvalue="Docker.docker-compose.yaml.gogo_api: Compose Deployment" />
+        <item itemvalue="Go Test.gobench common/ggKafka" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/common/ggDB/mysql.go</url>
+          <line>28</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/user/internal/dal/followStats.go</url>
+          <line>112</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/user/internal/dal/followStats.go</url>
+          <line>123</line>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/user/internal/dal/followStats.go</url>
+          <line>84</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/user/internal/dal/followStats.go</url>
+          <line>77</line>
+          <option name="timeStamp" value="60" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

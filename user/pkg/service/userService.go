@@ -76,12 +76,14 @@ func (us *UserService) MGetUserInfo(ctx context.Context, request *user.UserInfoR
 	ggLog.Debugf("userInfo:%+v", userInfo)
 	// TODO 可能需要优化
 	for k, uid := range userId {
-		// 获取用户的关注数
+		// 获取用户的关注数 (现在是获取全部关注列表之后做一个count获得关注数，需要引入redis，如果未命中，由redis去数据库里查询）
 		followList, _ := us.relationDomain.GetFollowList(ctx, uid)
 		userInfo[k].FollowCount = int64(len(followList))
-		// 获取用户的粉丝数
+
+		// 获取用户的粉丝数(现在是获取全部关注列表之后做一个count获得粉丝数，需要引入redis查询，如果未命中，由redis去数据库里查询）
 		followerList, _ := us.relationDomain.GetFollowerList(ctx, uid)
 		userInfo[k].FollowerCount = int64(len(followerList))
+
 		// 获取用户的获赞数
 		favoriteCount, err := us.videoClient.GetTotalFavoriteCount(ctx, &video.GetTotalFavoriteCountRequest{UserId: uid})
 		if err != nil {
@@ -102,4 +104,22 @@ func (us *UserService) MGetUserInfo(ctx context.Context, request *user.UserInfoR
 		userInfo[k].FavoriteCount = likeCount.Count
 	}
 	return &user.UserInfoResponse{UserInfo: userInfo}, nil
+}
+
+func (us *UserService) GetFollowCountByUserId(ctx context.Context, request *user.FindCountByIdRequest) (*user.FindCountByIdResponse, error) {
+	count, err := us.userDomain.GetFollowCountByUserId(ctx, request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.FindCountByIdResponse{Count: count}, nil
+}
+
+func (us *UserService) GetFollowerCountByUserId(ctx context.Context, request *user.FindCountByIdRequest) (*user.FindCountByIdResponse, error) {
+	count, err := us.userDomain.GetFollowerCountByUserId(ctx, request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.FindCountByIdResponse{Count: count}, nil
 }

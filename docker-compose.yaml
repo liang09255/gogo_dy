@@ -54,6 +54,8 @@ services:
       - mysql
       - redis
       - etcd
+    environment:
+      TZ: Asia/Shanghai
   gogo_chat:
     container_name: gogo_chat
     image: gogo_chat:${GOGO_VERSION}
@@ -63,6 +65,8 @@ services:
       - mysql
       - redis
       - etcd
+    environment:
+        TZ: Asia/Shanghai
   gogo_video:
     container_name: gogo_video
     image: gogo_video:${GOGO_VERSION}
@@ -72,6 +76,8 @@ services:
       - mysql
       - redis
       - etcd
+    environment:
+      TZ: Asia/Shanghai
   gogo_api:
     container_name: gogo_api
     image: gogo_api:${GOGO_VERSION}
@@ -82,6 +88,8 @@ services:
       - gogo_user
       - gogo_chat
       - gogo_video
+    environment:
+        TZ: Asia/Shanghai
   kafdrop:
     container_name: kafdrop
     image: obsidiandynamics/kafdrop
@@ -89,6 +97,7 @@ services:
     ports:
       - "9000:9000"
     environment:
+      TZ: Asia/Shanghai
       KAFKA_BROKERCONNECT: "kafka:29092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
@@ -101,6 +110,7 @@ services:
       - "2181:2181"
       - "9092:9092"
     environment:
+      TZ: Asia/Shanghai
       KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"

@@ -100,3 +100,11 @@ func (ud *UserDomain) MGetUserInfo(ctx context.Context, uids []int64) (userInfo 
 	}
 	return userInfo, nil
 }
+
+func (ud *UserDomain) GetFollowerCountByUserId(ctx context.Context, userid int64) (user int64, err error) {
+	return ud.userRepo.GetFollowerCountByUserId(ctx, userid)
+}
+
+func (ud *UserDomain) GetFollowCountByUserId(ctx context.Context, userid int64) (user int64, err error) {
+	return ud.userRepo.GetFollowCountByUserId(ctx, userid)
+}
