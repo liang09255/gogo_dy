@@ -11,16 +11,18 @@ import (
 )
 
 type CommentDomain struct {
-	tranRepo    repo.TranRepo
-	commentRepo repo.CommentRepo
-	videoRepo   repo.VideoRepo
+	tranRepo     repo.TranRepo
+	commentRepo  repo.CommentRepo
+	videoRepo    repo.VideoRepo
+	commentCache repo.CommentCacheRepo
 }
 
 func NewCommentDomain() *CommentDomain {
 	return &CommentDomain{
-		tranRepo:    dal.NewTranRepo(),
-		commentRepo: dal.NewCommentDao(),
-		videoRepo:   dal.NewVideoDao(),
+		tranRepo:     dal.NewTranRepo(),
+		commentRepo:  dal.NewCommentDao(),
+		videoRepo:    dal.NewVideoDao(),
+		commentCache: dal.NewCommentCacheRepo(),
 	}
 }
 
@@ -47,6 +49,8 @@ func (vd *CommentDomain) CommentAction(ctx context.Context, req *video.CommentAc
 		// 缓存视频评论数
 		// 查看是否存在，如果存在则直接改，然后插入数据库后，合并计算由定时任务处理，如果不存在则插入数据库
 
+		// TODO 获得评论列表
+
 		commentResp, err := vd.commentRepo.AddComment(ctx, comment)
 		if err != nil {
 			ggLog.Errorf("用户:%d 发表评论错误:%v", req.UserId, err)
@@ -71,11 +75,26 @@ func (vd *CommentDomain) CommentAction(ctx context.Context, req *video.CommentAc
 
 // CommentList 评论列表
 func (vd *CommentDomain) CommentList(ctx context.Context, videoId int64) (commentList []*video.Comment, err error) {
-	commentlist, err := vd.commentRepo.GetCommentList(ctx, videoId)
-	if err != nil {
-		ggLog.Errorf("获得视频:%d 的评论列表错误", videoId)
+	// 查询缓存中是否存在，不存在了则从数据库中查找
+	commentlist, exist, err := vd.commentCache.GetCommentList(ctx, videoId)
+	if !exist {
+		// 如果不存在，数据库查询
+		commentlist, err := vd.commentRepo.GetCommentList(ctx, videoId)
+		if err != nil {
+			ggLog.Errorf("获得视频:%d 的评论列表错误", videoId)
+			return nil, err
+		}
+		// 类型转换
+		commentList = Comment2Pb(commentlist)
+		// 写入缓存
+		err = vd.commentCache.SetCommentList(ctx, videoId, commentlist)
+		if err != nil {
+			ggLog.Errorf("写入视频评论缓存错误:%v", err)
+		}
+		return
 	}
-	// 类型转换
+
+	// 如果存在，则直接缓存查询,然后返回
 	commentList = Comment2Pb(commentlist)
 	return
 }

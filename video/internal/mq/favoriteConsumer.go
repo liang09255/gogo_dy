@@ -24,6 +24,10 @@ var (
 	mu        sync.Mutex
 )
 
+func SendVideoFavoriteMsg(msg FavoriteMessage) {
+	batchChan <- msg
+}
+
 func batchVideoFavoriteTask() {
 	// 从chan中读取，写入batchVideoFavorite
 	for {

@@ -5,36 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7525f483-c852-4636-9980-9d26ce9a9b03" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/common/kafkax/consumer.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/kafkax/kafka.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/kafkax/producer.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/dal/cache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/dal/commentCache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/dal/favoriteCache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/dal/video_detail.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/domain/video_detail.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/model/video_detail.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/mq/favoriteConsumer.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/mq/init.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/mq/sendMessage.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/repo/cache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/repo/favoriteCache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/internal/repo/video_detail.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/pkg/constant/cachekey.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/video/pkg/constant/mqtopic.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/ggConfig/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggConfig/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/ggConfig/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggConfig/model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/ggDB/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggDB/mysql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/ggIDL/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/common/ggIDL/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/common/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/common/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.work.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.work.sum" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/kafkax/kafkax_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/video/internal/repo/commentCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/dal/commentCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/dal/commentCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/dal/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/dal/favorite.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/dal/favoriteCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/dal/favoriteCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/dal/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/dal/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/dal/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/dal/video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video/internal/domain/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/domain/comment.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video/internal/domain/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/domain/favorite.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/video/internal/repo/videoCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/repo/videoCache.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/video/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/video/pkg/service/videoService.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/pkg/service/videoService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/domain/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/domain/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/model/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/model/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/mq/favoriteConsumer.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/mq/favoriteConsumer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/internal/mq/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/internal/mq/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video/pkg/constant/cachekey.go" beforeDir="false" afterPath="$PROJECT_DIR$/video/pkg/constant/cachekey.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -37,6 +37,13 @@ func (f *FavoriteCacheDal) GetVideoFavoriteCount(ctx context.Context, vid int64)
 
 	// 转为整数
 	count, err := strconv.ParseInt(c.Val(), 10, 64)
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return -1, true, err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return count, true, err
 }
 
@@ -54,6 +61,13 @@ func (f *FavoriteCacheDal) GetUserFavoriteCount(ctx context.Context, uid int64) 
 	// 解析
 	// 转为整数
 	count, err := strconv.ParseInt(c.Val(), 10, 64)
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return -1, true, err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return count, true, err
 }
 
@@ -71,6 +85,14 @@ func (f *FavoriteCacheDal) GetUserGetFavoriteCount(ctx context.Context, uid int6
 	// 转为整数
 	count, err := strconv.ParseInt(c.Val(), 10, 64)
 
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return -1, true, err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
+
 	return count, true, err
 }
 
@@ -79,6 +101,7 @@ func (f FavoriteCacheDal) SetVideoFavoriteCount(ctx context.Context, vid int64, 
 	key := f.getVideoFavoriteCountKey(vid)
 	expireTime := expire + time.Duration(rand.Intn(10))*time.Second
 	c := f.conn.Set(ctx, key, value, expireTime)
+
 	return c.Err()
 }
 
@@ -100,6 +123,16 @@ func (f *FavoriteCacheDal) IncrVideoFavoriteCount(ctx context.Context, vid int64
 	// 自增
 	key := f.getVideoFavoriteCountKey(vid)
 	_, err := f.conn.Incr(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 
@@ -107,6 +140,13 @@ func (f *FavoriteCacheDal) IncrUserFavoriteCount(ctx context.Context, uid int64)
 	// 自增
 	key := f.getUserFavoriteCountKey(uid)
 	_, err := f.conn.Incr(ctx, key).Result()
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 
@@ -114,12 +154,26 @@ func (f *FavoriteCacheDal) IncrUserGetFavoriteCount(ctx context.Context, uid int
 	// 自增
 	key := f.getUserGetFavoriteCountKey(uid)
 	_, err := f.conn.Incr(ctx, key).Result()
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 
 func (f *FavoriteCacheDal) DecrVideoFavoriteCount(ctx context.Context, vid int64) error {
 	key := f.getVideoFavoriteCountKey(vid)
 	_, err := f.conn.Decr(ctx, key).Result()
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 
@@ -127,6 +181,13 @@ func (f *FavoriteCacheDal) DecrUserFavoriteCount(ctx context.Context, uid int64)
 	// 自增
 	key := f.getUserFavoriteCountKey(uid)
 	_, err := f.conn.Decr(ctx, key).Result()
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 
@@ -134,6 +195,13 @@ func (f *FavoriteCacheDal) DecrUserGetFavoriteCount(ctx context.Context, uid int
 	// 自增
 	key := f.getUserGetFavoriteCountKey(uid)
 	_, err := f.conn.Decr(ctx, key).Result()
+	ttlResult, err := f.conn.TTL(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if ttlResult < 30*time.Second {
+		f.conn.Expire(ctx, key, 30*time.Second)
+	}
 	return err
 }
 

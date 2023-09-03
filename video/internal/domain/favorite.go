@@ -6,6 +6,7 @@ import (
 	"common/ggIDL/video"
 	"common/ggLog"
 	"context"
+	"fmt"
 	"time"
 	"video/internal/dal"
 	"video/internal/model"
@@ -56,18 +57,24 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 		if !exist {
 			// 如果用户点赞缓存不存在
 			// 直接改数据库,新增记录
+			ggLog.Info("缓存不存在")
+			// 执行点赞操作
 			err = fd.favoriteRepo.PostFavoriteAction(ctx, userid, videoid)
 			if err != nil {
 				ggLog.Errorf("post favorite action err : %v", err)
 				return err
 			}
-			// 获得用户点赞数
+			// 从数据库中获得用户点赞数
 			count := fd.favoriteRepo.GetFavoriteCount(ctx, userid)
-			// 加入缓存 -- 超时时间需要设置
-			err = fd.favoriteCache.SetUserFavoriteCount(ctx, userid, count, 10*time.Second)
-			if err != nil {
+			// 写入缓存 -- 超时时间需要设置
+			err = fd.favoriteCache.SetUserFavoriteCount(ctx, userid, count, 30*time.Second)
+			if err != nil && err.Error() != "重复记录" {
 				ggLog.Errorf("set user favorite count cache err:%v", err)
 				return err
+			}
+			if err.Error() != "重复记录" {
+				// 直接写入视频总点赞的管道
+				mq.SendVideoFavoriteMsg(mq.FavoriteMessage{Uid: userid, Vid: videoid, Method: int64(actionType)})
 			}
 		} else {
 			// 如果用户缓存存在，则直接更新缓存
@@ -77,32 +84,30 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 				return err
 			}
 			//  异步写入数据库,避免高并发
-			mq.AddFavoriteMessage(&mq.FavoriteMessage{
+			err := mq.AddFavoriteMessage(&mq.FavoriteMessage{
 				Vid:    videoid,
 				Uid:    userid,
 				Method: int64(actionType),
 			})
-
+			if err != nil {
+				ggLog.Errorf("写入mq错误:%v", err)
+				return err
+			}
 		}
 
-		// 更新作者或赞数
+		// 更新作者缓存获赞数
 		err = fd.favoriteCache.IncrUserGetFavoriteCount(ctx, to_user.Id)
 		if err != nil {
 			ggLog.Errorf("incr user favorited count err : %v", err)
 			return err
 		}
-		// 更新视频赞数
+		// 更新视频缓存点赞数
 		err = fd.favoriteCache.IncrVideoFavoriteCount(ctx, videoid)
 		if err != nil {
 			ggLog.Errorf("incr video favorite count err : %v", err)
 			return err
 		}
 
-		//err = fd.favoriteRepo.PostFavoriteAction(ctx, userid, videoid)
-		//if err != nil {
-		//	ggLog.Errorf("新增用户:%d 点赞数错误:%v", userid, err)
-		//	return err
-		//}
 	} else {
 		// 取消点赞
 		_, exist, err := fd.favoriteCache.GetUserFavoriteCount(ctx, userid)
@@ -123,6 +128,7 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 				ggLog.Errorf("set user favorite count cache err:%v", err)
 				return err
 			}
+			mq.SendVideoFavoriteMsg(mq.FavoriteMessage{Uid: userid, Vid: videoid, Method: int64(actionType)})
 		} else {
 			// 如果用户缓存存在，则直接更新缓存
 			err = fd.favoriteCache.DecrUserFavoriteCount(ctx, userid)
@@ -131,13 +137,16 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 				return err
 			}
 			// 异步写入数据库,避免高并发
-			mq.AddFavoriteMessage(&mq.FavoriteMessage{
+			err = mq.AddFavoriteMessage(&mq.FavoriteMessage{
 				Uid:    userid,
 				Vid:    videoid,
 				Method: int64(actionType),
 			})
+			if err != nil {
+				ggLog.Errorf("写入mq错误:%v", err)
+				return err
+			}
 		}
-
 		// 更新作者被赞数
 		err = fd.favoriteCache.DecrUserGetFavoriteCount(ctx, to_user.Id)
 		if err != nil {
@@ -175,7 +184,9 @@ func (fd *FavoriteDomain) FavoriteList(ctx context.Context, userid int64) (resp 
 	// 获取视频的点赞数
 	favoriteCountMap := fd.favoriteRepo.GetFavoriteCountByVideoID(ctx, ids)
 	for _, v := range videoList {
-		v.FavoriteCount = favoriteCountMap[v.Id]
+		// TODO
+		fmt.Println(favoriteCountMap, v)
+		//v.FavoriteCount = favoriteCountMap[v.Id]
 	}
 
 	// 类型转换 - 顺便全部赋值为喜爱视频
@@ -193,13 +204,13 @@ func videos2Pb(videoList []*model.Video, isFavorite bool) []*video.Video {
 	pbs := make([]*video.Video, 0)
 	for _, v := range videoList {
 		p := &video.Video{
-			Id:            v.Id,
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			Title:         v.Title,
-			IsFavorite:    isFavorite,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
+			Id:         v.Id,
+			PlayUrl:    v.PlayUrl,
+			CoverUrl:   v.CoverUrl,
+			Title:      v.Title,
+			IsFavorite: isFavorite,
+			//FavoriteCount: v.FavoriteCount,
+			//CommentCount:  v.CommentCount,
 			Author: &user.UserInfoModel{
 				Id: v.AuthorId,
 			},

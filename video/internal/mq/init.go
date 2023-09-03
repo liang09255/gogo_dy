@@ -2,6 +2,7 @@ package mq
 
 import (
 	"common/ggConfig"
+	"common/ggLog"
 	"common/kafkax"
 	"video/internal/dal"
 	"video/internal/repo"
@@ -39,18 +40,24 @@ func InitKafka() error {
 	// 获得生产者
 	var err error
 	Kafka, err = kafkax.NewKafka([]string{ggConfig.Config.Kafka.Addr}, nil)
+	if err != nil {
+		return err
+	}
 	NewKafkaDomain()
+	// 注册消费者
+	err = AddVideoFavoriteConsumer()
+	if err != nil {
+		return err
+	}
 	// 初始化管道
+	batchVideoFavorite = make(map[int64]int)
 	batchChan = make(chan FavoriteMessage, 1e6)
 	// 开启统计协程
 	go batchVideoFavoriteTask()
 	// 开启定时任务
 	go batchTickerTask()
 
-	if err != nil {
-		return err
-	}
-
+	ggLog.Info("Init Kafka success")
 	return nil
 
 }
