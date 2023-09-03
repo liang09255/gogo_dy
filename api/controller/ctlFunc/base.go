@@ -16,7 +16,7 @@ func BaseSuccessResp(ctx *app.RequestContext, msg ...string) {
 }
 
 func BaseFailedResp(ctx *app.RequestContext, err error) {
-	ctx.Error(err)
+	Response(ctx, err)
 }
 
 func BaseFailedRespWithMsg(ctx *app.RequestContext, msg string) {
