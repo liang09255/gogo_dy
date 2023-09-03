@@ -7,7 +7,6 @@ import (
 	"common/ggConfig"
 	userRPC "common/ggIDL/user"
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log"
 	"time"
@@ -63,7 +62,7 @@ func jwtMwInit() {
 			LoginResponse, err := global.UserClient.Login(ctx, msg)
 			if err != nil {
 				hlog.CtxErrorf(ctx, "user login error: %v", err)
-				return nil, fmt.Errorf("user login error")
+				return nil, err
 			}
 
 			c.Set(UserIDKey, LoginResponse.UserId)
