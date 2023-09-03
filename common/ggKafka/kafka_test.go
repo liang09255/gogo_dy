@@ -19,6 +19,7 @@ func TestProducer(t *testing.T) {
 }
 
 func TestConsumer(t *testing.T) {
-	GetReader([]string{"localhost:9092"}, "group1", "test_log")
-	select {}
+	reader := GetReader([]string{"localhost:9092"}, "group1", "test_log")
+	reader.readMsg()
+	//select {}
 }
