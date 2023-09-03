@@ -144,10 +144,10 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	userID := middleware.GetUserID(ctx)
+	//userID := middleware.GetUserID(ctx)
 
 	var msg = &relationRPC.FriendListRequest{
-		MyId: userID,
+		MyId: reqObj.UserID,
 	}
 
 	FriendListResponse, err := global.RelationClient.FriendList(c, msg)
