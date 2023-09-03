@@ -61,7 +61,7 @@ func (vd *VideoDetailDal) SubCommentCount(ctx context.Context, vid int64, count 
 	return t.Error
 }
 
-func (vd *VideoDetailDal) BatchInsert(ctx context.Context, m map[int64]int) (faultCount int, err error) {
+func (vd *VideoDetailDal) BatchInsertFavorite(ctx context.Context, m map[int64]int) (faultCount int, err error) {
 	for vid, num := range m {
 		condition := &model.VideoDetail{Id: vid}
 		t := vd.conn.WithContext(ctx).Model(&model.VideoDetail{}).
@@ -69,6 +69,22 @@ func (vd *VideoDetailDal) BatchInsert(ctx context.Context, m map[int64]int) (fau
 		if t.Error != nil {
 			faultCount++
 			ggLog.Error("批量插入数据错误", t.Error, "错误值为:vid %d: num:%d", vid, num)
+		}
+	}
+	return
+}
+
+func (vd *VideoDetailDal) BatchInsertComment(ctx context.Context, m map[int64]int) (faultCount int, err error) {
+	if len(m) == 0 {
+		return 0, nil
+	}
+	for vid, num := range m {
+		condition := &model.VideoDetail{Id: vid}
+		t := vd.conn.WithContext(ctx).Model(&model.VideoDetail{}).
+			Where(condition).Update("comment_count", gorm.Expr("comment_count + ?", num))
+		if t.Error != nil {
+			faultCount++
+			ggLog.Errorf("批量插入数据错误", t.Error, "错误值为:vid %d: num:%d", vid, num)
 		}
 	}
 	return

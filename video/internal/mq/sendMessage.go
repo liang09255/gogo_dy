@@ -13,6 +13,11 @@ type FavoriteMessage struct {
 	Method int64
 }
 
+type CommentMessage struct {
+	Vid    int64
+	Method int64
+}
+
 // 生产者，插入数据,每次调用都是直接添加方法
 func AddFavoriteMessage(m *FavoriteMessage) error {
 	// 添加一条插入点赞记录消息

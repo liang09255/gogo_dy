@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"github.com/IBM/sarama"
 	"sync"
-	"time"
 	"video/pkg/constant"
 )
 
@@ -53,25 +52,17 @@ func batchVideoFavoriteTask() {
 	}
 }
 
-// 定时处理任务
-func batchTickerTask() {
-	// 10s定期将map的数值消费一次
-	timer := time.NewTicker(10 * time.Second)
-	for {
-		select {
-		case <-timer.C:
-			mu.Lock()
-			if len(batchVideoFavorite) == 0 {
-				mu.Unlock()
-				continue
-			}
-			// 开启协程写入mysql，免得在这里阻塞过久,交给mysql去处理
-			go kd.videoDetailRepo.BatchInsert(context.Background(), batchVideoFavorite)
-			// 这里先置为空然后释放锁
-			batchVideoFavorite = make(map[int64]int)
-			mu.Unlock()
-		}
+func TimeFavoriteTask() {
+	mu.Lock()
+	if len(batchVideoFavorite) == 0 {
+		mu.Unlock()
+		return
 	}
+	// 开启协程写入mysql，免得在这里阻塞过久,交给mysql去处理
+	go kd.videoDetailRepo.BatchInsertFavorite(context.Background(), batchVideoFavorite)
+	// 这里先置为空然后释放锁
+	batchVideoFavorite = make(map[int64]int)
+	mu.Unlock()
 }
 
 func AddVideoFavoriteConsumer() error {

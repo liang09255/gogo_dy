@@ -10,7 +10,9 @@ const (
 	// 视频点赞数
 	VideoFavoriteCountKey = "video.favorite.%d"
 	// 评论列表缓存
-	CommentListKey = "comment.list.%d"
+	CommentListKey = "video.commentList.%d"
+	// 视频评论数缓存
+	VideoCommentCountKey = "video.commentCount.%d"
 )
 
 const (

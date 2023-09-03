@@ -25,12 +25,14 @@ type KafkaDomain struct {
 	// 获得数据库连接
 	favoriteRepo    repo.FavoriteRepo
 	videoDetailRepo repo.VideoDetailRepo
+	commentRepo     repo.CommentRepo
 }
 
 func NewKafkaDomain() {
 	kd = &KafkaDomain{
 		favoriteRepo:    dal.NewFavoriteDao(),
 		videoDetailRepo: dal.NewVideoDetailDao(),
+		commentRepo:     dal.NewCommentDao(),
 	}
 }
 
@@ -52,8 +54,12 @@ func InitKafka() error {
 	// 初始化管道
 	batchVideoFavorite = make(map[int64]int)
 	batchChan = make(chan FavoriteMessage, 1e6)
+	batchCommentMap = make(map[int64]int)
+	batchCommentChan = make(chan CommentMessage, 1e6)
 	// 开启统计协程
 	go batchVideoFavoriteTask()
+	go batchCommentTask()
+
 	// 开启定时任务
 	go batchTickerTask()
 
