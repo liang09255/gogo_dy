@@ -12,7 +12,7 @@ type FeedReq struct {
 }
 
 type FeedResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	NextTime int64   `json:"next_time"`
 	Videos   []Video `json:"video_list"`
 }
@@ -24,7 +24,7 @@ type PublishReq struct {
 }
 
 type PublishResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 }
 
 // 发布列表
@@ -34,7 +34,7 @@ type PublishListReq struct {
 }
 
 type PublishListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Videos []Video `json:"video_list"`
 }
 

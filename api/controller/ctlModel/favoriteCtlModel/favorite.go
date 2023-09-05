@@ -13,7 +13,7 @@ type ActionReq struct {
 }
 
 type ActionResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 }
 
 // 获取点赞列表
@@ -23,6 +23,6 @@ type ListReq struct {
 }
 
 type ListResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	Videos []videoCtlModel.Video `json:"video_list"`
 }
