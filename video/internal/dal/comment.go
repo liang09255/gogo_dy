@@ -48,6 +48,12 @@ func (cd *CommentDal) GetCommentList(ctx context.Context, videoId int64) ([]mode
 	return res, err
 }
 
+func (cd *CommentDal) GetVidByCommentId(ctx context.Context, cid int64) (int64, error) {
+	var vid int64
+	err := cd.conn.WithContext(ctx).Model(&model.Comment{}).Select("video_id").Where("id = ?", cid).First(&vid).Error
+	return vid, err
+}
+
 // MGetCommentCount 批量获取评论数
 func (cd *CommentDal) MGetCommentCount(ctx context.Context, videoId []int64) map[int64]int64 {
 	res := make(map[int64]int64)

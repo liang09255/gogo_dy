@@ -2,6 +2,7 @@ mysql:
   username: root
   password: 10086@gogo.com
   host: "mysql8"
+#  host: "127.0.0.1"
   port: 3306
   db: gogo_dy
 
@@ -17,6 +18,7 @@ passwordSalt: "gogo_dy"
 
 redis:
   host: "redis5"
+#  host: "127.0.0.1"
   port: 6379
   password: ""
   db: 0
@@ -24,6 +26,9 @@ redis:
 etcd:
   addrs:
     - "etcd3:2379"
+#     - "127.0.0.1:2379"
+kafka:
+  addr: "127.0.0.1:9092"
 
 userServer:
   name: "user"
