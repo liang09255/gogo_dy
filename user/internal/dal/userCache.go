@@ -64,3 +64,27 @@ func (u *UserCacheDal) MSetUserInfo(ctx context.Context, users []model.User, exp
 func (u *UserCacheDal) getUserInfoCacheKey(uid int64) string {
 	return fmt.Sprintf(constant.UserInfoCacheKey, uid)
 }
+
+func (u *UserCacheDal) SetFollowStats(ctx context.Context, userID int64, followerCount int, followingCount int, expire time.Duration) error {
+	stats := map[string]int{
+		"followerCount":  followerCount,
+		"followingCount": followingCount,
+	}
+	data, err := json.Marshal(stats)
+	if err != nil {
+		return err
+	}
+
+	cacheKey := u.getFollowStatsCacheKey(userID)
+	// 随机过期时间，防止缓存雪崩
+	expireTime := expire + time.Duration(rand.Intn(10))*time.Second
+	c := u.conn.Set(ctx, cacheKey, data, expireTime)
+	if c.Err() != nil {
+		return c.Err()
+	}
+	return nil
+}
+
+func (u *UserCacheDal) getFollowStatsCacheKey(uid int64) string {
+	return fmt.Sprintf("followStats:%d", uid)
+}

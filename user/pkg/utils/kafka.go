@@ -16,9 +16,10 @@ func InitKafkaWriter() func() {
 	return kw.Close
 }
 
-func SendLog(data []byte) {
+// SendMessageToKafka 创建一个更通用的函数，将主题作为参数传入
+func SendMessageToKafka(topic string, data []byte) {
 	kw.Send(ggKafka.LogData{
-		Topic: "test_log",
+		Topic: topic,
 		Data:  data,
 	})
 }
@@ -50,6 +51,8 @@ func NewKafkaCacheReader() *KafkaCache {
 }
 
 func (c *KafkaCache) DeleteCache() {
+
+	// 这里是kafka消费者的消费逻辑
 	for {
 		message, err := c.KR.R.ReadMessage(context.Background())
 		if err != nil {
@@ -67,3 +70,23 @@ func (c *KafkaCache) DeleteCache() {
 		}
 	}
 }
+
+//// go reader.ProcessRelationActionMessages()
+//func (c *KafkaCache) ProcessRelationActionMessages(relationDomain *domain.RelationDomain) {
+//	for {
+//		message, err := c.KR.R.ReadMessage(context.Background())
+//		if err != nil {
+//			ggLog.Error("读取关系操作消息失败:", err)
+//			continue
+//		}
+//		var msgData model.RelationActionMessage
+//		err = json.Unmarshal(message.Value, &msgData)
+//		if err != nil {
+//			ggLog.Error("解析消息失败:", err)
+//			continue
+//		}
+//
+//		// 根据消息内容异步更新关注统计表
+//		go relationDomain.UpdateFollowStats(msgData)
+//	}
+//}

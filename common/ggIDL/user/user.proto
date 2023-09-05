@@ -29,6 +29,15 @@ message UserInfoResponse{
   repeated UserInfoModel userInfo = 1;
 }
 
+message FindCountByIdRequest {
+  int64 UserId = 1;
+}
+
+message FindCountByIdResponse {
+  int64 Count = 1;
+}
+
+
 message UserInfoModel {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
@@ -49,4 +58,6 @@ service User {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc MGetUserInfo(UserInfoRequest) returns (UserInfoResponse) {}
+  rpc GetFollowCountByUserId(FindCountByIdRequest) returns (FindCountByIdResponse) {}
+  rpc GetFollowerCountByUserId(FindCountByIdRequest) returns (FindCountByIdResponse) {}
 }
