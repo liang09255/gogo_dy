@@ -22,6 +22,9 @@ type config struct {
 		Password string
 		Db       int
 	}
+	Kafka struct {
+		Addr string
+	}
 	Etcd struct {
 		Addrs []string
 	}

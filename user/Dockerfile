@@ -4,6 +4,8 @@ FROM gogo_base:$GOGO_VERSION AS base
 WORKDIR /app/user
 RUN go env -w GOPROXY=https://goproxy.cn
 RUN go build main.go
+RUN #go build -gcflags "all=-N -l" main.go
+
 
 # 第三阶段-构建最小的可执行镜像
 FROM debian:buster-slim

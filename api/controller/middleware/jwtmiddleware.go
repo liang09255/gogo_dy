@@ -7,7 +7,6 @@ import (
 	"common/ggConfig"
 	userRPC "common/ggIDL/user"
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log"
 	"time"
@@ -63,7 +62,7 @@ func jwtMwInit() {
 			LoginResponse, err := global.UserClient.Login(ctx, msg)
 			if err != nil {
 				hlog.CtxErrorf(ctx, "user login error: %v", err)
-				return nil, fmt.Errorf("user login error")
+				return nil, err
 			}
 
 			c.Set(UserIDKey, LoginResponse.UserId)
@@ -82,7 +81,7 @@ func jwtMwInit() {
 		// 登录校验成功，将token返回给前端
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			var resp = &userCtlModel.LoginResp{
-				BaseResp: baseCtlModel.NewBaseSuccessResp(),
+				APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
 				LoginResponse: userCtlModel.LoginResponse{
 					UserId: userId,
 					Token:  token,
@@ -106,7 +105,7 @@ func jwtMwInit() {
 		},
 		// jwt 验证流程失败的响应函数
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			ctlFunc.BaseFailedResp(c, message)
+			ctlFunc.BaseFailedRespWithMsg(c, message)
 		},
 	})
 	if err != nil {

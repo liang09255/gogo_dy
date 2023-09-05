@@ -51,3 +51,23 @@ func (ud *UserDal) MGetUserInfo(ctx context.Context, uids []int64) (users []mode
 
 	return users, t.Error
 }
+
+func (ud *UserDal) GetFollowerCountByUserId(ctx context.Context, id int64) (followerCount int64, err error) {
+	var user model.User
+	err = ud.conn.WithContext(ctx).Where("user_id = ?", id).Find(&user).Error
+	if err != nil {
+		return
+	}
+	followerCount = user.FollowerCount
+	return
+}
+
+func (ud *UserDal) GetFollowCountByUserId(ctx context.Context, id int64) (followCount int64, err error) {
+	var user model.User
+	err = ud.conn.WithContext(ctx).Where("user_id = ?", id).Find(&user).Error
+	if err != nil {
+		return
+	}
+	followCount = user.FollowCount
+	return
+}

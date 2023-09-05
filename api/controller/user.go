@@ -24,7 +24,7 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	//获取参数username，password
 	var reqObj userCtlModel.RegisterReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	RegisterResponse, err := global.UserClient.Register(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "user register error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -48,7 +48,7 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	registerResponse := &userCtlModel.RegisterResponse{}
 	if err := copier.Copy(registerResponse, RegisterResponse); err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "user register error")
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -56,11 +56,11 @@ func (u *user) Register(c context.Context, ctx *app.RequestContext) {
 	registerResponse.Token, err = middleware.ReleaseToken(registerResponse.UserId)
 	if err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "user register error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidToken.WithDetails(err.Error()))
 		return
 	}
 	var response = userCtlModel.RegisterResp{
-		BaseResp:         baseCtlModel.NewBaseSuccessResp(),
+		APIBaseResp:      baseCtlModel.NewBaseSuccessResp(),
 		RegisterResponse: *registerResponse,
 	}
 	ctlFunc.Response(ctx, &response)
@@ -74,7 +74,7 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 	var myID = middleware.GetUserID(ctx)
 	var reqObj userCtlModel.InfoReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 	UserInfoResponse, err := global.UserClient.MGetUserInfo(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "user register error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -95,14 +95,14 @@ func (u *user) UserInfo(c context.Context, ctx *app.RequestContext) {
 	userInfo := &userCtlModel.User{}
 	if err := copier.Copy(userInfo, UserInfoResponse.UserInfo[0]); err != nil {
 		hlog.CtxErrorf(c, "user register error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "user register error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.UserNotFound.WithDetails(err.Error()))
 		return
 	}
 
 	// 封装返回信息
 	var resp = &userCtlModel.InfoResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		User:     *userInfo,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		User:        *userInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }

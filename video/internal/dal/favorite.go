@@ -46,8 +46,9 @@ func (f *FavoriteDal) PostFavoriteAction(ctx context.Context, userId int64, vide
 		First(&id).Error
 	if err == nil && id != -1 {
 		// 说明存在该记录
-		// 这里需要返回一个error，因为前面是事务，需要回滚
+		// 重复记录需要返回一个错误
 		return errors.New("重复记录")
+		//return nil
 	}
 
 	// 查找不到，则创建一个新纪录

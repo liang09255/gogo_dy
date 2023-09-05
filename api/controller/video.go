@@ -27,7 +27,7 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 	var reqObj videoCtlModel.FeedReq
 	err := ctx.Bind(&reqObj)
 	if err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -37,8 +37,7 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 	if token != "" {
 		userID, err = middleware.GetUserIDFromToken(token)
 		if err != nil {
-			ctlFunc.BaseFailedResp(ctx, "token error")
-			return
+			ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidToken.WithDetails(err.Error()))
 		}
 	}
 
@@ -46,7 +45,7 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 	resp, err := global.VideoClient.Feed(c, &msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "Feed error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "Feed error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -57,13 +56,13 @@ func (e *video) Feed(c context.Context, ctx *app.RequestContext) {
 	//resp. NextTime: 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
 	if err != nil {
 		hlog.CtxErrorf(c, "Feed error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "Feed error")
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
 	ctlFunc.Response(ctx, videoCtlModel.FeedResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Videos:   videos,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Videos:      videos,
 		//NextTime: nextTime.UnixMicro(),
 		NextTime: resp.NextTime,
 	})
@@ -75,20 +74,20 @@ func (e *video) PublishAction(c context.Context, ctx *app.RequestContext) {
 	var reqObj videoCtlModel.PublishReq
 	err := ctx.BindAndValidate(&reqObj)
 	if err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 	// 获取视频文件
 	file, err := ctx.FormFile("data")
 	if err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.FileIsNotVideo.WithDetails(err.Error()))
 		return
 	}
 	// 上传视频
 	videoUrl, coverUrl, err := uploadVideo(file, userID)
 	if err != nil {
 		hlog.CtxErrorf(c, "Upload video error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "Upload video error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.FileUploadFailed.WithDetails(err.Error()))
 		return
 	}
 
@@ -103,13 +102,13 @@ func (e *video) PublishAction(c context.Context, ctx *app.RequestContext) {
 	_, err = global.VideoClient.UploadVideo(c, &msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "Upload video error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "Upload video error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 	//err = service.VideoService.PublishAction(file, reqObj.Title, userID)
 
 	ctlFunc.Response(ctx, videoCtlModel.PublishResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp("upload video success"),
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp("upload video success"),
 	})
 	return
 }
@@ -118,7 +117,7 @@ func (e *video) PublishAction(c context.Context, ctx *app.RequestContext) {
 func (e *video) PublishList(c context.Context, ctx *app.RequestContext) {
 	var reqObj videoCtlModel.PublishListReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -126,7 +125,7 @@ func (e *video) PublishList(c context.Context, ctx *app.RequestContext) {
 	resp, err := global.VideoClient.VideoList(c, &msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "Get publish list error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "Get publish list error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -134,7 +133,7 @@ func (e *video) PublishList(c context.Context, ctx *app.RequestContext) {
 	//videos, err := service.VideoService.GetPublishList(reqObj.UserID)
 
 	ctlFunc.Response(ctx, videoCtlModel.PublishListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp("get publish list success"),
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp("get publish list success"),
 		Videos:   videos,
 	})
 }

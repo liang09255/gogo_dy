@@ -54,3 +54,29 @@ func (rc *RedisCache) Delete(ctx context.Context, keys []string) error {
 	_, err := rc.Rdb.Del(ctx, keys...).Result()
 	return err
 }
+
+func (rc *RedisCache) ListenForExpirationEvents() {
+	pubsub := rc.Rdb.Subscribe(context.Background(), "__keyevent@0__:expired") // 注意：这里的0是数据库编号，您可能需要根据实际的Redis配置进行调整
+	defer pubsub.Close()
+
+	// Wait for confirmation that subscription is created before publishing anything.
+	if _, err := pubsub.Receive(context.Background()); err != nil {
+		panic(err)
+	}
+
+	// Go channel which receives messages.
+	ch := pubsub.Channel()
+
+	// Consume messages.
+	for msg := range ch {
+		if msg.Channel == "__keyevent@0__:expired" {
+			// 这里处理key过期的逻辑
+			keyExpired := msg.Payload
+			go handleKeyExpiration(keyExpired) // 这是一个示例函数，您需要定义它以处理key的过期事件
+		}
+	}
+}
+
+func handleKeyExpiration(key string) {
+	// 这里是处理key过期的具体逻辑，比如同步关注统计表和relation表
+}

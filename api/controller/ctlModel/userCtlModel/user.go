@@ -12,7 +12,7 @@ type RegisterReq struct {
 }
 
 type RegisterResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	RegisterResponse
 }
 
@@ -29,7 +29,7 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	LoginResponse
 }
 
@@ -45,7 +45,7 @@ type InfoReq struct {
 }
 
 type InfoResp struct {
-	baseCtlModel.BaseResp
+	baseCtlModel.APIBaseResp
 	User User `json:"user"`
 }
 

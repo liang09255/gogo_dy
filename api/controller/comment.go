@@ -22,7 +22,7 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 	userID := middleware.GetUserID(ctx)
 	var reqObj commentCtlModel.ActionReq
 	if err := ctx.Bind(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 		action = videoRPC.ActionType_Cancel
 	} else {
 		hlog.CtxErrorf(c, "参数错误，不支持Action:%d", reqObj.ActionType)
-		ctlFunc.BaseFailedResp(ctx, "invalid params,commentAction Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.CommentActionUnknown)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 
 	if err != nil {
 		hlog.CtxErrorf(c, "comment error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "comment Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -74,15 +74,15 @@ func (e *comment) Action(c context.Context, ctx *app.RequestContext) {
 	}
 
 	ctlFunc.Response(ctx, commentCtlModel.ActionResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Comment:  commentResp,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Comment:     commentResp,
 	})
 }
 
 func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 	var reqObj commentCtlModel.ListReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 	commentListResp, err := global.VideoClient.CommentList(c, in)
 	if err != nil {
 		hlog.CtxErrorf(c, "comment list error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "comment list Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (e *comment) List(c context.Context, ctx *app.RequestContext) {
 	}
 
 	ctlFunc.Response(ctx, commentCtlModel.ListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Comments: comments,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Comments:    comments,
 	})
 }

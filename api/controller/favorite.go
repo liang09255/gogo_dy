@@ -30,7 +30,7 @@ func (e *favorite) Action(c context.Context, ctx *app.RequestContext) {
 	err := ctx.Bind(&reqObj)
 	if err != nil {
 		hlog.CtxErrorf(c, "favoriteAction error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "favoriteAction Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidParams.WithDetails(err.Error()))
 		return
 	}
 
@@ -43,7 +43,7 @@ func (e *favorite) Action(c context.Context, ctx *app.RequestContext) {
 		action = videoRPC.ActionType_Cancel
 	} else {
 		hlog.CtxErrorf(c, "参数错误,不支持Action:%d", reqObj.ActionType)
-		ctlFunc.BaseFailedResp(ctx, "invalid params,favoriteAction Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.FavoriteActionUnknown)
 		return
 	}
 
@@ -59,12 +59,12 @@ func (e *favorite) Action(c context.Context, ctx *app.RequestContext) {
 	_, err = global.VideoClient.FavoriteAction(c, in)
 	if err != nil {
 		hlog.CtxErrorf(c, "video set favorite action error : %v", err)
-		ctlFunc.BaseFailedResp(ctx, "set favorite action error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
 	ctlFunc.Response(ctx, favoriteCtlModel.ActionResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp("操作成功"),
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp("操作成功"),
 	})
 }
 
@@ -73,7 +73,7 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 	err := ctx.Bind(&reqObj)
 	if err != nil {
 		hlog.CtxErrorf(c, "favoriteList error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "favoriteList Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidParams)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 	videoListResp, err := global.VideoClient.FavoriteList(c, in)
 	if err != nil {
 		hlog.CtxErrorf(c, "favoriteList error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "favoriteList Error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -118,7 +118,7 @@ func (e *favorite) List(c context.Context, ctx *app.RequestContext) {
 	}
 
 	ctlFunc.Response(ctx, favoriteCtlModel.ListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Videos:   videos,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Videos:      videos,
 	})
 }
