@@ -23,7 +23,7 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 	userID := middleware.GetUserID(ctx)
 	var reqObj relationCtlModel.ActionReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidParams.WithDetails(err.Error()))
 		return
 	}
 
@@ -42,7 +42,7 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 	ActionResponse, err := global.RelationClient.Action(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "action error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "action error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails((err.Error())))
 		return
 	}
 
@@ -50,7 +50,7 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 
 	// 封装返回信息
 	var resp = &relationCtlModel.ActionResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
 	}
 
 	ctlFunc.Response(ctx, resp)
@@ -60,7 +60,7 @@ func (r *relation) Action(c context.Context, ctx *app.RequestContext) {
 func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 	var reqObj relationCtlModel.FollowListReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidParams.WithDetails(err.Error()))
 		return
 	}
 
@@ -73,7 +73,7 @@ func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 	FollowListResponse, err := global.RelationClient.FollowList(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "get followlist error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "get followlist error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -84,14 +84,14 @@ func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 	for _, user := range FollowListResponse.UserInfo {
 		if err := copier.Copy(tmp, user); err != nil {
 			hlog.CtxErrorf(c, "get followlist error: %v", err)
-			ctlFunc.BaseFailedResp(ctx, "get followlist error")
+			ctlFunc.BaseFailedResp(ctx, err)
 			return
 		}
 		userInfo = append(userInfo, *tmp)
 	}
 	var resp = &relationCtlModel.FollowListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Users:    userInfo,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Users:       userInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }
@@ -100,7 +100,7 @@ func (r *relation) FollowList(c context.Context, ctx *app.RequestContext) {
 func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 	var reqObj relationCtlModel.FollowerListReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 	//userID := middleware.GetUserID(ctx)
@@ -112,7 +112,7 @@ func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 	FollowerListResponse, err := global.RelationClient.FollowerList(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "get followerlist error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "get followerlist error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -123,14 +123,14 @@ func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 	for _, user := range FollowerListResponse.UserInfo {
 		if err := copier.Copy(tmp, user); err != nil {
 			hlog.CtxErrorf(c, "get followerlist error: %v", err)
-			ctlFunc.BaseFailedResp(ctx, "get followerlist error")
+			ctlFunc.BaseFailedResp(ctx, err)
 			return
 		}
 		userInfo = append(userInfo, *tmp)
 	}
 	var resp = &relationCtlModel.FollowerListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Users:    userInfo,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Users:       userInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 
@@ -140,7 +140,7 @@ func (r *relation) FollowerList(c context.Context, ctx *app.RequestContext) {
 func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 	var reqObj relationCtlModel.FriendListReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -153,7 +153,7 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 	FriendListResponse, err := global.RelationClient.FriendList(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "get friendlist error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "get friendlist error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 
@@ -162,14 +162,14 @@ func (r *relation) FriendList(c context.Context, ctx *app.RequestContext) {
 	for _, user := range FriendListResponse.UserInfo {
 		if err := copier.Copy(tmp, user); err != nil {
 			hlog.CtxErrorf(c, "get friendlist error: %v", err)
-			ctlFunc.BaseFailedResp(ctx, "get friendlist error")
+			ctlFunc.BaseFailedResp(ctx, err)
 			return
 		}
 		userInfo = append(userInfo, *tmp)
 	}
 	var resp = &relationCtlModel.FollowListResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Users:    userInfo,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Users:       userInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }

@@ -22,12 +22,12 @@ func NewVideoDao() *VideoDal {
 
 func (v *VideoDal) NewVideo(ctx context.Context, userID int64, videoURL, coverURL, title string) error {
 	var video = model.Video{
-		AuthorId:      userID,
-		PlayUrl:       videoURL,
-		CoverUrl:      coverURL,
-		FavoriteCount: 0,
-		CommentCount:  0,
-		Title:         title,
+		AuthorId: userID,
+		PlayUrl:  videoURL,
+		CoverUrl: coverURL,
+		//FavoriteCount: 0,
+		//CommentCount:  0,
+		Title: title,
 	}
 	return v.conn.WithContext(ctx).Create(&video).Error
 }

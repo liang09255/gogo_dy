@@ -10,4 +10,5 @@ type CommentRepo interface {
 	DeleteComment(ctx context.Context, comment *model.Comment) error                // 删除评论
 	GetCommentList(ctx context.Context, videoId int64) ([]model.Comment, error)     // 获得评论列表
 	MGetCommentCount(ctx context.Context, videoId []int64) map[int64]int64          // 获取视频的评论数
+	GetVidByCommentId(ctx context.Context, cid int64) (int64, error)
 }

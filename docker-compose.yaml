@@ -1,4 +1,9 @@
 version: '3'
+
+#networks:
+#  gogo_dy_net:
+#    driver: bridge
+
 services:
   mysql:
     container_name: mysql8
@@ -24,6 +29,8 @@ services:
     container_name: redis5
     image: redis:${REDIS_VERSION}
     restart: always
+    ports:
+      - "6379:6379"
     volumes:
       - ${REDIS_DIR}/data:/data
       - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
@@ -40,6 +47,8 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
+    ports:
+      - "2379:2379"
   #    volumes:
   #      - ${ETCD_DIR}/data:/bitnami/etcd/data
   #    ports:

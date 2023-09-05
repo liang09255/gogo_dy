@@ -65,13 +65,13 @@ func videoModel2pbVideo(vs []*model.Video) []*video.Video {
 	var videos []*video.Video
 	for _, v := range vs {
 		pbVideo := &video.Video{
-			Id:            v.Id,
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			Title:         v.Title,
-			Author:        &user.UserInfoModel{Id: v.AuthorId},
+			Id:       v.Id,
+			PlayUrl:  v.PlayUrl,
+			CoverUrl: v.CoverUrl,
+			//FavoriteCount: v.FavoriteCount,
+			//CommentCount:  v.CommentCount,
+			Title:  v.Title,
+			Author: &user.UserInfoModel{Id: v.AuthorId},
 		}
 		videos = append(videos, pbVideo)
 	}

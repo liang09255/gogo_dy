@@ -12,6 +12,7 @@ func Init() {
 		&model.Comment{},
 		&model.Video{},
 		&model.Favorite{},
+		&model.VideoDetail{},
 	)
 	if err != nil {
 		ggLog.Fatalf("auto migrate error: %v", err)

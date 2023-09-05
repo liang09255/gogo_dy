@@ -23,7 +23,7 @@ func (m *message) Action(c context.Context, ctx *app.RequestContext) {
 	// bind params
 	var reqObj messageCtlModel.ActionReq
 	if err := ctx.BindAndValidate(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 	}
 
 	msg := &chatRpc.ChatActionRequest{
@@ -35,7 +35,7 @@ func (m *message) Action(c context.Context, ctx *app.RequestContext) {
 	var err error
 	if err != nil {
 		hlog.CtxErrorf(c, "message action error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "message action error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.InvalidParams.WithDetails(err.Error()))
 		return
 	}
 	c, cancel := context.WithTimeout(c, 2*time.Second)
@@ -43,23 +43,23 @@ func (m *message) Action(c context.Context, ctx *app.RequestContext) {
 	ActionResponse, err := global.ChatClient.Action(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "message action error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "message action error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 	msgResponse := &messageCtlModel.ActionResp{}
 	if err := copier.Copy(msgResponse, ActionResponse); err != nil {
 		hlog.CtxErrorf(c, "message action error: %v", err)
-		ctlFunc.BaseFailedResp(ctx, "message action error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 	if err != nil {
 		hlog.CtxErrorf(c, "send message error: %v", err) // 记录错误到日志
-		ctlFunc.BaseFailedResp(ctx, "send message error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal)
 		return
 	}
 
 	var response = messageCtlModel.ActionResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
 	}
 	ctlFunc.Response(ctx, &response)
 }
@@ -68,7 +68,7 @@ func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 	userID := middleware.GetUserID(ctx)
 	var reqObj messageCtlModel.ChatReq
 	if err := ctx.Bind(&reqObj); err != nil {
-		ctlFunc.BaseFailedResp(ctx, err.Error())
+		ctlFunc.BaseFailedResp(ctx, err)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 	MessageInfoResponse, err := global.ChatClient.List(c, msg)
 	if err != nil {
 		hlog.CtxErrorf(c, "get chat messages error: %v", err) // 记录错误到日志
-		ctlFunc.BaseFailedResp(ctx, "get chat messages error")
+		ctlFunc.BaseFailedResp(ctx, baseCtlModel.ServerInternal.WithDetails(err.Error()))
 		return
 	}
 	var messageInfo []messageCtlModel.Message
@@ -94,8 +94,8 @@ func (m *message) Chat(c context.Context, ctx *app.RequestContext) {
 		})
 	}
 	var resp = &messageCtlModel.ChatResp{
-		BaseResp: baseCtlModel.NewBaseSuccessResp(),
-		Messages: messageInfo,
+		APIBaseResp: baseCtlModel.NewBaseSuccessResp(),
+		Messages:    messageInfo,
 	}
 	ctlFunc.Response(ctx, resp)
 }
