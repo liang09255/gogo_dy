@@ -15,10 +15,10 @@ services:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 10086@gogo.com
       MYSQL_DATABASE: gogo_dy
-    #    volumes:
-    #      - ${MYSQL_DIR}/data:/var/lib/mysql
-    #      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
-    #      - ${MYSQL_DIR}/logs:/logs
+    volumes:
+      - ${MYSQL_DIR}/data:/var/lib/mysql
+      - ${MYSQL_DIR}/logs:/logs
+    # - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
     command:
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
@@ -29,8 +29,8 @@ services:
     container_name: redisStack
     image: redis/redis-stack-server:latest
     restart: always
-#    volumes:
-#      - ${REDIS_DIR}/data:/data
+    volumes:
+      - ${REDIS_DIR}/data:/data
 #      - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
     ports:
       - ${REDIS_PORT}:6379
@@ -45,56 +45,59 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
-  #    volumes:
-  #      - ${ETCD_DIR}/data:/bitnami/etcd/data
+    volumes:
+      - ${ETCD_DIR}/data:/bitnami/etcd/data
     ports:
       - ${ETCD_PORT}:2379
 #      - 2380:2380
-#  gogo_user:
-#    container_name: gogo_user
-#    image: gogo_user:${GOGO_VERSION}
-#    restart: always
-#    #    network_mode: 'host'
-#    depends_on:
-#      - mysql
-#      - redis
-#      - etcd
-#    environment:
-#      TZ: Asia/Shanghai
-#  gogo_chat:
-#    container_name: gogo_chat
-#    image: gogo_chat:${GOGO_VERSION}
-#    restart: always
-#    #    network_mode: 'host'
-#    depends_on:
-#      - mysql
-#      - redis
-#      - etcd
-#    environment:
-#        TZ: Asia/Shanghai
-#  gogo_video:
-#    container_name: gogo_video
-#    image: gogo_video:${GOGO_VERSION}
-#    restart: always
-#    #    network_mode: 'host'
-#    depends_on:
-#      - mysql
-#      - redis
-#      - etcd
-#    environment:
-#      TZ: Asia/Shanghai
-#  gogo_api:
-#    container_name: gogo_api
-#    image: gogo_api:${GOGO_VERSION}
-#    restart: always
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - gogo_user
-#      - gogo_chat
-#      - gogo_video
-#    environment:
-#        TZ: Asia/Shanghai
+  gogo_user:
+    container_name: gogo_user
+    image: gogo_user:${GOGO_VERSION}
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+      - kafka
+    environment:
+      TZ: Asia/Shanghai
+  gogo_chat:
+    container_name: gogo_chat
+    image: gogo_chat:${GOGO_VERSION}
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+      - kafka
+    environment:
+        TZ: Asia/Shanghai
+  gogo_video:
+    container_name: gogo_video
+    image: gogo_video:${GOGO_VERSION}
+    restart: always
+    #    network_mode: 'host'
+    depends_on:
+      - mysql
+      - redis
+      - etcd
+      - kafka
+    environment:
+      TZ: Asia/Shanghai
+  gogo_api:
+    container_name: gogo_api
+    image: gogo_api:${GOGO_VERSION}
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gogo_user
+      - gogo_chat
+      - gogo_video
+    environment:
+        TZ: Asia/Shanghai
   kafdrop:
     container_name: kafdrop
     image: obsidiandynamics/kafdrop

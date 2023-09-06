@@ -33,6 +33,7 @@ func NewFavoriteDomain() *FavoriteDomain {
 
 // FavoriteAction 点赞/取消操作
 func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, videoid int64, actionType video.ActionType) (err error) {
+
 	// 调用favorite表的获取视频作者id
 	toUser, err := fd.videoRepo.GetVideoInfo(ctx, videoid)
 	if err != nil {
@@ -152,8 +153,6 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 			return err
 		}
 	}
-	// 走到这一步说明前面全部执行完成,提交事务
-	//conn.Commit()
 	return nil
 }
 
