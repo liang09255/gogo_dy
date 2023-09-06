@@ -13,6 +13,10 @@ const (
 	CommentListKey = "video.commentList.%d"
 	// 视频评论数缓存
 	VideoCommentCountKey = "video.commentCount.%d"
+	// 热门视频统计列表
+	HotCacheKey = "video.hot"
+	// 热门视频UV统计
+	HotUVCacheKey = "video.hotUV.%d"
 )
 
 const (

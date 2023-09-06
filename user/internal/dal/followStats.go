@@ -4,7 +4,6 @@ package dal
 import (
 	"common/ggLog"
 	"context"
-	"fmt"
 	"github.com/henrylee2cn/goutil/calendar/cron"
 	"gorm.io/gorm/clause"
 
@@ -140,12 +139,11 @@ func (fsd *FollowStatusDal) StartDailyFollowStatsSync() *cron.Cron {
 			// 这里可以进行错误处理，例如日志记录
 			// log.Println("Error syncing follow stats:", err)
 			ggLog.Errorf("Error syncing follow stats:", err)
-			fmt.Println("Error syncing follow stats:", err)
 		}
 	})
 
 	c.Start()
-	fmt.Println("CRON START")
+	ggLog.Info("CRON START")
 	return c
 }
 

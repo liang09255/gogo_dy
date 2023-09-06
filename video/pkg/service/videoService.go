@@ -6,6 +6,7 @@ import (
 	"common/ggLog"
 	"common/ggRPC"
 	"context"
+	"github.com/sourcegraph/conc"
 	"video/internal/domain"
 )
 
@@ -14,6 +15,7 @@ type VideoService struct {
 	videoDomain    *domain.VideoDomain
 	commentDomain  *domain.CommentDomain
 	favoriteDomain *domain.FavoriteDomain
+	hotDomain      *domain.HotDomain
 	userClient     user.UserClient
 }
 
@@ -66,41 +68,69 @@ func (v VideoService) Feed(ctx context.Context, request *video.FeedRequest) (*vi
 	for _, v := range videos {
 		vids = append(vids, v.Id)
 	}
-	favoriteCountMap := v.favoriteDomain.GetFavoriteCountByVideoID(ctx, vids)
-	for _, v := range videos {
-		v.FavoriteCount = favoriteCountMap[v.Id]
-	}
-	// 查询是否已经点赞
-	favoriteMap := v.favoriteDomain.CheckFavorite(ctx, request.UserId, vids)
-	for _, v := range videos {
-		v.IsFavorite = favoriteMap[v.Id]
-	}
-	// 获取视频的评论数
-	commentCountMap := v.commentDomain.GetCommentCountByVideoID(ctx, vids)
-	for _, v := range videos {
-		v.CommentCount = commentCountMap[v.Id]
-	}
-	// 获得视频作者信息
-	msg := &user.UserInfoRequest{
-		MyId:   request.UserId,
-		UserId: getUserIDFromVideoList(videos),
-	}
-	infos, err := v.userClient.MGetUserInfo(ctx, msg)
-	if err != nil {
-		return nil, err
-	}
+
+	wg := conc.NewWaitGroup()
+	errChan := make(chan error)
+	downChan := make(chan struct{})
+	favoriteCountMap := make(map[int64]int64)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	wg.Go(func() {
+		// 查询视频的点赞数
+		favoriteCountMap = v.favoriteDomain.GetFavoriteCountByVideoID(ctx, vids)
+	})
+	favoriteMap := make(map[int64]bool)
+	wg.Go(func() {
+		// 查询是否已经点赞
+		favoriteMap = v.favoriteDomain.CheckFavorite(ctx, request.UserId, vids)
+	})
+	commentCountMap := make(map[int64]int64)
+	wg.Go(func() {
+		// 获取视频的评论数
+		commentCountMap = v.commentDomain.GetCommentCountByVideoID(ctx, vids)
+	})
 	userInfoMap := make(map[int64]*user.UserInfoModel)
-	for _, v := range infos.UserInfo {
-		userInfoMap[v.Id] = v
+	wg.Go(func() {
+		// 获得视频作者信息
+		msg := &user.UserInfoRequest{
+			MyId:   request.UserId,
+			UserId: getUserIDFromVideoList(videos),
+		}
+		infos, err := v.userClient.MGetUserInfo(ctx, msg)
+		if err != nil {
+			errChan <- err
+		}
+
+		for _, v := range infos.UserInfo {
+			userInfoMap[v.Id] = v
+		}
+	})
+	go func() {
+		wg.Wait()
+		downChan <- struct{}{}
+	}()
+	select {
+	case err = <-errChan:
+		ggLog.Error("获取视频信息失败:", err)
+		return nil, err
+	case <-downChan:
 	}
+
 	// 加进返回值
 	for _, v := range videos {
 		v.Author = userInfoMap[v.Author.Id]
+		v.CommentCount = commentCountMap[v.Id]
+		v.IsFavorite = favoriteMap[v.Id]
+		v.FavoriteCount = favoriteCountMap[v.Id]
 	}
 	resp := &video.FeedResponse{
 		VideoList: videos,
 		NextTime:  nextTime,
 	}
+	// 统计热点
+	go func() {
+		v.hotDomain.HotStatistics(request.UserId, vids)
+	}()
 	return resp, err
 }
 

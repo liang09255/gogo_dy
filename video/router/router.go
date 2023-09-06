@@ -85,4 +85,5 @@ func RegisterEtcdServer() {
 	if err != nil {
 		ggLog.Fatalf("grpc server register error: %s", err.Error())
 	}
+	ggLog.Debugf("grpc server register success")
 }

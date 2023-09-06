@@ -47,6 +47,7 @@ func batchVideoFavoriteTask() {
 					batchVideoFavorite[msg.Vid] = -1
 				}
 			}
+			ggLog.Debugf("写入map后的数据为:%v", batchVideoFavorite)
 			mu.Unlock()
 		}
 	}
@@ -59,6 +60,7 @@ func TimeFavoriteTask() {
 		return
 	}
 	// 开启协程写入mysql，免得在这里阻塞过久,交给mysql去处理
+	ggLog.Debugf("开始写入数据库,写入的数据为:%v", batchVideoFavorite)
 	go kd.videoDetailRepo.BatchInsertFavorite(context.Background(), batchVideoFavorite)
 	// 这里先置为空然后释放锁
 	batchVideoFavorite = make(map[int64]int)

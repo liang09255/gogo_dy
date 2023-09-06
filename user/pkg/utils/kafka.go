@@ -1,24 +1,24 @@
 package utils
 
 import (
-	"common/ggKafka"
 	"common/ggLog"
+	"common/ggLogKafka"
 	"context"
 	"time"
 	"user/internal/dal"
 	"user/internal/repo"
 )
 
-var kw *ggKafka.KafkaWriter
+var kw *ggLogKafka.KafkaWriter
 
 func InitKafkaWriter() func() {
-	kw = ggKafka.GetWriter("localhost:9092")
+	kw = ggLogKafka.GetWriter("localhost:9092")
 	return kw.Close
 }
 
 // SendMessageToKafka 创建一个更通用的函数，将主题作为参数传入
 func SendMessageToKafka(topic string, data []byte) {
-	kw.Send(ggKafka.LogData{
+	kw.Send(ggLogKafka.LogData{
 		Topic: topic,
 		Data:  data,
 	})
@@ -31,19 +31,19 @@ func SendMessageToKafka(topic string, data []byte) {
 // }))
 
 type KafkaCache struct {
-	KR    *ggKafka.KafkaReader
+	KR    *ggLogKafka.KafkaReader
 	cache repo.Cache
 }
 
 func SendCache(data []byte) {
-	kw.Send(ggKafka.LogData{
+	kw.Send(ggLogKafka.LogData{
 		Topic: "go-gin-grpc_cache",
 		Data:  data,
 	})
 }
 
 func NewKafkaCacheReader() *KafkaCache {
-	kr := ggKafka.GetReader([]string{"localhost:9092"}, "cache_group", "go-gin-grpc_cache")
+	kr := ggLogKafka.GetReader([]string{"localhost:9092"}, "cache_group", "go-gin-grpc_cache")
 	return &KafkaCache{
 		KR:    kr,
 		cache: dal.Rc,

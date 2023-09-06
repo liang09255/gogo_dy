@@ -24,9 +24,9 @@ func main() {
 	if err != nil {
 		ggLog.Error("启动kafka失败", err)
 	}
+	ggLog.Info("启动kafka成功")
 
-	var exit = make(chan struct{})
-	<-exit
+	select {}
 	// todo 待完善功能
 	ggShutDown.ShutDown(videoServerConfig.Name, videoServerConfig.Addr, gc.Stop)
 }

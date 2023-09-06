@@ -1,4 +1,4 @@
-package ggKafka
+package ggLogKafka
 
 import (
 	"context"

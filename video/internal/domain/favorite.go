@@ -6,7 +6,6 @@ import (
 	"common/ggIDL/video"
 	"common/ggLog"
 	"context"
-	"fmt"
 	"time"
 	"video/internal/dal"
 	"video/internal/model"
@@ -15,34 +14,27 @@ import (
 )
 
 type FavoriteDomain struct {
-	tranRepo      repo.TranRepo
-	favoriteRepo  repo.FavoriteRepo
-	favoriteCache repo.FavoriteCacheRepo
-	videoRepo     repo.VideoRepo
+	tranRepo        repo.TranRepo
+	favoriteRepo    repo.FavoriteRepo
+	favoriteCache   repo.FavoriteCacheRepo
+	videoRepo       repo.VideoRepo
+	videoDetailRepo repo.VideoDetailRepo
 }
 
 func NewFavoriteDomain() *FavoriteDomain {
 	return &FavoriteDomain{
-		tranRepo:      dal.NewTranRepo(),
-		favoriteRepo:  dal.NewFavoriteDao(),
-		videoRepo:     dal.NewVideoDao(),
-		favoriteCache: dal.NewFavoriteCacheRepo(),
+		tranRepo:        dal.NewTranRepo(),
+		favoriteRepo:    dal.NewFavoriteDao(),
+		videoRepo:       dal.NewVideoDao(),
+		favoriteCache:   dal.NewFavoriteCacheRepo(),
+		videoDetailRepo: dal.NewVideoDetailDao(),
 	}
 }
 
 // FavoriteAction 点赞/取消操作
 func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, videoid int64, actionType video.ActionType) (err error) {
-	// 开启事务
-	// by.lxs conn是需要透传下去的，如果不传的话这几句sql不会在同个事务里面
-	//conn := fd.tranRepo.NewTransactionConn()
-	//conn.Begin()
-	//defer func() {
-	//	if err != nil {
-	//		conn.Rollback()
-	//	}
-	//}()
-	// 调用favorite表的增加记录
-	to_user, err := fd.videoRepo.GetVideoInfo(ctx, videoid)
+	// 调用favorite表的获取视频作者id
+	toUser, err := fd.videoRepo.GetVideoInfo(ctx, videoid)
 	if err != nil {
 		ggLog.Error("获得视频作者id错误", err)
 		return err
@@ -72,10 +64,10 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 				ggLog.Errorf("set user favorite count cache err:%v", err)
 				return err
 			}
-			if err.Error() != "重复记录" {
-				// 直接写入视频总点赞的管道
-				mq.SendVideoFavoriteMsg(mq.FavoriteMessage{Uid: userid, Vid: videoid, Method: int64(actionType)})
+			if err != nil && err.Error() == "重复记录" {
+				return nil
 			}
+			mq.SendVideoFavoriteMsg(mq.FavoriteMessage{Uid: userid, Vid: videoid, Method: int64(actionType)})
 		} else {
 			// 如果用户缓存存在，则直接更新缓存
 			err = fd.favoriteCache.IncrUserFavoriteCount(ctx, userid)
@@ -96,7 +88,7 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 		}
 
 		// 更新作者缓存获赞数
-		err = fd.favoriteCache.IncrUserGetFavoriteCount(ctx, to_user.Id)
+		err = fd.favoriteCache.IncrUserGetFavoriteCount(ctx, toUser.Id)
 		if err != nil {
 			ggLog.Errorf("incr user favorited count err : %v", err)
 			return err
@@ -148,7 +140,7 @@ func (fd *FavoriteDomain) FavoriteAction(ctx context.Context, userid int64, vide
 			}
 		}
 		// 更新作者被赞数
-		err = fd.favoriteCache.DecrUserGetFavoriteCount(ctx, to_user.Id)
+		err = fd.favoriteCache.DecrUserGetFavoriteCount(ctx, toUser.Id)
 		if err != nil {
 			ggLog.Errorf("decr user favorited count err : %v", err)
 			return err
@@ -181,16 +173,8 @@ func (fd *FavoriteDomain) FavoriteList(ctx context.Context, userid int64) (resp 
 		return &video.FavoriteListResponse{}, err
 	}
 
-	// 获取视频的点赞数
-	favoriteCountMap := fd.favoriteRepo.GetFavoriteCountByVideoID(ctx, ids)
-	for _, v := range videoList {
-		// TODO
-		fmt.Println(favoriteCountMap, v)
-		//v.FavoriteCount = favoriteCountMap[v.Id]
-	}
-
 	// 类型转换 - 顺便全部赋值为喜爱视频
-	respVideo := videos2Pb(videoList, true)
+	respVideo := fd.videos2Pb(ctx, videoList, true)
 
 	// 初始化，否则会直接panic
 	resp = new(video.FavoriteListResponse)
@@ -200,17 +184,19 @@ func (fd *FavoriteDomain) FavoriteList(ctx context.Context, userid int64) (resp 
 }
 
 // 类型转换 - 顺便设置是否为喜爱视频
-func videos2Pb(videoList []*model.Video, isFavorite bool) []*video.Video {
+func (fd *FavoriteDomain) videos2Pb(ctx context.Context, videoList []*model.Video, isFavorite bool) []*video.Video {
 	pbs := make([]*video.Video, 0)
 	for _, v := range videoList {
+		detail := fd.getVideoDetail(ctx, v.Id)
+		//获取点赞数和评论数
 		p := &video.Video{
-			Id:         v.Id,
-			PlayUrl:    v.PlayUrl,
-			CoverUrl:   v.CoverUrl,
-			Title:      v.Title,
-			IsFavorite: isFavorite,
-			//FavoriteCount: v.FavoriteCount,
-			//CommentCount:  v.CommentCount,
+			Id:            v.Id,
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			Title:         v.Title,
+			IsFavorite:    isFavorite,
+			FavoriteCount: detail.FavoriteCount,
+			CommentCount:  detail.CommentCount,
 			Author: &user.UserInfoModel{
 				Id: v.AuthorId,
 			},
@@ -219,6 +205,14 @@ func videos2Pb(videoList []*model.Video, isFavorite bool) []*video.Video {
 	}
 
 	return pbs
+}
+
+func (fd *FavoriteDomain) getVideoDetail(ctx context.Context, vid int64) *model.VideoDetail {
+	detail, err := fd.videoDetailRepo.GetVideoDetail(ctx, vid)
+	if err != nil {
+		ggLog.Errorf("获得视频:%d 详情错误:%v", vid, err)
+	}
+	return detail
 }
 
 func (fd *FavoriteDomain) GetFavoriteCountByVideoID(ctx context.Context, videoID []int64) map[int64]int64 {
