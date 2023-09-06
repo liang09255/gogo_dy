@@ -32,8 +32,8 @@ services:
     volumes:
       - ${REDIS_DIR}/data:/data
 #      - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
-    ports:
-      - ${REDIS_PORT}:6379
+#    ports:
+#      - ${REDIS_PORT}:6379
 #    command: redis-server /etc/redis/redis.conf
   etcd:
     container_name: etcd3
@@ -47,8 +47,8 @@ services:
     privileged: true
     volumes:
       - ${ETCD_DIR}/data:/bitnami/etcd/data
-    ports:
-      - ${ETCD_PORT}:2379
+#    ports:
+#      - ${ETCD_PORT}:2379
 #      - 2380:2380
   gogo_user:
     container_name: gogo_user
@@ -98,25 +98,25 @@ services:
       - gogo_video
     environment:
         TZ: Asia/Shanghai
-  kafdrop:
-    container_name: kafdrop
-    image: obsidiandynamics/kafdrop
-    restart: "no"
-    ports:
-      - "9000:9000"
-    environment:
-      TZ: Asia/Shanghai
-      KAFKA_BROKERCONNECT: "kafka:29092"
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-    depends_on:
-      - "kafka"
+#  kafdrop:
+#    container_name: kafdrop
+#    image: obsidiandynamics/kafdrop
+#    restart: "no"
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      TZ: Asia/Shanghai
+#      KAFKA_BROKERCONNECT: "kafka:29092"
+#      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+#    depends_on:
+#      - "kafka"
   kafka:
     container_name: kafka
     image: obsidiandynamics/kafka
     restart: "no"
-    ports:
-      - "2181:2181"
-      - "9092:9092"
+#    ports:
+#      - "2181:2181"
+#      - "9092:9092"
     environment:
       TZ: Asia/Shanghai
       KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
