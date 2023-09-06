@@ -28,8 +28,12 @@ func NewHotCacheDal() (hcd *HotCacheDal) {
 func (h *HotCacheDal) AddVidsToHotCache(ctx context.Context, uid int64, vids []int64) error {
 	hotLock.RLock()
 	defer hotLock.RUnlock()
+	args := make([]interface{}, len(vids))
+	for k, vid := range vids {
+		args[k] = vid
+	}
 	// 添加进热门视频列表 set去重
-	res := h.conn.SAdd(ctx, constant.HotCacheKey, vids)
+	res := h.conn.SAdd(ctx, constant.HotCacheKey, args...)
 	if res.Err() != nil {
 		return res.Err()
 	}

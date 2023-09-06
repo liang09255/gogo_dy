@@ -15,18 +15,23 @@ const (
 )
 
 type RelationDomain struct {
-	relationRepo repo.RelationRepo
-	tranRepo     repo.TranRepo
+	relationRepo  repo.RelationRepo
+	relationCache repo.RelationCacheRepo
+	tranRepo      repo.TranRepo
 }
 
 func NewRelationDomain() *RelationDomain {
 	return &RelationDomain{
-		relationRepo: dal.NewRelationDao(),
-		tranRepo:     dal.NewTranRepo(),
+		relationRepo:  dal.NewRelationDao(),
+		relationCache: dal.NewRelationCacheDal(),
+		tranRepo:      dal.NewTranRepo(),
 	}
 }
 
 func (ud *RelationDomain) RelationAction(ctx context.Context, userID, targetID int64, actionType int32) error {
+	defer func() {
+		ud.relationCache.Delete(ctx, userID)
+	}()
 	if actionType == FollowAction {
 		return ud.relationRepo.Follow(ctx, userID, targetID)
 	} else if actionType == UnFollowAction {
@@ -47,19 +52,54 @@ func (ud *RelationDomain) GetFriendList(ctx context.Context, userid int64) (user
 	return ud.relationRepo.GetAllFriend(ctx, userid)
 }
 
-func (ud *RelationDomain) GetIsFollow(ctx context.Context, myID int64, targetID []int64) map[int64]bool {
-	res := make(map[int64]bool)
+func (ud *RelationDomain) GetIsFollow(ctx context.Context, myID int64, targetID []int64) (ret map[int64]bool) {
+	ret = make(map[int64]bool)
 	defer func() {
-		res[myID] = true
+		ret[myID] = true
 	}()
+
+	// 查询是否存在缓存
+	if ud.relationCache.KeyExist(ctx, myID) {
+		// 查询是否关注
+		res, err := ud.relationCache.MEXISTS(ctx, myID, targetID)
+		if err != nil {
+			ggLog.Error(err)
+		}
+
+		for k, id := range targetID {
+			// 绝大部分请求都会为false
+			if res[k] == false {
+				ret[id] = res[k]
+				continue
+			}
+			// 为true需要再去数据库确认一遍
+			isFollow, err := ud.relationRepo.IsFollow(ctx, myID, id)
+			if err != nil {
+				ggLog.Error(err)
+				ret[id] = isFollow
+				continue
+			}
+			ret[id] = isFollow
+			// 如果数据库数据和缓存不一致，删除缓存待后续重建
+			if isFollow != res[k] {
+				ud.relationCache.Delete(ctx, myID)
+			}
+		}
+	}
+	// 不存在缓存，查询数据库
 	followIDs, err := ud.relationRepo.GetAllFollow(ctx, myID)
 	if err != nil {
 		ggLog.Error(err)
-		return res
+		return ret
 	}
 	followIDMap := ggConv.Array2BoolMap(followIDs)
 	for _, id := range targetID {
-		res[id] = followIDMap[id]
+		ret[id] = followIDMap[id]
 	}
-	return res
+	// 写缓存
+	err = ud.relationCache.MADD(ctx, myID, targetID)
+	if err != nil {
+		ggLog.Error(err)
+	}
+	return ret
 }

@@ -10,9 +10,9 @@ import (
 func main() {
 
 	// 开始每日关注统计同步任务
-	fsd := dal.NewFollowStatusDal()
-	cronJob := fsd.StartDailyFollowStatsSync()
-	defer cronJob.Stop() // 在 main 结束时确保 cron 停止
+	//fsd := dal.NewFollowStatusDal()
+	//cronJob := fsd.StartDailyFollowStatsSync()
+	//defer cronJob.Stop() // 在 main 结束时确保 cron 停止
 
 	dal.Init()
 

@@ -6,6 +6,7 @@ import (
 	"common/ggLog"
 	"common/ggRPC"
 	"context"
+	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/sourcegraph/conc"
 	"video/internal/domain"
 )
@@ -26,6 +27,7 @@ func New() *VideoService {
 		videoDomain:    domain.NewVideoDomain(),
 		favoriteDomain: domain.NewFavoriteDomain(),
 		commentDomain:  domain.NewCommentDomain(),
+		hotDomain:      domain.NewHotDomain(),
 		userClient:     ggRPC.GetUserClient(),
 	}
 }
@@ -128,9 +130,9 @@ func (v VideoService) Feed(ctx context.Context, request *video.FeedRequest) (*vi
 		NextTime:  nextTime,
 	}
 	// 统计热点
-	go func() {
+	gopool.Go(func() {
 		v.hotDomain.HotStatistics(request.UserId, vids)
-	}()
+	})
 	return resp, err
 }
 

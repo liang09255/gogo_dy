@@ -77,3 +77,12 @@ func (rd *RelationDal) GetAllFriend(ctx context.Context, id int64) (friendIds []
 	}
 	return
 }
+
+func (rd *RelationDal) IsFollow(ctx context.Context, uid int64, targetId int64) (bool, error) {
+	var count int64
+	err := rd.conn.WithContext(ctx).Model(&model.Relation{}).Where("follow_id = ? AND user_id = ?", uid, targetId).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

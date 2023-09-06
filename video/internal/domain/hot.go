@@ -25,7 +25,7 @@ func NewHotDomain() (hd *HotDomain) {
 }
 
 func (hd *HotDomain) HotStatistics(uid int64, vids []int64) {
-	err := hd.hotCache.AddVidsToHotCache(nil, uid, vids)
+	err := hd.hotCache.AddVidsToHotCache(context.Background(), uid, vids)
 	if err != nil {
 		ggLog.Error("HotStatistics", "AddVidsToHotCache", err)
 	}
@@ -43,7 +43,8 @@ func (hd *HotDomain) Start() {
 }
 
 func (hd *HotDomain) sendHotStatisticsMsg() {
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*1)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
 	vids, err := hd.hotCache.GetAndResetHotCache(ctx)
 	if err != nil {
 		ggLog.Error("sendHotStatisticsMsg", "GetAndResetHotCache", err)
