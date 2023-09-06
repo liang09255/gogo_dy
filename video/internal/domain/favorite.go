@@ -235,26 +235,26 @@ func (fd *FavoriteDomain) CheckFavorite(ctx context.Context, userID int64, video
 // 获得点赞数
 func (fd *FavoriteDomain) GetFavoriteCount(ctx context.Context, userID int64) int64 {
 	// 查询是否有缓存，有缓存直接返回，没缓存就进数据库查询缓存后写回
-	count, exist, _ := fd.favoriteCache.GetUserGetFavoriteCount(ctx, userID)
-	if !exist {
-		vs, err := fd.videoRepo.PublishList(ctx, userID)
-		if err != nil {
-			ggLog.Errorf("获得用户:%d 喜爱视频id错误:%v", userID, err)
-			return 0
-		}
-		vids := make([]int64, len(vs))
-		for _, v := range vs {
-			vids = append(vids, v.Id)
-		}
-		favoriteCountMap := fd.favoriteRepo.GetFavoriteCountByVideoID(ctx, vids)
-		var count int64
-		for _, v := range favoriteCountMap {
-			count += v
-		}
-		return count
+	//count, exist, _ := fd.favoriteCache.GetUserGetFavoriteCount(ctx, userID)
+	//if !exist {
+	vs, err := fd.videoRepo.PublishList(ctx, userID)
+	if err != nil {
+		ggLog.Errorf("获得用户:%d 喜爱视频id错误:%v", userID, err)
+		return 0
 	}
-	// 缓存存在则直接返回
+	vids := make([]int64, len(vs))
+	for _, v := range vs {
+		vids = append(vids, v.Id)
+	}
+	favoriteCountMap := fd.favoriteRepo.GetFavoriteCountByVideoID(ctx, vids)
+	var count int64
+	for _, v := range favoriteCountMap {
+		count += v
+	}
 	return count
+	//}
+	//// 缓存存在则直接返回
+	//return count
 }
 
 // 获得用户的喜欢数
