@@ -1,20 +1,20 @@
 mysql:
   username: root
-  password: 10086@gogo.com
+  password: password
   host: "mysql8"
 #  host: "127.0.0.1"
   port: 3306
   db: gogo_dy
 
-jwtKey: "secret_key&&gogo_dy"
+jwtKey: jwtKey
 
 aliOSS:
   bucket: "gogo-dy"
   endpoint: "oss-cn-shenzhen.aliyuncs.com"
-  accessKeyId: "LTAI5tCENJkYLuRmV8ynJxrE"
-  accessKeySecret: "5femBgiIADzv8ZRHq1vrjJjndsAOKi"
+  accessKeyId: accessKeyId
+  accessKeySecret: accessKeySecret
 
-passwordSalt: "gogo_dy"
+passwordSalt: passwordSalt
 
 redis:
   host: "redisStack"
