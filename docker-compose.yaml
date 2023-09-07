@@ -13,7 +13,7 @@ services:
       - 3306:3306
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: 10086@gogo.com
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
       MYSQL_DATABASE: gogo_dy
     volumes:
       - ${MYSQL_DIR}/data:/var/lib/mysql
